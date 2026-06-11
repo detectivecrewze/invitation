@@ -50,7 +50,7 @@ function SlotCard({
 
         <div className="relative">
           <div className="w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-500" style={{ background: isFilled ? "linear-gradient(135deg, #f9c8d8, #e8789a)" : "rgba(232,120,154,0.05)" }}>
-            <IconMail size={32} color={isFilled ? "white" : "#e8789a"} opacity={isFilled ? 1 : 0.4} strokeWidth={1.5} />
+            <IconMail size={32} color={isFilled ? "white" : "rgba(232,120,154,0.4)"} strokeWidth={1.5} />
           </div>
         </div>
 
