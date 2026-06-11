@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getTheme } from "@/lib/constants";
 import LoadingScreen from "@/components/gift/LoadingScreen";
