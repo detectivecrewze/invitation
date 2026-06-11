@@ -8,14 +8,16 @@ interface Props {
   recipientName: string;
   theme: { bg: string; card: string; accent: string; text: string };
   onOpen: () => void;
+  onTap?: () => void;
 }
 
-export default function EnvelopeGate({ recipientName, theme, onOpen }: Props) {
+export default function EnvelopeGate({ recipientName, theme, onOpen, onTap }: Props) {
   const [tapped, setTapped] = useState(false);
 
   const handleTap = () => {
     if (tapped) return;
     setTapped(true);
+    if (onTap) onTap();
     setTimeout(onOpen, 800);
   };
 

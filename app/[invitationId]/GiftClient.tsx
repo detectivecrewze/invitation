@@ -72,11 +72,15 @@ export default function GiftClient({ data, invitationId }: Props) {
   const suggestedDates = data.suggestedDates ?? [];
 
   const handleLoadingComplete = useCallback(() => setPhase("envelope"), []);
-  const handleEnvelopeOpen = useCallback(() => {
-    setPhase("invitation");
+  
+  const handleEnvelopeTap = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.play().catch(e => console.log("Audio play blocked:", e));
     }
+  }, []);
+
+  const handleEnvelopeOpen = useCallback(() => {
+    setPhase("invitation");
   }, []);
   const handleAccept = useCallback(() => setPhase("date"), []);
 
@@ -124,6 +128,10 @@ export default function GiftClient({ data, invitationId }: Props) {
         background: `radial-gradient(ellipse at 50% 40%, ${theme.bg} 0%, ${theme.card}88 60%, ${theme.bg} 100%)`,
       }}
     >
+      {/* Background Music Audio Element */}
+      {data.musicUrl && (
+        <audio ref={audioRef} src={data.musicUrl} loop autoPlay={false} />
+      )}
       {/* Subtle ambient petals background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[...Array(6)].map((_, i) => (
@@ -157,6 +165,7 @@ export default function GiftClient({ data, invitationId }: Props) {
             recipientName={data.recipientName}
             theme={theme}
             onOpen={handleEnvelopeOpen}
+            onTap={handleEnvelopeTap}
           />
         )}
       </AnimatePresence>
@@ -261,9 +270,7 @@ export default function GiftClient({ data, invitationId }: Props) {
 
       {/* Background Music UI */}
       {data.musicUrl && phase !== "loading" && phase !== "envelope" && (
-        <>
-          <audio ref={audioRef} src={data.musicUrl} loop autoPlay={false} />
-          <motion.button
+        <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             whileTap={{ scale: 0.9 }}
@@ -288,7 +295,6 @@ export default function GiftClient({ data, invitationId }: Props) {
               </svg>
             )}
           </motion.button>
-        </>
       )}
     </div>
   );
