@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   description: "Buat undangan kencan yang manis dan interaktif",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 import ErrorSuppressor from "@/components/ErrorSuppressor";
 
 export default function RootLayout({

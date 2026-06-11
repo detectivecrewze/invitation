@@ -68,10 +68,13 @@ export default function DatePickerCard({ recipientName, theme, onNext }: Props) 
           {/* Date Input */}
           <div className="relative">
             <input
-              type="date"
+              type={date ? "date" : "text"}
+              onFocus={(e) => (e.target.type = "date")}
+              onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="w-full px-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all"
+              placeholder="Pilih Tanggal..."
+              className="w-full px-4 py-3.5 rounded-xl text-base font-medium outline-none transition-all appearance-none"
               style={{
                 background: "white",
                 border: `1.5px solid ${theme.accent}30`,
@@ -104,10 +107,13 @@ export default function DatePickerCard({ recipientName, theme, onNext }: Props) 
           {/* Time Input */}
           <div className="relative flex justify-center mt-1">
             <input
-              type="time"
+              type={time ? "time" : "text"}
+              onFocus={(e) => (e.target.type = "time")}
+              onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
               value={time}
               onChange={e => setTime(e.target.value)}
-              className="w-40 px-4 py-3 rounded-xl text-sm font-medium outline-none text-center transition-all"
+              placeholder="00:00"
+              className="w-40 px-4 py-3 rounded-xl text-base font-medium outline-none text-center transition-all appearance-none"
               style={{
                 background: "white",
                 border: `1.5px solid ${theme.accent}30`,

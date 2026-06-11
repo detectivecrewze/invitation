@@ -91,7 +91,7 @@ export default function ActivityCard({ activities, theme, onNext }: Props) {
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center mb-1.5 transition-all"
                   style={{
-                    background: isSelected ? "white" : `${theme.accent}12`,
+                    background: isSelected ? "transparent" : `${theme.accent}12`,
                   }}
                 >
                   {svgFileName ? (
