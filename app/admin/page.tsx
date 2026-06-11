@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { nanoid } from "nanoid";
 import { IconLock, IconMail, IconCheck, IconTicket, IconSparkle } from "@/components/ui/Icon";
-
-const ADMIN_PASS = "admin123"; // local check — real auth via env
+import { verifyPassword } from "./actions";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -63,6 +62,15 @@ export default function AdminPage() {
     window.open(`/studio/${id}`, "_blank");
   };
 
+  const handleLogin = async () => {
+    const isValid = await verifyPassword(pass);
+    if (isValid) {
+      setAuthed(true);
+    } else {
+      showToast("Password salah!");
+    }
+  };
+
   if (!authed) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-blue-50">
@@ -74,12 +82,12 @@ export default function AdminPage() {
             type="password"
             value={pass}
             onChange={e => setPass(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && setAuthed(pass === ADMIN_PASS)}
+            onKeyDown={e => e.key === "Enter" && handleLogin()}
             placeholder="Password admin"
             className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm mb-4"
           />
           <button
-            onClick={() => setAuthed(pass === ADMIN_PASS)}
+            onClick={handleLogin}
             className="w-full py-3 rounded-2xl font-bold text-white bg-pink-400"
           >
             Masuk
