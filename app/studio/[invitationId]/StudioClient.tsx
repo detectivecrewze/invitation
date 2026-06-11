@@ -82,7 +82,10 @@ export default function StudioClient({
     setTimeout(() => setToast(null), 3000);
   }, []);
 
-  const update = useCallback((patch: Partial<State>) => setSt(s => ({ ...s, ...patch })), []);
+  const update = useCallback((patch: Partial<State>) => {
+    setSt(s => ({ ...s, ...patch }));
+    setPublished(false);
+  }, []);
 
   useEffect(() => {
     fetch(`/api/invitations?id=${invitationId}`)
@@ -172,6 +175,13 @@ export default function StudioClient({
       setPublishing(false);
     }
   };
+
+  useEffect(() => {
+    if (step === 6 && !published && !publishing) {
+      handlePublish();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   const downloadQrCode = useCallback(async () => {
     if (!qrRef.current) return;
@@ -601,12 +611,11 @@ export default function StudioClient({
                     {copied ? "Disalin" : "Salin Link"}
                   </button>
                   <button
-                    onClick={handlePublish}
-                    disabled={publishing}
+                    onClick={() => window.open(giftUrl, '_blank')}
                     className="w-full py-3.5 rounded-2xl font-bold transition-all"
-                    style={{ background: `${theme.accent}22`, color: theme.accent, opacity: publishing ? 0.7 : 1 }}
+                    style={{ background: `${theme.accent}22`, color: theme.accent }}
                   >
-                    {publishing ? "Menyimpan..." : "Simpan Perubahan"}
+                    Buka Gift
                   </button>
                   <button onClick={() => setStep(1)} className="text-xs font-semibold underline text-center mt-2" style={{ color: theme.text, opacity: 0.5 }}>
                     Kembali ke awal
