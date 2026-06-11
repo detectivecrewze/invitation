@@ -19,8 +19,18 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number; delay: number }[]>([]);
   const acceptControls = useAnimation();
   const heartId = useRef(0);
+  const errorAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio once mounted
+  if (typeof window !== "undefined" && !errorAudioRef.current) {
+    errorAudioRef.current = new Audio("/assets/error.mp3");
+  }
 
   const handleReject = () => {
+    if (errorAudioRef.current) {
+      errorAudioRef.current.currentTime = 0;
+      errorAudioRef.current.play().catch(() => {});
+    }
     const count = rejectCount + 1;
     setRejectCount(count);
     acceptControls.start({ scale: 1 + count * 0.07, transition: { type: "spring", bounce: 0.5 } });

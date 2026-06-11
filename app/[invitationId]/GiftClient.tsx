@@ -79,28 +79,47 @@ export default function GiftClient({ data, invitationId }: Props) {
     }
   }, []);
 
+  const clickAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      clickAudioRef.current = new Audio("/assets/click.mp3");
+    }
+  }, []);
+
+  const playClick = () => {
+    if (clickAudioRef.current) {
+      clickAudioRef.current.currentTime = 0;
+      clickAudioRef.current.play().catch(() => {});
+    }
+  };
+
   const handleEnvelopeOpen = useCallback(() => {
     setPhase("invitation");
   }, []);
-  const handleAccept = useCallback(() => setPhase("date"), []);
+  const handleAccept = useCallback(() => { playClick(); setPhase("date"); }, []);
 
   const handleDate = useCallback((date: string) => {
+    playClick();
     setAnswers(a => ({ ...a, date }));
     setPhase("activity");
   }, []);
 
   const handleActivity = useCallback((activities: string[]) => {
+    playClick();
     const labels = activities.map(id => activityList.find(a => a.id === id)?.label ?? id);
     setAnswers(a => ({ ...a, activities: labels }));
     setPhase("dresscode");
   }, [activityList]);
 
   const handleDressCode = useCallback((dressCode: string) => {
+    playClick();
     setAnswers(a => ({ ...a, dressCode }));
     setPhase("message");
   }, []);
 
   const handleMessage = useCallback((message: string) => {
+    playClick();
     setAnswers(a => ({ ...a, message }));
     setPhase("ticket");
   }, []);
