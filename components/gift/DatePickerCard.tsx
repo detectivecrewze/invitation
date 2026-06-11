@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { IconCalendar, IconArrowRight } from "@/components/ui/Icon";
 
@@ -15,7 +15,13 @@ const TIME_OF_DAY = ["Pagi", "Siang", "Sore", "Malam"];
 export default function DatePickerCard({ recipientName, theme, onNext }: Props) {
   const [date, setDate] = useState("");
   const [timeOfDay, setTimeOfDay] = useState("Siang");
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState("12:00");
+
+  useEffect(() => {
+    const today = new Date();
+    const localDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
+    setDate(localDate);
+  }, []);
 
   const canProceed = !!date;
 
@@ -68,12 +74,9 @@ export default function DatePickerCard({ recipientName, theme, onNext }: Props) 
           {/* Date Input */}
           <div className="relative">
             <input
-              type={date ? "date" : "text"}
-              onFocus={(e) => (e.target.type = "date")}
-              onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
+              type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              placeholder="Pilih Tanggal..."
               className="w-full px-4 py-3.5 rounded-xl text-base font-medium outline-none transition-all appearance-none"
               style={{
                 background: "white",
@@ -107,12 +110,9 @@ export default function DatePickerCard({ recipientName, theme, onNext }: Props) 
           {/* Time Input */}
           <div className="relative flex justify-center mt-1">
             <input
-              type={time ? "time" : "text"}
-              onFocus={(e) => (e.target.type = "time")}
-              onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
+              type="time"
               value={time}
               onChange={e => setTime(e.target.value)}
-              placeholder="00:00"
               className="w-40 px-4 py-3 rounded-xl text-base font-medium outline-none text-center transition-all appearance-none"
               style={{
                 background: "white",
