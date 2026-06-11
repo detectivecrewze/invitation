@@ -639,14 +639,14 @@ export default function StudioClient({
         {showMusicModal && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             onClick={() => { setShowMusicModal(false); setPreviewUrl(null); }}
           >
             <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={e => e.stopPropagation()}
-              className="w-full sm:max-w-md h-[80dvh] sm:h-[600px] bg-white rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl relative"
+              className="w-full max-w-md h-[80dvh] max-h-[600px] bg-white rounded-3xl flex flex-col overflow-hidden shadow-2xl relative"
             >
               <div className="p-5 border-b flex justify-between items-center bg-white z-10" style={{ borderColor: `${theme.accent}22` }}>
                 <h3 className="font-bold text-lg" style={{ color: theme.text }}>Pilih Latar Musik</h3>
