@@ -67,6 +67,8 @@ export default function StudioClient({
   const [photoUploading, setPhotoUploading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [playlist, setPlaylist] = useState<any[]>([]);
+  const [showMusicModal, setShowMusicModal] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/assets/playlist.json")
@@ -401,20 +403,14 @@ export default function StudioClient({
                 <label className="text-xs font-bold uppercase tracking-widest block mb-1.5" style={{ color: theme.accent }}>
                   Latar Musik (Opsional)
                 </label>
-                <select
-                  value={st.musicUrl || ""}
-                  onChange={e => {
-                    const sel = playlist.find(p => p.audioUrl === e.target.value);
-                    update({ musicUrl: e.target.value || null, musicTitle: sel ? sel.title : null });
-                  }}
-                  className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none"
+                <button
+                  onClick={() => setShowMusicModal(true)}
+                  className="w-full px-4 py-3 rounded-2xl font-medium text-sm text-left flex items-center justify-between outline-none transition-all"
                   style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
                 >
-                  <option value="">Tanpa Musik</option>
-                  {playlist.map(p => (
-                    <option key={p.audioUrl} value={p.audioUrl}>{p.title} - {p.artist}</option>
-                  ))}
-                </select>
+                  <span className="truncate pr-2">{st.musicTitle ? `🎵 ${st.musicTitle}` : "Tanpa Musik"}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest shrink-0" style={{ color: theme.accent, opacity: 0.8 }}>Pilih</span>
+                </button>
               </div>
 
               <div className="flex gap-3">
@@ -638,6 +634,86 @@ export default function StudioClient({
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {showMusicModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => { setShowMusicModal(false); setPreviewUrl(null); }}
+          >
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full sm:max-w-md h-[80vh] sm:h-[600px] bg-white rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl relative"
+            >
+              <div className="p-5 border-b flex justify-between items-center bg-white z-10" style={{ borderColor: `${theme.accent}22` }}>
+                <h3 className="font-bold text-lg" style={{ color: theme.text }}>Pilih Latar Musik</h3>
+                <button onClick={() => { setShowMusicModal(false); setPreviewUrl(null); }} className="text-sm font-bold" style={{ color: theme.accent }}>Tutup</button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 pb-safe">
+                <button
+                  onClick={() => { update({ musicUrl: null, musicTitle: null }); setShowMusicModal(false); setPreviewUrl(null); }}
+                  className="w-full p-4 rounded-2xl border-2 flex items-center gap-3 transition-all text-left"
+                  style={{
+                    background: !st.musicUrl ? theme.accent : "transparent",
+                    borderColor: !st.musicUrl ? theme.accent : `${theme.accent}22`,
+                    color: !st.musicUrl ? "white" : theme.text,
+                  }}
+                >
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-black/10 shrink-0">
+                    <span className="text-2xl">🚫</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm truncate">Tanpa Musik</p>
+                    <p className="text-xs truncate opacity-70">Undangan tanpa iringan lagu</p>
+                  </div>
+                </button>
+                {playlist.map(p => {
+                  const active = st.musicUrl === p.audioUrl;
+                  const playing = previewUrl === p.audioUrl;
+                  return (
+                    <div
+                      key={p.audioUrl}
+                      className="w-full p-3 rounded-2xl border-2 flex items-center gap-3 transition-all cursor-pointer"
+                      style={{
+                        background: active ? `${theme.accent}15` : "transparent",
+                        borderColor: active ? theme.accent : `${theme.accent}22`,
+                      }}
+                      onClick={() => { update({ musicUrl: p.audioUrl, musicTitle: p.title }); setShowMusicModal(false); setPreviewUrl(null); }}
+                    >
+                      <button
+                        className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 group focus:outline-none"
+                        onClick={(e) => { e.stopPropagation(); setPreviewUrl(playing ? null : p.audioUrl); }}
+                      >
+                        <img src={p.coverUrl} className="w-full h-full object-cover" alt="" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity" style={{ opacity: playing ? 1 : 0 }} >
+                          {playing ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                          ) : (
+                            <svg className="opacity-0 group-hover:opacity-100 transition-opacity" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                          )}
+                        </div>
+                      </button>
+                      <div className="flex-1 text-left min-w-0">
+                        <p className="font-bold text-sm truncate" style={{ color: theme.text }}>{p.title}</p>
+                        <p className="text-xs truncate opacity-70" style={{ color: theme.text }}>{p.artist}</p>
+                      </div>
+                      {active && (
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: theme.accent }}>
+                          <IconCheck size={12} color="white" strokeWidth={3} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {previewUrl && <audio src={previewUrl} autoPlay onEnded={() => setPreviewUrl(null)} />}
     </div>
   );
 }
