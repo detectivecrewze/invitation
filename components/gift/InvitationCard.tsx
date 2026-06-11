@@ -94,7 +94,7 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
               className="text-[10px] tracking-[0.28em] uppercase font-bold"
               style={{ color: theme.accent, opacity: 0.75 }}
             >
-              Undangan Spesial
+              Special Invitation
             </span>
             <div className="h-px flex-1" style={{ background: `${theme.accent}30` }} />
           </div>
@@ -174,7 +174,7 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
                 letterSpacing: "0.05em",
               }}
             >
-              Mau banget
+              Mau
             </motion.button>
 
             {/* Reject — flees */}
@@ -195,7 +195,7 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
                   }}
                 >
                   {rejectCount === 0
-                    ? "Belum, nanti dulu"
+                    ? "Gak mau"
                     : rejectCount < 3
                     ? "Aku minta waktu..."
                     : rejectCount < 5
