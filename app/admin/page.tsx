@@ -17,6 +17,10 @@ export default function AdminPage() {
   const [tab, setTab] = useState<"invitations" | "tokens">("invitations");
   const [toast, setToast] = useState<string | null>(null);
 
+  const [showNew, setShowNew] = useState(false);
+  const [newSlug, setNewSlug] = useState("");
+  const [creating, setCreating] = useState(false);
+
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
   const load = async () => {
@@ -57,9 +61,32 @@ export default function AdminPage() {
     load();
   };
 
-  const goToStudio = () => {
-    const id = nanoid(10);
-    window.open(`/studio/${id}`, "_blank");
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSlug) return;
+    setCreating(true);
+    const id = newSlug.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+    try {
+      await fetch("/api/invitations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          invitationId: id, 
+          status: "draft",
+          themeId: "baby-blue",
+          selectedActivities: [],
+          customActivityLabels: {},
+          selectedDressCodes: [],
+          customDressCodes: {}
+        }),
+      });
+      await load();
+      setShowNew(false);
+      setNewSlug("");
+      showToast("Undangan dibuat!");
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleLogin = async () => {
@@ -121,7 +148,7 @@ export default function AdminPage() {
             </h1>
             <p className="text-sm text-gray-500 mt-1">invitation-edition</p>
           </div>
-          <button onClick={goToStudio} className="px-5 py-2.5 rounded-2xl font-bold text-sm text-white bg-pink-400 shadow-md">
+          <button onClick={() => setShowNew(true)} className="px-5 py-2.5 rounded-2xl font-bold text-sm text-white bg-pink-400 shadow-md hover:bg-pink-500 transition-colors">
             + Buat Undangan
           </button>
         </div>
@@ -265,6 +292,36 @@ export default function AdminPage() {
           </>
         )}
       </div>
+      <AnimatePresence>
+        {showNew && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowNew(false)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
+              <h2 className="text-xl font-bold mb-4 text-gray-800">Buat Undangan Baru</h2>
+              <form onSubmit={handleCreate}>
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-xs uppercase tracking-widest font-bold text-pink-400">URL Link (Slug)</label>
+                    <button type="button" onClick={() => { const rand = Math.random().toString(36).substring(2, 9); setNewSlug(`kencan-${rand}`); }}
+                      className="text-[10px] text-blue-500 hover:text-blue-600 transition-colors font-bold uppercase">Auto Generate</button>
+                  </div>
+                  <input type="text" value={newSlug} onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))} placeholder="contoh: kencan-aku-dan-kamu"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:border-pink-300 font-bold" required />
+                </div>
+                <div className="flex gap-2 mt-6">
+                  <button type="button" onClick={() => setShowNew(false)} className="flex-1 px-4 py-3.5 rounded-2xl border border-gray-200 text-xs font-bold text-gray-500 hover:bg-gray-50 transition-colors">Batal</button>
+                  <button type="submit" disabled={creating || !newSlug} className="flex-1 px-4 py-3.5 rounded-2xl border-none text-xs font-bold text-white uppercase tracking-widest disabled:opacity-50 bg-pink-500 shadow-lg shadow-pink-500/30">
+                    {creating ? "..." : "Buat"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
