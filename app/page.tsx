@@ -109,7 +109,8 @@ export default function HomePage() {
           <motion.button
             onClick={handleStart}
             disabled={checking}
-            whileTap={{ scale: 0.97 }}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02, opacity: 0.9 }}
             className="w-full py-4 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-3 mt-3 tracking-wide transition-all"
             style={{
               background: "linear-gradient(135deg, #e8789a, #c85070)",

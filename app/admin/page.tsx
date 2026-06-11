@@ -86,12 +86,14 @@ export default function AdminPage() {
             placeholder="Password admin"
             className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm mb-4"
           />
-          <button
+          <motion.button
             onClick={handleLogin}
-            className="w-full py-3 rounded-2xl font-bold text-white bg-pink-400"
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02, opacity: 0.9 }}
+            className="w-full py-3 rounded-2xl font-bold text-white bg-pink-400 hover:bg-pink-500 transition-colors shadow-lg shadow-pink-200"
           >
             Masuk
-          </button>
+          </motion.button>
         </div>
       </div>
     );
