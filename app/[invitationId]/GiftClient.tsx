@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getTheme } from "@/lib/constants";
 import LoadingScreen from "@/components/gift/LoadingScreen";
@@ -31,6 +31,8 @@ interface InvitationData {
   suggestedDates?: string[];
   activities?: { id: string; label: string; emoji: string }[];
   dressCodes?: string[];
+  musicUrl?: string;
+  musicTitle?: string;
 }
 
 interface Props {
@@ -45,6 +47,8 @@ const cardVariants = {
 };
 
 export default function GiftClient({ data, invitationId }: Props) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
   const [phase, setPhase] = useState<Phase>("loading");
   const [answers, setAnswers] = useState({
     date: "",
@@ -68,7 +72,12 @@ export default function GiftClient({ data, invitationId }: Props) {
   const suggestedDates = data.suggestedDates ?? [];
 
   const handleLoadingComplete = useCallback(() => setPhase("envelope"), []);
-  const handleEnvelopeOpen = useCallback(() => setPhase("invitation"), []);
+  const handleEnvelopeOpen = useCallback(() => {
+    setPhase("invitation");
+    if (audioRef.current) {
+      audioRef.current.play().catch(e => console.log("Audio play blocked:", e));
+    }
+  }, []);
   const handleAccept = useCallback(() => setPhase("date"), []);
 
   const handleDate = useCallback((date: string) => {
@@ -95,7 +104,18 @@ export default function GiftClient({ data, invitationId }: Props) {
   const handleReset = useCallback(() => {
     setAnswers({ date: "", activities: [], dressCode: "", message: "" });
     setPhase("loading");
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
   }, []);
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
 
   return (
     <div
@@ -237,6 +257,38 @@ export default function GiftClient({ data, invitationId }: Props) {
             )}
           </AnimatePresence>
         </div>
+      )}
+
+      {/* Background Music UI */}
+      {data.musicUrl && phase !== "loading" && phase !== "envelope" && (
+        <>
+          <audio ref={audioRef} src={data.musicUrl} loop autoPlay={false} />
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={toggleMute}
+            className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md"
+            style={{
+              background: `${theme.accent}cc`,
+              color: "white",
+              border: `2px solid ${theme.accent}40`,
+            }}
+          >
+            {isMuted ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="1" y1="1" x2="23" y2="23" />
+                <path d="M9 9v6a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+              </svg>
+            )}
+          </motion.button>
+        </>
       )}
     </div>
   );

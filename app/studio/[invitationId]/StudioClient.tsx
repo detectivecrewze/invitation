@@ -20,6 +20,8 @@ interface State {
   selectedDressCodes: string[];
   customDressCodes: Record<string, string>;
   status: "draft" | "published";
+  musicUrl: string | null;
+  musicTitle: string | null;
 }
 
 const INITIAL: State = {
@@ -33,6 +35,8 @@ const INITIAL: State = {
   selectedDressCodes: ["Casual", "Semi-formal", "Couple Outfit", "Formal", "Bebas"],
   customDressCodes: {},
   status: "draft",
+  musicUrl: null,
+  musicTitle: null,
 };
 
 const STEPS = [
@@ -62,6 +66,14 @@ export default function StudioClient({
   const [copied, setCopied] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const [playlist, setPlaylist] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/assets/playlist.json")
+      .then(r => r.json())
+      .then(data => setPlaylist(data))
+      .catch(() => {});
+  }, []);
 
   const theme = getTheme(st.themeId);
 
@@ -89,6 +101,8 @@ export default function StudioClient({
           selectedDressCodes: data.dressCodes ?? s.selectedDressCodes,
           customDressCodes: {},
           status: data.status ?? s.status,
+          musicUrl: data.musicUrl ?? s.musicUrl,
+          musicTitle: data.musicTitle ?? s.musicTitle,
         }));
         if (data.status === "published") {
           setPublished(true);
@@ -135,6 +149,8 @@ export default function StudioClient({
           .map(a => ({ ...a, label: (st.customActivityLabels || {})[a.id] ?? a.label })),
         dressCodes: st.selectedDressCodes.map(dc => (st.customDressCodes || {})[dc] ?? dc),
         status: "published",
+        musicUrl: st.musicUrl,
+        musicTitle: st.musicTitle,
         ...(bundleToken ? { bundleToken } : {}),
       };
       const r = await fetch("/api/invitations", {
@@ -370,6 +386,26 @@ export default function StudioClient({
                   )}
                 </button>
               )}
+
+              <div className="mt-4">
+                <label className="text-xs font-bold uppercase tracking-widest block mb-1.5" style={{ color: theme.accent }}>
+                  Latar Musik (Opsional)
+                </label>
+                <select
+                  value={st.musicUrl || ""}
+                  onChange={e => {
+                    const sel = playlist.find(p => p.audioUrl === e.target.value);
+                    update({ musicUrl: e.target.value || null, musicTitle: sel ? sel.title : null });
+                  }}
+                  className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none"
+                  style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
+                >
+                  <option value="">Tanpa Musik</option>
+                  {playlist.map(p => (
+                    <option key={p.audioUrl} value={p.audioUrl}>{p.title} - {p.artist}</option>
+                  ))}
+                </select>
+              </div>
 
               <div className="flex gap-3">
                 <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-2xl font-bold border-2" style={{ borderColor: `${theme.accent}33`, color: theme.text }}>Kembali</button>
