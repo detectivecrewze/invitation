@@ -1,0 +1,65 @@
+{
+  "QjCN-xQxEQ": {
+    "themeId": "blue",
+    "recipientName": "Lisa",
+    "senderName": "Aldo",
+    "subText": "",
+    "photoUrl": "/uploads/qZA7le4S6lZS.png",
+    "activities": [
+      {
+        "id": "cinema",
+        "label": "Nonton Film",
+        "emoji": "🎬"
+      },
+      {
+        "id": "walk",
+        "label": "Jalan",
+        "emoji": "🚶"
+      },
+      {
+        "id": "gaming",
+        "label": "Main Game",
+        "emoji": "🎮"
+      },
+      {
+        "id": "shopping",
+        "label": "Belanja",
+        "emoji": "🛍️"
+      },
+      {
+        "id": "cafe",
+        "label": "Ngopi Bareng",
+        "emoji": "☕"
+      },
+      {
+        "id": "picnic",
+        "label": "Piknik",
+        "emoji": "🧺"
+      },
+      {
+        "id": "concert",
+        "label": "Konser",
+        "emoji": "🎵"
+      }
+    ],
+    "dressCodes": [
+      "Skena",
+      "Couple Outfit",
+      "Bebas",
+      "Casual"
+    ],
+    "status": "published",
+    "invitationId": "QjCN-xQxEQ",
+    "updatedAt": "2026-06-11T17:42:13.027Z"
+  },
+  "kencan-6m4f4w1": {
+    "status": "draft",
+    "themeId": "baby-blue",
+    "selectedActivities": [],
+    "customActivityLabels": {},
+    "selectedDressCodes": [],
+    "customDressCodes": {},
+    "invitationId": "kencan-6m4f4w1",
+    "updatedAt": "2026-06-11T18:02:53.622Z"
+  }
+}
