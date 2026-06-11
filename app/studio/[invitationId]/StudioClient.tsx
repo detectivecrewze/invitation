@@ -646,13 +646,13 @@ export default function StudioClient({
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={e => e.stopPropagation()}
-              className="w-full sm:max-w-md h-[80vh] sm:h-[600px] bg-white rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl relative"
+              className="w-full sm:max-w-md h-[80dvh] sm:h-[600px] bg-white rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl relative"
             >
               <div className="p-5 border-b flex justify-between items-center bg-white z-10" style={{ borderColor: `${theme.accent}22` }}>
                 <h3 className="font-bold text-lg" style={{ color: theme.text }}>Pilih Latar Musik</h3>
                 <button onClick={() => { setShowMusicModal(false); setPreviewUrl(null); }} className="text-sm font-bold" style={{ color: theme.accent }}>Tutup</button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 pb-safe">
+              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 pb-12 sm:pb-4">
                 <button
                   onClick={() => { update({ musicUrl: null, musicTitle: null }); setShowMusicModal(false); setPreviewUrl(null); }}
                   className="w-full p-4 rounded-2xl border-2 flex items-center gap-3 transition-all text-left"
@@ -688,11 +688,11 @@ export default function StudioClient({
                         onClick={(e) => { e.stopPropagation(); setPreviewUrl(playing ? null : p.audioUrl); }}
                       >
                         <img src={p.coverUrl} className="w-full h-full object-cover" alt="" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity" style={{ opacity: playing ? 1 : 0 }} >
+                        <div className="absolute inset-0 flex items-center justify-center transition-all" style={{ background: playing ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.2)" }} >
                           {playing ? (
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                           ) : (
-                            <svg className="opacity-0 group-hover:opacity-100 transition-opacity" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            <svg className="opacity-90 drop-shadow-md transition-transform group-hover:scale-110" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                           )}
                         </div>
                       </button>
