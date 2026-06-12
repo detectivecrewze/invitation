@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { nanoid } from "nanoid";
 import { IconLock, IconMail, IconCheck, IconTicket, IconSparkle } from "@/components/ui/Icon";
 import { verifyPassword } from "./actions";
+import HeartQRCode from "@/components/ui/HeartQRCode";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -14,8 +15,14 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [newTokenQuota, setNewTokenQuota] = useState(1);
   const [newTokenLabel, setNewTokenLabel] = useState("");
-  const [tab, setTab] = useState<"invitations" | "tokens">("invitations");
+  const [tab, setTab] = useState<"invitations" | "tokens" | "barcode">("invitations");
   const [toast, setToast] = useState<string | null>(null);
+
+  // Barcode generator state
+  const [barcodeUrl, setBarcodeUrl] = useState("");
+  const [barcodeName, setBarcodeName] = useState("");
+  const [barcodeColor, setBarcodeColor] = useState("#e8789a");
+  const qrWrapRef = useRef<HTMLDivElement>(null);
 
   const [showNew, setShowNew] = useState(false);
   const [newSlug, setNewSlug] = useState("");
@@ -49,6 +56,37 @@ export default function AdminPage() {
     });
     showToast("Token berhasil dibuat!");
     load();
+  };
+
+  const downloadQR = async () => {
+    const el = qrWrapRef.current?.querySelector("svg");
+    if (!el) return;
+    const serializer = new XMLSerializer();
+    const svgStr = serializer.serializeToString(el);
+    const img = new Image();
+    const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 600;
+      canvas.height = barcodeName ? 680 : 600;
+      const ctx = canvas.getContext("2d")!;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, 600, 600);
+      if (barcodeName) {
+        ctx.font = "bold 28px sans-serif";
+        ctx.fillStyle = barcodeColor;
+        ctx.textAlign = "center";
+        ctx.fillText(barcodeName, 300, 650);
+      }
+      URL.revokeObjectURL(svgUrl);
+      const link = document.createElement("a");
+      link.download = `${barcodeName || "barcode"}-qr.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+    img.src = svgUrl;
   };
 
   const deleteToken = async (id: string) => {
@@ -170,7 +208,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-4">
-          {(["invitations", "tokens"] as const).map(t => (
+          {(["invitations", "tokens", "barcode"] as const).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -179,8 +217,10 @@ export default function AdminPage() {
             >
               {t === "invitations" ? (
                 <><IconMail size={16} strokeWidth={2} /> Undangan</>
-              ) : (
+              ) : t === "tokens" ? (
                 <><IconTicket size={16} strokeWidth={2} /> Token</>
+              ) : (
+                <><IconSparkle size={16} strokeWidth={2} /> Barcode</>
               )}
             </button>
           ))}
@@ -287,6 +327,93 @@ export default function AdminPage() {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+            {/* Barcode Generator */}
+            {tab === "barcode" && (
+              <div className="flex flex-col gap-5">
+                <div className="bg-white rounded-3xl p-6 shadow-sm">
+                  <h3 className="font-bold text-base text-gray-800 mb-4 flex items-center gap-2">
+                    <IconSparkle size={18} color="#e8789a" strokeWidth={2} /> Generator Barcode Hati
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">Link / URL</label>
+                      <input
+                        type="url"
+                        value={barcodeUrl}
+                        onChange={e => setBarcodeUrl(e.target.value)}
+                        placeholder="https://contoh.com/link-undangan"
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm focus:border-pink-300 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">Nama / Caption (opsional)</label>
+                      <input
+                        type="text"
+                        value={barcodeName}
+                        onChange={e => setBarcodeName(e.target.value)}
+                        placeholder="contoh: Untuk Zahra"
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm focus:border-pink-300 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">Warna</label>
+                      <div className="flex items-center gap-3">
+                        {["#e8789a", "#7b68ee", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#1a1a2e"].map(c => (
+                          <button
+                            key={c}
+                            onClick={() => setBarcodeColor(c)}
+                            className="w-8 h-8 rounded-full border-4 transition-all"
+                            style={{ background: c, borderColor: barcodeColor === c ? c : "transparent", boxShadow: barcodeColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : "none" }}
+                          />
+                        ))}
+                        <input
+                          type="color"
+                          value={barcodeColor}
+                          onChange={e => setBarcodeColor(e.target.value)}
+                          className="w-8 h-8 rounded-full border-2 border-gray-200 cursor-pointer overflow-hidden"
+                          title="Pilih warna kustom"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {barcodeUrl && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-3xl p-6 shadow-sm flex flex-col items-center gap-4"
+                  >
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-center" style={{ color: barcodeColor, opacity: 0.7 }}>Preview Barcode</p>
+                    <div ref={qrWrapRef} className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl" style={{ border: `2px dashed ${barcodeColor}40` }}>
+                      <HeartQRCode url={barcodeUrl} color={barcodeColor} bgColor="#ffffff" size={220} />
+                      {barcodeName && (
+                        <p className="mt-3 font-bold text-base tracking-wide" style={{ color: barcodeColor }}>{barcodeName}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={downloadQR}
+                      className="w-full py-3 rounded-2xl font-bold text-sm text-white shadow-lg transition-all"
+                      style={{ background: `linear-gradient(135deg, ${barcodeColor}dd, ${barcodeColor})`, boxShadow: `0 6px 16px ${barcodeColor}44` }}
+                    >
+                      ⬇ Download Barcode (PNG)
+                    </button>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(barcodeUrl); showToast("Link berhasil disalin!"); }}
+                      className="w-full py-3 rounded-2xl font-bold text-sm border-2 transition-all"
+                      style={{ borderColor: `${barcodeColor}33`, color: barcodeColor }}
+                    >
+                      📋 Salin Link
+                    </button>
+                  </motion.div>
+                )}
+
+                {!barcodeUrl && (
+                  <div className="text-center py-10 text-gray-400 text-sm">
+                    Masukkan link di atas untuk melihat preview barcode-nya
+                  </div>
+                )}
               </div>
             )}
           </>
