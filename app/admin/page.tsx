@@ -75,10 +75,10 @@ export default function AdminPage() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0, 600, 600);
       if (barcodeName) {
-        ctx.font = "bold 28px sans-serif";
+        ctx.font = "bold 42px Caveat, cursive";
         ctx.fillStyle = barcodeColor;
         ctx.textAlign = "center";
-        ctx.fillText(barcodeName, 300, 650);
+        ctx.fillText(barcodeName, 300, 656);
       }
       URL.revokeObjectURL(svgUrl);
       const link = document.createElement("a");
@@ -389,7 +389,7 @@ export default function AdminPage() {
                     <div ref={qrWrapRef} className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl" style={{ border: `2px dashed ${barcodeColor}40` }}>
                       <HeartQRCode url={barcodeUrl} color={barcodeColor} bgColor="#ffffff" size={220} />
                       {barcodeName && (
-                        <p className="mt-3 font-bold text-base tracking-wide" style={{ color: barcodeColor }}>{barcodeName}</p>
+                        <p className="mt-3 font-bold text-base tracking-wide" style={{ color: barcodeColor, fontFamily: "var(--font-caveat)", fontSize: "1.5rem" }}>{barcodeName}</p>
                       )}
                     </div>
                     <button
