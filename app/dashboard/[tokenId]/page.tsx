@@ -229,7 +229,7 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-6 w-full max-w-4xl relative z-10">
+        <div className="flex flex-col items-center sm:items-stretch sm:flex-row flex-wrap justify-center gap-6 w-full max-w-4xl relative z-10">
           {slots.map((slot) => (
             <SlotCard key={slot.index} index={slot.index} invitationId={slot.invitationId} tokenId={tokenId} isAvailable={slot.isAvailable} onCreateClick={() => setShowCreate(true)} />
           ))}
