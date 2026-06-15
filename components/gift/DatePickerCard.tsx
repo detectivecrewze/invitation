@@ -12,10 +12,96 @@ interface Props {
 
 const TIME_OF_DAY = ["Pagi", "Siang", "Sore", "Malam"];
 
+const CustomCalendar = ({ selectedDate, onSelect, theme }: { selectedDate: string, onSelect: (date: string) => void, theme: any }) => {
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const d = selectedDate ? new Date(selectedDate) : new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+
+  const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const getFirstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+  const daysInMonth = getDaysInMonth(currentMonth);
+  const firstDay = getFirstDayOfMonth(currentMonth);
+
+  const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+
+  const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+  const handleSelect = (day: number) => {
+    const d = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(d.getTime() - tzOffset)).toISOString().slice(0, 10);
+    onSelect(localISOTime);
+  };
+
+  return (
+    <div style={{ background: "white", borderRadius: "16px", padding: "16px", border: `1.5px solid ${theme.accent}30`, boxShadow: "0 2px 8px rgba(0,0,0,0.02)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <button type="button" onClick={prevMonth} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", color: theme.text }}>
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span style={{ fontWeight: 700, color: theme.text, fontSize: "14px" }}>
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </span>
+        <button type="button" onClick={nextMonth} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", color: theme.text }}>
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px", marginBottom: "8px" }}>
+        {dayNames.map((d, i) => (
+          <div key={i} style={{ textAlign: "center", fontSize: "12px", fontWeight: 700, color: theme.text, opacity: 0.6 }}>{d}</div>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
+        {Array.from({ length: firstDay }).map((_, i) => <div key={`empty-${i}`} />)}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const currentDateStr = (() => {
+             const d = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+             const tzOffset = d.getTimezoneOffset() * 60000;
+             return (new Date(d.getTime() - tzOffset)).toISOString().slice(0, 10);
+          })();
+          const isSelected = selectedDate === currentDateStr;
+          
+          return (
+            <button
+              key={day}
+              type="button"
+              onClick={() => handleSelect(day)}
+              style={{
+                aspectRatio: "1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: isSelected ? theme.accent : "transparent",
+                color: isSelected ? "white" : theme.text,
+                borderRadius: "50%",
+                border: "none",
+                fontSize: "14px",
+                fontWeight: isSelected ? 700 : 500,
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+            >
+              {day}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export default function DatePickerCard({ recipientName, theme, onNext }: Props) {
   const [date, setDate] = useState("");
   const [timeOfDay, setTimeOfDay] = useState("Siang");
   const [time, setTime] = useState("12:00");
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   useEffect(() => {
     const today = new Date();
@@ -42,6 +128,17 @@ export default function DatePickerCard({ recipientName, theme, onNext }: Props) 
 
     const formatted = `${formattedDate} • ${timeOfDay}${time ? ` • ${time}` : ""}`;
     onNext(formatted);
+  };
+
+  const getDisplayDate = () => {
+    if (!date) return "Pilih Tanggal";
+    try {
+      const d = new Date(date);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      }
+    } catch (e) {}
+    return date;
   };
 
   return (
@@ -71,20 +168,38 @@ export default function DatePickerCard({ recipientName, theme, onNext }: Props) 
         </div>
 
         <div className="w-full flex flex-col gap-4 mt-2">
-          {/* Date Input */}
+          {/* Custom Date Input Trigger */}
           <div className="relative">
-            <input
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              className="w-full px-4 py-3.5 rounded-xl text-base font-medium outline-none transition-all appearance-none"
+            <button
+              type="button"
+              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+              className="w-full px-4 py-3.5 rounded-xl text-base font-medium outline-none transition-all flex items-center justify-between"
               style={{
                 background: "white",
                 border: `1.5px solid ${theme.accent}30`,
                 color: theme.text,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
               }}
-            />
+            >
+              <div className="flex items-center gap-3">
+                <IconCalendar size={18} color={theme.accent} />
+                <span>{getDisplayDate()}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isCalendarOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            
+            {/* Calendar Dropdown */}
+            {isCalendarOpen && (
+              <div className="mt-2 w-full">
+                <CustomCalendar 
+                  selectedDate={date} 
+                  onSelect={(d) => { setDate(d); setIsCalendarOpen(false); }} 
+                  theme={theme} 
+                />
+              </div>
+            )}
           </div>
 
           {/* Time of Day Pills */}

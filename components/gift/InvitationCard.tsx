@@ -146,19 +146,11 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
                 color: theme.text,
                 lineHeight: 1.35,
                 letterSpacing: "0.01em",
+                whiteSpace: "pre-line",
               }}
             >
-              Mau engga kamu pergi<br />kencan denganku?
+              {subText || "Mau engga kamu pergi\nkencan denganku?"}
             </h1>
-
-            {subText && (
-              <p
-                className="mt-2.5 text-sm font-medium leading-relaxed"
-                style={{ color: theme.text, opacity: 0.5 }}
-              >
-                {subText}
-              </p>
-            )}
 
             <div className="flex items-center justify-center gap-2 mt-2.5">
               <div className="h-px w-8" style={{ background: `${theme.accent}30` }} />
