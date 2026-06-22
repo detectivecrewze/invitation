@@ -55,10 +55,10 @@ export default function LoadingScreen({ onComplete, theme }: { onComplete: () =>
       </motion.div>
 
       <p
-        className="text-center tracking-wide"
+        className="text-center tracking-wide px-4"
         style={{ fontFamily: "var(--font-caveat)", fontSize: "1.35rem", color: theme.accent, letterSpacing: "0.02em" }}
       >
-        Sebentar, bunganya sedang mekar...
+        Please wait, the flowers are blooming...
       </p>
 
       <p

@@ -86,6 +86,9 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     // ════════════════════════════════════════════════════════════════════════
     interface P { i:number; xEnd:number; yPeak:number; yFinal:number; size:number; finalScale:number; rotateDir:number; rotateSpeed:string; delay:number; duration:number; }
     const pts: P[] = [];
+    const isMobile = window.innerWidth < 768;
+    const burstScale = isMobile ? 0.90 : 1;
+
     for (let i = 0; i < 300; i++) {
       const frac = i / 300;
       const aRad = ((-90 + (frac - 0.5) * 240 + (rng() - 0.5) * 18) * Math.PI) / 180;
@@ -95,7 +98,7 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
         i, xEnd: Math.cos(aRad)*dist*pull+(rng()-.5)*100,
         yPeak: Math.sin(aRad)*dist-50-rng()*150,
         yFinal: Math.sin(aRad)*dist-50-rng()*150+400+rng()*650,
-        size: 140+rng()*140, finalScale: 1+rng()*.6,
+        size: (140+rng()*140) * burstScale, finalScale: 1+rng()*.6,
         rotateDir: rng()>.5?1:-1, rotateSpeed: (6+rng()*10).toFixed(2),
         delay: frac*1.6+rng()*.15, duration: 2+rng()*1.6,
       });
