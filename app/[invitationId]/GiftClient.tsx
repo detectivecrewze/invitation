@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { getTheme } from "@/lib/constants";
 import LoadingScreen from "@/components/gift/LoadingScreen";
 import EnvelopeGate from "@/components/gift/EnvelopeGate";
+import FlowerBurst from "@/components/gift/FlowerBurst";
 import InvitationCard from "@/components/gift/InvitationCard";
 import DatePickerCard from "@/components/gift/DatePickerCard";
 import ActivityCard from "@/components/gift/ActivityCard";
@@ -15,6 +16,7 @@ import DateTicket from "@/components/gift/DateTicket";
 type Phase =
   | "loading"
   | "envelope"
+  | "flowers"
   | "invitation"
   | "date"
   | "activity"
@@ -50,6 +52,7 @@ export default function GiftClient({ data, invitationId }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [phase, setPhase] = useState<Phase>("loading");
+  const [showFlowers, setShowFlowers] = useState(false);
   const [answers, setAnswers] = useState({
     date: "",
     activities: [] as string[],
@@ -95,7 +98,18 @@ export default function GiftClient({ data, invitationId }: Props) {
   };
 
   const handleEnvelopeOpen = useCallback(() => {
+    // Show flowers overlay (stays mounted for full ~11s animation)
+    setShowFlowers(true);
+  }, []);
+
+  // Called at ~3400ms when flowers fully cover screen — safe to switch page state
+  const handleFlowerSwitchState = useCallback(() => {
     setPhase("invitation");
+  }, []);
+
+  // Called at ~11300ms when animation is fully done
+  const handleFlowerDone = useCallback(() => {
+    setShowFlowers(false);
   }, []);
   const handleAccept = useCallback(() => { playClick(); setPhase("date"); }, []);
 
@@ -189,7 +203,17 @@ export default function GiftClient({ data, invitationId }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Wizard cards */}
+      {/* Flower burst — stays mounted for the full ~11s animation */}
+      {showFlowers && (
+        <FlowerBurst
+          recipientName={data.recipientName}
+          senderName={data.senderName}
+          onSwitchState={handleFlowerSwitchState}
+          onDone={handleFlowerDone}
+        />
+      )}
+
+      {/* Wizard cards — render behind overlay, revealed when curtain opens */}
       {phase !== "loading" && phase !== "envelope" && (
         <div className="w-full max-w-sm px-5 py-10 relative z-10">
           <AnimatePresence mode="wait">

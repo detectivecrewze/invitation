@@ -41,7 +41,7 @@ export default function EnvelopeGate({ recipientName, theme, onOpen, onTap }: Pr
           className="text-xs tracking-[0.3em] uppercase font-bold"
           style={{ color: theme.accent, letterSpacing: "0.25em" }}
         >
-          Undangan Pribadi · untuk {recipientName}
+          Personal Invitation · For {recipientName}
         </p>
         <div className="h-px w-10" style={{ background: theme.accent, opacity: 0.35 }} />
       </motion.div>
@@ -139,7 +139,7 @@ export default function EnvelopeGate({ recipientName, theme, onOpen, onTap }: Pr
               className="text-sm font-medium mb-1.5"
               style={{ color: theme.text, opacity: 0.55, letterSpacing: "0.01em" }}
             >
-              Ada sesuatu yang spesial untukmu
+              Something special awaits you
             </p>
             <motion.p
               className="text-sm font-bold tracking-wide"
@@ -147,7 +147,7 @@ export default function EnvelopeGate({ recipientName, theme, onOpen, onTap }: Pr
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 2.5, repeat: Infinity }}
             >
-              Sentuh untuk membuka
+              Tap to open
             </motion.p>
           </motion.div>
         )}
