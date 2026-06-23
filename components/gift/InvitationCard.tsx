@@ -149,13 +149,13 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
                 whiteSpace: "pre-line",
               }}
             >
-              {subText || "Mau engga kamu pergi\nkencan denganku?"}
+              {subText || "Would you go on\na date with me?"}
             </h1>
 
             <div className="flex items-center justify-center gap-2 mt-2.5">
               <div className="h-px w-8" style={{ background: `${theme.accent}30` }} />
               <p className="text-xs font-semibold tracking-wide" style={{ color: theme.accent }}>
-                dari {senderName}
+                from {senderName}
               </p>
               <div className="h-px w-8" style={{ background: `${theme.accent}30` }} />
             </div>
@@ -176,7 +176,7 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
                 letterSpacing: "0.05em",
               }}
             >
-              Mau
+              Yes
             </motion.button>
 
             {/* Reject — flees */}
@@ -197,12 +197,12 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
                   }}
                 >
                   {rejectCount === 0
-                    ? "Gak mau"
+                    ? "No"
                     : rejectCount < 3
-                    ? "Aku minta waktu..."
+                    ? "Let me think..."
                     : rejectCount < 5
-                    ? "Jangan dipaksa dong..."
-                    : "Iya iya, aku mau..."}
+                    ? "Stop pushing..."
+                    : "Okay fine, yes..."}
                 </motion.button>
               )}
             </AnimatePresence>
