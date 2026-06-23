@@ -109,31 +109,45 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
             <div className="h-px flex-1" style={{ background: `${theme.accent}30` }} />
           </div>
 
-          {/* Polaroid photo */}
+          {/* Soft Floating Photo */}
           {photoUrl && (
             <motion.div
-              className="relative mb-6"
-              initial={{ rotate: -3, scale: 0.88, opacity: 0 }}
-              animate={{ rotate: -2, scale: 1, opacity: 1 }}
+              className="relative mb-6 flex items-center justify-center"
+              initial={{ scale: 0.88, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, type: "spring", bounce: 0.4 }}
             >
-              {/* Photo frame */}
-              <div
-                className="p-2.5 pb-8 bg-white"
+              {/* Floating Container */}
+              <motion.div
+                className="w-40 max-h-[16rem] rounded-2xl overflow-hidden relative flex items-center justify-center"
                 style={{
-                  boxShadow: "0 6px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07)",
-                  transform: "rotate(-1.5deg)",
+                  boxShadow: `0 16px 40px ${theme.accent}35, 0 4px 12px rgba(0,0,0,0.08)`,
+                  border: `2px solid ${theme.accent}15`
                 }}
+                animate={{ y: [-4, 4, -4] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               >
-                <div className="w-32 h-32 overflow-hidden bg-gray-100">
-                  <img src={photoUrl} alt={senderName} className="w-full h-full object-cover" />
-                </div>
-              </div>
-              {/* Tape */}
-              <div
-                className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-14 h-4 rounded-sm"
-                style={{ background: `${theme.accent}38` }}
-              />
+                <img src={photoUrl} alt={senderName} className="w-full h-auto object-contain block" />
+                
+                {/* Soft Inner Glow */}
+                <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{ boxShadow: `inset 0 0 20px rgba(255,255,255,0.2)` }} />
+              </motion.div>
+              
+              {/* Floating Hearts */}
+              <motion.div
+                className="absolute -top-3 -right-3"
+                animate={{ y: [-2, -8, -2], opacity: [0.6, 1, 0.6], scale: [0.9, 1.1, 0.9] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <IconHeart size={18} color={theme.accent} fill={theme.accent} strokeWidth={0} />
+              </motion.div>
+              <motion.div
+                className="absolute top-8 -left-4"
+                animate={{ y: [2, -4, 2], opacity: [0.4, 0.8, 0.4], scale: [0.8, 1, 0.8] }}
+                transition={{ duration: 2.5, delay: 1, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <IconHeart size={14} color={theme.accent} fill={theme.accent} strokeWidth={0} />
+              </motion.div>
             </motion.div>
           )}
 
