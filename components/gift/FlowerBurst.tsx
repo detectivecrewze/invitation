@@ -9,6 +9,7 @@ interface Props {
   onSwitchState: () => void;
   /** ~14300ms: all petals fallen, overlay faded → remove */
   onDone: () => void;
+  theme: { bg: string; card: string; accent: string; text: string };
 }
 
 const FLOWER_SRCS = [
@@ -19,7 +20,7 @@ const FLOWER_SRCS = [
   "/assets/flower_hydrangea-removebg-preview.png",
 ];
 
-export default function FlowerBurst({ recipientName, senderName, onSwitchState, onDone }: Props) {
+export default function FlowerBurst({ recipientName, senderName, onSwitchState, onDone, theme }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
 
@@ -258,8 +259,8 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       setTimeout(() => {
         el.animate(
           [
-            { background: "rgba(255,245,246,1)" },
-            { background: "rgba(255,245,246,0)" },
+            { backgroundColor: theme.bg },
+            { backgroundColor: "transparent" },
           ],
           { duration: BG_FADE_DUR, easing: "ease-out", fill: "both" }
         );
@@ -277,7 +278,7 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     <div
       ref={containerRef}
       className="fixed inset-0 overflow-hidden pointer-events-none"
-      style={{ zIndex: 9998, background: "rgba(255,245,246,1)" }}
+      style={{ zIndex: 9998, backgroundColor: theme.bg }}
     />
   );
 }

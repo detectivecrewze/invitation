@@ -203,13 +203,13 @@ export default function GiftClient({ data, invitationId }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Flower burst — stays mounted for the full ~11s animation */}
       {showFlowers && (
         <FlowerBurst
           recipientName={data.recipientName}
           senderName={data.senderName}
           onSwitchState={handleFlowerSwitchState}
           onDone={handleFlowerDone}
+          theme={theme}
         />
       )}
 
