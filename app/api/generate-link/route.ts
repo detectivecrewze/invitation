@@ -11,7 +11,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const quota = 3;
+    const body = await req.json().catch(() => ({}));
+    const quota = typeof body.quota === "number" ? body.quota : 1;
 
     // Generate a human-friendly token ID using an unambiguous character set
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
