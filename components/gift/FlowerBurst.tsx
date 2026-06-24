@@ -16,7 +16,7 @@ const FLOWER_SRCS = [
   "/assets/flower_daisy-removebg-preview copy.png",
   "/assets/flower_rose-removebg-preview.png",
   "/assets/flower_peony-removebg-preview.png",
-  "/assets/flower_tulip-removebg-preview.png",
+  "/assets/flower_yellow-removebg-preview.webp",
   "/assets/flower_hydrangea-removebg-preview.png",
 ];
 
