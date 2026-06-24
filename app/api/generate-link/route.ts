@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { putToken, BundleToken, getToken } from "@/lib/kv";
+import { putToken, BundleToken, getToken, putInvitation } from "@/lib/kv";
 import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
@@ -14,16 +14,48 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const quota = typeof body.quota === "number" ? body.quota : 1;
 
+    if (quota === 1) {
+      let invitationId = "";
+      let attempts = 0;
+      do {
+        invitationId = `inv-${nanoid(8)}`;
+        attempts++;
+      } while ((await getToken(invitationId)) !== null && attempts < 10); // Check if exists
+
+      await putInvitation(invitationId, {
+        invitationId,
+        createdAt: new Date().toISOString(),
+      });
+
+      const domainUrl = "https://invitation.for-you-always.my.id";
+      const studioUrl = `${domainUrl}/studio/${invitationId}`;
+      const url = `${domainUrl}/${invitationId}`;
+
+      return NextResponse.json({
+        success: true,
+        studioUrl,
+        url,
+        link: url,
+        message: 'Invitation berhasil dibuat'
+      }, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        }
+      });
+    }
+
     // Generate a human-friendly token ID using an unambiguous character set
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let id = "";
-    let attempts = 0;
+    let attempts2 = 0;
     
     do {
       const raw = nanoid(8);
       id = raw.split('').map(c => chars[c.charCodeAt(0) % chars.length]).join('');
-      attempts++;
-    } while ((await getToken(id)) !== null && attempts < 10);
+      attempts2++;
+    } while ((await getToken(id)) !== null && attempts2 < 10);
 
     const token: BundleToken = {
       id,
