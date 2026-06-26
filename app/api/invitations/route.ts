@@ -25,15 +25,19 @@ export async function POST(req: NextRequest) {
     const { getToken, putToken } = await import('@/lib/kv');
     const token = await getToken(body.bundleToken.toUpperCase());
     if (!token) return NextResponse.json({ error: 'Invalid token' }, { status: 403 });
-    if (token.remainingQuota <= 0) return NextResponse.json({ error: 'Token exhausted' }, { status: 403 });
 
     const existing = await getInvitation(invitationId);
     if (!existing) {
+      if (token.remainingQuota <= 0) return NextResponse.json({ error: 'Token exhausted' }, { status: 403 });
       await putToken(token.id, {
         ...token,
         remainingQuota: token.remainingQuota - 1,
         invitations: [...(token.invitations || []), invitationId],
       });
+    } else {
+      if (!token.invitations?.includes(invitationId)) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
     }
   }
 

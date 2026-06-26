@@ -19,7 +19,7 @@ export default function HomePage() {
     setError("");
     try {
       const res = await fetch("/api/tokens").then(r => r.json());
-      const found = res.tokens?.find((tok: { id: string; remainingQuota: number }) => tok.id === t && tok.remainingQuota > 0);
+      const found = res.tokens?.find((tok: { id: string }) => tok.id === t);
       if (!found) { setError("Token tidak valid atau tidak ditemukan."); return; }
       window.location.href = `/dashboard/${t}`;
     } finally {
