@@ -18,10 +18,13 @@ export default function HomePage() {
     setChecking(true);
     setError("");
     try {
-      const res = await fetch("/api/tokens").then(r => r.json());
-      const found = res.tokens?.find((tok: { id: string }) => tok.id === t);
-      if (!found) { setError("Token tidak valid atau tidak ditemukan."); return; }
-      window.location.href = `/dashboard/${t}`;
+      const res = await fetch(`/api/tokens?id=${encodeURIComponent(t)}`);
+      if (res.ok) {
+        window.location.href = `/dashboard/${t}`;
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || "Token tidak valid atau tidak ditemukan.");
+      }
     } finally {
       setChecking(false);
     }
