@@ -8,11 +8,12 @@ interface Activity { id: string; label: string; }
 
 interface Props {
   activities: Activity[];
+  title?: string;
   theme: { bg: string; card: string; accent: string; text: string };
   onNext: (selected: string[]) => void;
 }
 
-export default function ActivityCard({ activities, theme, onNext }: Props) {
+export default function ActivityCard({ activities, title = "Nanti kita ngapain sayang?", theme, onNext }: Props) {
   const [selected, setSelected] = useState<string[]>([]);
   const [customIdea, setCustomIdea] = useState("");
 
@@ -53,7 +54,7 @@ export default function ActivityCard({ activities, theme, onNext }: Props) {
           <h2
             style={{ fontFamily: "var(--font-caveat)", fontSize: "2.1rem", color: theme.text, lineHeight: 1.1, marginTop: "0.25rem" }}
           >
-            Nanti kita<br />ngapain sayang?
+            {title}
           </h2>
         </div>
 

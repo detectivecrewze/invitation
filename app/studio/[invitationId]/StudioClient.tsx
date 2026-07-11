@@ -22,6 +22,8 @@ interface State {
   status: "draft" | "published";
   musicUrl: string | null;
   musicTitle: string | null;
+  activityTitle: string;
+  dateTitle: string;
 }
 
 const INITIAL: State = {
@@ -37,6 +39,8 @@ const INITIAL: State = {
   status: "draft",
   musicUrl: null,
   musicTitle: null,
+  activityTitle: "Nanti kita ngapain sayang?",
+  dateTitle: "Kapan sayangku free?",
 };
 
 const STEPS = [
@@ -108,6 +112,8 @@ export default function StudioClient({
           status: data.status ?? s.status,
           musicUrl: data.musicUrl ?? s.musicUrl,
           musicTitle: data.musicTitle ?? s.musicTitle,
+          activityTitle: data.activityTitle ?? s.activityTitle,
+          dateTitle: data.dateTitle ?? s.dateTitle,
         }));
         if (data.status === "published") {
           setPublished(true);
@@ -156,6 +162,8 @@ export default function StudioClient({
         status: "published",
         musicUrl: st.musicUrl,
         musicTitle: st.musicTitle,
+        activityTitle: st.activityTitle || "Nanti kita ngapain sayang?",
+        dateTitle: st.dateTitle || "Kapan sayangku free?",
         ...(bundleToken ? { bundleToken } : {}),
       };
       const r = await fetch("/api/invitations", {
@@ -431,6 +439,38 @@ export default function StudioClient({
                   Pilihan Aktivitas
                 </h2>
                 <p className="text-sm mt-1" style={{ color: theme.text, opacity: 0.6 }}>Centang aktivitas yang tersedia untuk dipilih penerima</p>
+              </div>
+
+              {/* Custom titles */}
+              <div className="flex flex-col gap-3">
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-widest block mb-1.5" style={{ color: theme.accent }}>
+                    Judul Section Aktivitas
+                  </label>
+                  <input
+                    type="text"
+                    value={st.activityTitle}
+                    onChange={e => update({ activityTitle: e.target.value })}
+                    placeholder="Nanti kita ngapain sayang?"
+                    className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none"
+                    style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
+                  />
+                  <p className="text-xs mt-1 opacity-50" style={{ color: theme.text }}>Tampil di halaman pilihan kegiatan</p>
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-widest block mb-1.5" style={{ color: theme.accent }}>
+                    Judul Section Tanggal
+                  </label>
+                  <input
+                    type="text"
+                    value={st.dateTitle}
+                    onChange={e => update({ dateTitle: e.target.value })}
+                    placeholder="Kapan sayangku free?"
+                    className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none"
+                    style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
+                  />
+                  <p className="text-xs mt-1 opacity-50" style={{ color: theme.text }}>Tampil di halaman pilih tanggal kencan</p>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {ACTIVITIES.map(a => {

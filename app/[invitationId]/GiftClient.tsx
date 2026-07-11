@@ -35,6 +35,8 @@ interface InvitationData {
   dressCodes?: string[];
   musicUrl?: string;
   musicTitle?: string;
+  activityTitle?: string;
+  dateTitle?: string;
 }
 
 interface Props {
@@ -233,6 +235,7 @@ export default function GiftClient({ data, invitationId }: Props) {
               <motion.div key="date" variants={cardVariants} initial="initial" animate="animate" exit="exit">
                 <DatePickerCard
                   recipientName={data.recipientName}
+                  title={data.dateTitle || "Kapan sayangku free?"}
                   theme={theme}
                   onNext={handleDate}
                 />
@@ -243,6 +246,7 @@ export default function GiftClient({ data, invitationId }: Props) {
               <motion.div key="activity" variants={cardVariants} initial="initial" animate="animate" exit="exit">
                 <ActivityCard
                   activities={activityList}
+                  title={data.activityTitle || "Nanti kita ngapain sayang?"}
                   theme={theme}
                   onNext={handleActivity}
                 />

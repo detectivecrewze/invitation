@@ -6,6 +6,7 @@ import { IconCalendar, IconArrowRight } from "@/components/ui/Icon";
 
 interface Props {
   recipientName: string;
+  title?: string;
   theme: { bg: string; card: string; accent: string; text: string };
   onNext: (selected: string) => void;
 }
@@ -97,7 +98,7 @@ const CustomCalendar = ({ selectedDate, onSelect, theme }: { selectedDate: strin
   );
 };
 
-export default function DatePickerCard({ recipientName, theme, onNext }: Props) {
+export default function DatePickerCard({ recipientName, title = "Kapan sayangku free?", theme, onNext }: Props) {
   const [date, setDate] = useState("");
   const [timeOfDay, setTimeOfDay] = useState("Siang");
   const [time, setTime] = useState("12:00");
@@ -163,7 +164,7 @@ export default function DatePickerCard({ recipientName, theme, onNext }: Props) 
           <h2
             style={{ fontFamily: "var(--font-caveat)", fontSize: "2.1rem", color: theme.text, lineHeight: 1.1, marginTop: "0.25rem" }}
           >
-            Kapan sayangku<br />free?
+            {title}
           </h2>
         </div>
 
