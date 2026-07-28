@@ -154,16 +154,17 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       const from = (senderName   || "").trim();
       if (!to && !from) return;
 
-      const S  = Math.min(13, W*.028);
-      const hy = cy + 2.35*S - 30;
+      const titleLen = (invitationTitle || "").length;
+      // Dynamically scale title font size based on length so it never overflows
+      const titleFontSize = titleLen > 30 ? "clamp(9px, 2.4vw, 11px)" : titleLen > 20 ? "clamp(10px, 2.7vw, 13px)" : "clamp(11px, 3vw, 14px)";
 
-      const card = mkDiv(`position:absolute;top:${hy}px;left:${cx}px;transform:translate(-50%,calc(-50% + 15px));z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:60%;max-width:300px;`);
-      const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.12em;font-size:clamp(12px,1.8vw,15px);color:rgba(90,55,30,.85);display:block;margin-bottom:6px;`;
-      const nS = `font-family:'Georgia',serif;letter-spacing:.15em;text-transform:uppercase;font-size:clamp(15px,1.5vw,18px);color:rgba(50,30,15,.95);font-weight:700;display:block;text-shadow:0 2px 12px rgba(255,255,255,.9),0 1px 3px rgba(255,255,255,1);word-wrap:break-word;`;
-      const dS = `width:32px;height:1px;background:rgba(100,60,20,.3);margin:0 auto 16px;display:block;`;
+      const card = mkDiv(`position:absolute;top:${cy}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:48%;max-width:210px;box-sizing:border-word;padding:0 4px;`);
+      const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.25;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:6px;word-break:break-word;overflow-wrap:break-word;hyphens:auto;max-width:100%;`;
+      const nS = `font-family:'Georgia',serif;letter-spacing:.1em;text-transform:uppercase;font-size:clamp(13px, 3.5vw, 17px);color:rgba(50,30,15,.95);font-weight:700;display:block;text-shadow:0 2px 12px rgba(255,255,255,.9),0 1px 3px rgba(255,255,255,1);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
+      const dS = `width:28px;height:1px;background:rgba(100,60,20,.3);margin:4px auto 12px;display:block;`;
 
       card.innerHTML = `
-        ${from ? `<span style="${iS}">${invitationTitle}</span><span style="${nS}margin-bottom:16px;">${from}</span>` : ""}
+        ${from ? `<span style="${iS}">${invitationTitle}</span><span style="${nS}margin-bottom:10px;">${from}</span>` : ""}
         <span style="${dS}"></span>
         ${to   ? `<span style="${iS}">For</span><span style="${nS}">${to}</span>` : ""}
       `;
@@ -233,14 +234,14 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     const spawnFormation = (points: {x:number;y:number}[], delay: number, stayDur: number) => {
       const hw = mkDiv("position:absolute;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:200;");
       el.appendChild(hw);
-      const FSZ = Math.min(46, W*.1);
+      const FSZ = Math.min(38, Math.max(26, W * 0.08));
       const hEls: HTMLDivElement[] = [];
       const count = points.length;
 
       setTimeout(() => {
         points.forEach((pt, i) => {
-          const px = cx + pt.x - 30;
-          const py = cy + pt.y - 30;
+          const px = cx + pt.x - FSZ / 2;
+          const py = cy + pt.y - FSZ / 2;
           const d = mkDiv(`position:absolute;width:${FSZ}px;height:${FSZ}px;left:${px}px;top:${py}px;opacity:0;transform:scale(.1);will-change:transform,opacity;`);
           d.appendChild(mkImg(FLOWER_SRCS[i % FLOWER_SRCS.length], i%2===0 ? "_fi-cw" : "_fi-ccw", (4+(i%3)*2).toFixed(2)));
           hw.appendChild(d); hEls.push(d);
@@ -260,17 +261,18 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       }, delay);
     };
 
-    const HS = Math.min(13, W*.028);
+    const HS = Math.min(13, Math.max(9, W * 0.026));
 
     if (openingShape === "star") {
       // Star formation ONLY
-      const starOuterR = Math.max(190, Math.min(W, H) * 0.38);
-      const starInnerR = starOuterR * 0.52; // Inner V-indent stays ~100-150px away from center text
+      const starOuterR = Math.max(160, Math.min(W, H) * 0.42);
+      const starInnerR = starOuterR * 0.54; // Inner V-indent stays ~100-140px away from center text
       const starPts = buildStarPoints(60, starOuterR, starInnerR, 5);
       spawnFormation(starPts, HEART_MS, HEART_STAY);
     } else {
       // Heart formation ONLY (default)
-      const heartPts = buildHeartPoints(54, HS);
+      const heartScale = Math.max(10, Math.min(14, W * 0.028));
+      const heartPts = buildHeartPoints(54, heartScale);
       spawnFormation(heartPts, HEART_MS, HEART_STAY);
     }
 
