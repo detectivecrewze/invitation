@@ -151,13 +151,27 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
             </div>
           </div>
 
+          {/* Pesan Balasan dari Penerima */}
           <div className="flex gap-3 items-start">
             <IconWrapper><IconMessage size={16} color={theme.accent} /></IconWrapper>
-            <div className="flex flex-col">
-              <span className="text-[8px] font-bold tracking-widest uppercase opacity-60" style={{ color: theme.text }}>PESAN</span>
-              <span style={{ fontFamily: "var(--font-caveat)", fontSize: "1.3rem", color: theme.text, lineHeight: 1.3, marginTop: "2px", whiteSpace: "pre-line" }}>
-                {data.message || "-"}
+            <div className="flex flex-col w-full min-w-0">
+              <span className="text-[8px] font-bold tracking-widest uppercase opacity-60 block mb-0.5" style={{ color: theme.text }}>
+                PESAN BALASAN DARI {data.recipientName.toUpperCase()}
               </span>
+              {data.message && data.message.trim() !== "" ? (
+                <div
+                  className="w-full rounded-xl px-3 py-2 mt-1"
+                  style={{ background: `${theme.accent}0d`, border: `1px solid ${theme.accent}18` }}
+                >
+                  <p style={{ fontFamily: "var(--font-caveat)", fontSize: "1.25rem", color: theme.text, lineHeight: 1.35, whiteSpace: "pre-line", wordBreak: "break-word" }}>
+                    &ldquo;{data.message}&rdquo;
+                  </p>
+                </div>
+              ) : (
+                <span style={{ fontFamily: "var(--font-caveat)", fontSize: "1.3rem", color: theme.text, opacity: 0.5 }}>
+                  -
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -169,13 +183,15 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
 
         {/* Footer */}
         <div className="px-6 py-5 flex flex-col items-center text-center gap-3">
-          {/* Closing note from sender (studio-configured) */}
+          {/* Catatan dari Pembuat (Studio Editor) */}
           {data.senderNote && data.senderNote.trim() !== "" && (
             <div
               className="w-full rounded-2xl px-5 py-4 mb-1 text-left"
-              style={{ background: `${theme.accent}10`, border: `1px solid ${theme.accent}22` }}
+              style={{ background: `${theme.accent}12`, border: `1px solid ${theme.accent}25` }}
             >
-              <span className="text-[8px] font-bold tracking-widest uppercase block mb-2 opacity-70" style={{ color: theme.accent }}>Catatan</span>
+              <span className="text-[8px] font-bold tracking-widest uppercase block mb-1.5 opacity-70" style={{ color: theme.accent }}>
+                CATATAN DARI {data.senderName.toUpperCase()}
+              </span>
               <p style={{ fontFamily: "var(--font-caveat)", fontSize: "1.2rem", color: theme.text, lineHeight: 1.5, whiteSpace: "pre-line", wordBreak: "break-word" }}>
                 {data.senderNote}
               </p>
