@@ -174,7 +174,7 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
 
       const card = mkDiv(`position:absolute;top:${cy}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "35%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
       const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.3;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:${isMobile ? "4px" : "8px"};word-break:break-word;overflow-wrap:break-word;text-wrap:balance;text-align:center;max-width:100%;`;
-      const nS = `font-family:'Georgia',serif;letter-spacing:.12em;text-transform:uppercase;font-size:${nameFontSize};color:rgba(50,30,15,.95);font-weight:700;display:block;text-shadow:0 2px 12px rgba(255,255,255,.9),0 1px 3px rgba(255,255,255,1);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
+      const nS = `font-family:'Georgia',serif;letter-spacing:.16em;text-transform:uppercase;font-size:${nameFontSize};color:rgba(60,35,20,.9);font-weight:500;display:block;text-shadow:0 1px 6px rgba(255,255,255,.9);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
       const dS = `width:${isMobile ? "24px" : "36px"};height:1px;background:rgba(100,60,20,.3);margin:${isMobile ? "4px auto 10px" : "8px auto 16px"};display:block;`;
 
       card.innerHTML = `
