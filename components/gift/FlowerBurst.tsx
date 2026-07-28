@@ -154,17 +154,31 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       const from = (senderName   || "").trim();
       if (!to && !from) return;
 
+      const isMobile = W < 640;
       const titleLen = (invitationTitle || "").length;
-      // Dynamically scale title font size based on length so it never overflows
-      const titleFontSize = titleLen > 30 ? "clamp(9px, 2.4vw, 11px)" : titleLen > 20 ? "clamp(10px, 2.7vw, 13px)" : "clamp(11px, 3vw, 14px)";
 
-      const card = mkDiv(`position:absolute;top:${cy}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:48%;max-width:210px;box-sizing:border-word;padding:0 4px;`);
-      const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.25;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:6px;word-break:break-word;overflow-wrap:break-word;hyphens:auto;max-width:100%;`;
-      const nS = `font-family:'Georgia',serif;letter-spacing:.1em;text-transform:uppercase;font-size:clamp(13px, 3.5vw, 17px);color:rgba(50,30,15,.95);font-weight:700;display:block;text-shadow:0 2px 12px rgba(255,255,255,.9),0 1px 3px rgba(255,255,255,1);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
-      const dS = `width:28px;height:1px;background:rgba(100,60,20,.3);margin:4px auto 12px;display:block;`;
+      // Font sizes & max-width adapt seamlessly between Mobile & Desktop
+      let titleFontSize: string;
+      let nameFontSize: string;
+      let maxWidth: string;
+
+      if (isMobile) {
+        titleFontSize = titleLen > 30 ? "clamp(9px, 2.5vw, 11px)" : titleLen > 18 ? "clamp(10px, 2.8vw, 12px)" : "clamp(11px, 3.2vw, 13px)";
+        nameFontSize = "clamp(14px, 4vw, 17px)";
+        maxWidth = "min(190px, 52vw)";
+      } else {
+        titleFontSize = titleLen > 30 ? "clamp(12px, 1.2vw, 14px)" : titleLen > 18 ? "clamp(13px, 1.4vw, 16px)" : "clamp(14px, 1.6vw, 18px)";
+        nameFontSize = "clamp(18px, 2.2vw, 24px)";
+        maxWidth = "min(340px, 38vw)";
+      }
+
+      const card = mkDiv(`position:absolute;top:${cy}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "40%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
+      const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.28;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:${isMobile ? "4px" : "8px"};word-break:break-word;overflow-wrap:break-word;hyphens:auto;max-width:100%;`;
+      const nS = `font-family:'Georgia',serif;letter-spacing:.12em;text-transform:uppercase;font-size:${nameFontSize};color:rgba(50,30,15,.95);font-weight:700;display:block;text-shadow:0 2px 12px rgba(255,255,255,.9),0 1px 3px rgba(255,255,255,1);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
+      const dS = `width:${isMobile ? "24px" : "36px"};height:1px;background:rgba(100,60,20,.3);margin:${isMobile ? "4px auto 10px" : "8px auto 16px"};display:block;`;
 
       card.innerHTML = `
-        ${from ? `<span style="${iS}">${invitationTitle}</span><span style="${nS}margin-bottom:10px;">${from}</span>` : ""}
+        ${from ? `<span style="${iS}">${invitationTitle}</span><span style="${nS}margin-bottom:${isMobile ? "8px" : "14px"};">${from}</span>` : ""}
         <span style="${dS}"></span>
         ${to   ? `<span style="${iS}">For</span><span style="${nS}">${to}</span>` : ""}
       `;
@@ -234,7 +248,8 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     const spawnFormation = (points: {x:number;y:number}[], delay: number, stayDur: number) => {
       const hw = mkDiv("position:absolute;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:200;");
       el.appendChild(hw);
-      const FSZ = Math.min(38, Math.max(26, W * 0.08));
+      const isMobile = W < 640;
+      const FSZ = isMobile ? Math.min(36, Math.max(24, W * 0.08)) : Math.min(46, Math.max(34, Math.min(W, H) * 0.038));
       const hEls: HTMLDivElement[] = [];
       const count = points.length;
 
@@ -261,17 +276,19 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       }, delay);
     };
 
-    const HS = Math.min(13, Math.max(9, W * 0.026));
-
     if (openingShape === "star") {
       // Star formation ONLY
-      const starOuterR = Math.max(160, Math.min(W, H) * 0.42);
-      const starInnerR = starOuterR * 0.54; // Inner V-indent stays ~100-140px away from center text
+      const starOuterR = isMobile
+        ? Math.max(155, Math.min(W, H) * 0.41)
+        : Math.min(290, Math.max(220, Math.min(W, H) * 0.35));
+      const starInnerR = starOuterR * 0.53;
       const starPts = buildStarPoints(60, starOuterR, starInnerR, 5);
       spawnFormation(starPts, HEART_MS, HEART_STAY);
     } else {
       // Heart formation ONLY (default)
-      const heartScale = Math.max(10, Math.min(14, W * 0.028));
+      const heartScale = isMobile
+        ? Math.max(10, Math.min(13, W * 0.026))
+        : Math.min(17, Math.max(13, Math.min(W, H) * 0.022));
       const heartPts = buildHeartPoints(54, heartScale);
       spawnFormation(heartPts, HEART_MS, HEART_STAY);
     }
