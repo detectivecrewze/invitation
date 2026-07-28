@@ -917,14 +917,19 @@ export default function StudioClient({
                 <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 p-4 rounded-2xl border border-pink-100 flex flex-col items-center justify-center min-h-[180px]">
                   {previewField === "recipientName" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
-                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
                         <span className="text-[10px] italic text-amber-800 opacity-60 block">{st.invitationTitle || "Invitation From"}</span>
-                        <span className="text-xs font-bold uppercase text-amber-950 block my-1">{st.senderName || "Nama Kamu"}</span>
-                        <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
-                        <span className="text-[10px] italic text-amber-800 opacity-60 block mb-1">For</span>
-                        <div className="relative inline-block px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
-                          <span className="text-sm font-extrabold uppercase text-pink-600">{st.recipientName || "Ziza"}</span>
-                          <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 NAMA PENERIMA</span>
+                        <span className="text-xs font-bold uppercase text-amber-950 block my-0.5">{st.senderName || "Nama Kamu"}</span>
+                        <div className="w-6 h-px bg-amber-800/30 mx-auto" />
+                        <span className="text-[10px] italic text-amber-800 opacity-60 block">For</span>
+                        
+                        <div className="flex flex-col items-center gap-1 w-full max-w-[200px]">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: NAMA PENERIMA
+                          </span>
+                          <div className="w-full px-4 py-2 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-base font-extrabold uppercase text-pink-700 block tracking-wide">{st.recipientName || "Ziza"}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -932,28 +937,39 @@ export default function StudioClient({
 
                   {previewField === "senderName" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
-                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
                         <span className="text-[10px] italic text-amber-800 opacity-60 block">{st.invitationTitle || "Invitation From"}</span>
-                        <div className="relative inline-block my-1 px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
-                          <span className="text-sm font-extrabold uppercase text-pink-600">{st.senderName || "Rayy"}</span>
-                          <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 NAMA KAMU</span>
+                        
+                        <div className="flex flex-col items-center gap-1 w-full max-w-[200px]">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: NAMA KAMU
+                          </span>
+                          <div className="w-full px-4 py-2 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-base font-extrabold uppercase text-pink-700 block tracking-wide">{st.senderName || "Rayy"}</span>
+                          </div>
                         </div>
-                        <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
+
+                        <div className="w-6 h-px bg-amber-800/30 mx-auto" />
                         <span className="text-[10px] italic text-amber-800 opacity-60 block">For</span>
-                        <span className="text-xs font-bold uppercase text-amber-950 block mt-0.5">{st.recipientName || "Nama Penerima"}</span>
+                        <span className="text-xs font-bold uppercase text-amber-950 block">{st.recipientName || "Nama Penerima"}</span>
                       </div>
                     </div>
                   )}
 
                   {previewField === "invitationTitle" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
-                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
-                        <div className="relative inline-block mb-1 px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
-                          <span className="text-xs italic font-bold text-pink-600 block">{st.invitationTitle || "Invitation From"}</span>
-                          <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 JUDUL OPENING</span>
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <div className="flex flex-col items-center gap-1 w-full max-w-[220px]">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: JUDUL OPENING
+                          </span>
+                          <div className="w-full px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-xs italic font-bold text-pink-700 block">{st.invitationTitle || "Invitation From"}</span>
+                          </div>
                         </div>
-                        <span className="text-xs font-bold uppercase text-amber-950 block my-1">{st.senderName || "Rayy"}</span>
-                        <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
+
+                        <span className="text-xs font-bold uppercase text-amber-950 block">{st.senderName || "Rayy"}</span>
+                        <div className="w-6 h-px bg-amber-800/30 mx-auto" />
                         <span className="text-[10px] italic text-amber-800 opacity-60 block">For</span>
                         <span className="text-xs font-bold uppercase text-amber-950 block">{st.recipientName || "Ziza"}</span>
                       </div>
@@ -962,12 +978,17 @@ export default function StudioClient({
 
                   {previewField === "subText" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
-                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
                         <span className="text-[8px] font-bold text-pink-400 uppercase tracking-widest block mb-1">SPECIAL INVITATION</span>
                         <p className="text-xs font-bold text-gray-800">Maukah kamu pergi kencan denganku?</p>
-                        <div className="relative inline-block mt-2 px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse w-full">
-                          <p className="text-xs italic text-pink-700 font-medium">{st.subText || "contoh: maukah kamu kencan denganku?"}</p>
-                          <span className="absolute -top-2.5 -right-1 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 SUB-TEKS AJAKAN</span>
+                        
+                        <div className="flex flex-col items-center gap-1 mt-1 w-full">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: SUB-TEKS AJAKAN
+                          </span>
+                          <div className="w-full px-3 py-2 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <p className="text-xs italic text-pink-700 font-medium">{st.subText || "contoh: maukah kamu kencan denganku?"}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -975,14 +996,19 @@ export default function StudioClient({
 
                   {previewField === "closingNote" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
-                      <div className="relative w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300">
-                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest border-b pb-1 mb-2">TIKET KENCAN</div>
+                      <div className="w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300 flex flex-col items-center gap-1">
+                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest border-b pb-1 w-full text-center">TIKET KENCAN</div>
                         <p className="text-[10px] text-gray-500">UNTUK: {st.recipientName || "Ziza"}</p>
-                        <p className="text-[10px] text-gray-500 mb-2">KAPAN: Selasa, 28 Juli 2026</p>
-                        <div className="relative w-full rounded-xl p-2.5 bg-pink-100 border-2 border-pink-400 animate-pulse text-left max-h-[160px] overflow-y-auto">
-                          <span className="text-[7px] font-bold uppercase text-pink-600 tracking-wider block mb-1 sticky top-0 bg-pink-100/90 py-0.5">CATATAN DARI {(st.senderName || "RAYY").toUpperCase()}</span>
-                          <p className="text-[11px] italic text-pink-900 leading-snug whitespace-pre-line">{st.closingNote || "Jangan lupa istirahat yang cukup yaa..."}</p>
-                          <span className="absolute top-1 right-1 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 PESAN PENUTUP</span>
+                        <p className="text-[10px] text-gray-500 mb-1">KAPAN: Selasa, 28 Juli 2026</p>
+                        
+                        <div className="flex flex-col items-center gap-1 w-full">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: PESAN PENUTUP / SURAT
+                          </span>
+                          <div className="w-full rounded-xl p-3 bg-pink-100 border-2 border-pink-400 animate-pulse text-left max-h-[160px] overflow-y-auto">
+                            <span className="text-[8px] font-bold uppercase text-pink-600 tracking-wider block mb-1">CATATAN DARI {(st.senderName || "RAYY").toUpperCase()}</span>
+                            <p className="text-[11px] italic text-pink-900 leading-snug whitespace-pre-line">{st.closingNote || "Jangan lupa istirahat yang cukup yaa..."}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
