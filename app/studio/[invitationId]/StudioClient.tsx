@@ -9,6 +9,29 @@ import {
 } from "@/components/ui/Icon";
 import HeartQRCode from "@/components/ui/HeartQRCode";
 
+const EMOJI_CATEGORIES = [
+  {
+    name: "Makanan & Kuliner 🍕",
+    emojis: ["🍽️", "🍕", "🍔", "🍟", "🍣", "🍜", "🍰", "🍦", "🍿", "☕", "🧋", "🍷", "🍻", "🥐", "🧇", "🍩", "🍪", "🥞", "🍡"]
+  },
+  {
+    name: "Aktivitas & Tempat 🎬",
+    emojis: ["🎬", "🎮", "🛍️", "🚶", "🧺", "🎵", "🎤", "🎳", "🎡", "🎢", "🎪", "🎨", "💃", "🕺", "📸", "🎧", "♟️", "🎯", "🧩"]
+  },
+  {
+    name: "Romantis & Kencan 💖",
+    emojis: ["❤️", "💖", "💕", "🌹", "🌸", "✨", "💫", "🕯️", "💌", "🎁", "🧸", "💍", "💐", "🌺", "⭐", "🌙"]
+  },
+  {
+    name: "Jalan-jalan & Outdoor 🏖️",
+    emojis: ["🏖️", "⛺", "🚗", "✈️", "⛵", "🚴", "🏞️", "🏙️", "🏰", "🌌", "🌉"]
+  },
+  {
+    name: "Lucu & Seru 🐱",
+    emojis: ["🐱", "🐶", "🐰", "🐼", "🐬", "🎆", "🎉", "🎈", "🔮", "🪄", "🐥"]
+  }
+];
+
 interface State {
   themeId: string;
   recipientName: string;
@@ -17,6 +40,7 @@ interface State {
   photoUrl: string | null;
   selectedActivities: string[];
   customActivityLabels: Record<string, string>;
+  customActivityEmojis: Record<string, string>;
   selectedDressCodes: string[];
   customDressCodes: Record<string, string>;
   status: "draft" | "published";
@@ -37,6 +61,7 @@ const INITIAL: State = {
   photoUrl: null,
   selectedActivities: ["dinner", "cinema", "walk", "gaming", "shopping", "cafe"],
   customActivityLabels: {},
+  customActivityEmojis: {},
   selectedDressCodes: ["Casual", "Semi-formal", "Couple Outfit", "Formal", "Bebas"],
   customDressCodes: {},
   status: "draft",
@@ -80,6 +105,9 @@ export default function StudioClient({
   const [showMusicModal, setShowMusicModal] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewField, setPreviewField] = useState<string | null>(null);
+  const [emojiPickerId, setEmojiPickerId] = useState<string | null>(null);
+  const [customMusicUrl, setCustomMusicUrl] = useState("");
+  const [customMusicTitle, setCustomMusicTitle] = useState("");
 
   useEffect(() => {
     fetch("/assets/playlist.json")
@@ -114,6 +142,7 @@ export default function StudioClient({
           photoUrl: data.photoUrl ?? s.photoUrl,
           selectedActivities: data.activities?.map((a: any) => a.id) ?? s.selectedActivities,
           customActivityLabels: data.activities?.reduce((acc: any, a: any) => ({ ...acc, [a.id]: a.label }), {}) ?? s.customActivityLabels,
+          customActivityEmojis: data.activities?.reduce((acc: any, a: any) => (a.emoji ? { ...acc, [a.id]: a.emoji } : acc), {}) ?? s.customActivityEmojis,
           selectedDressCodes: data.dressCodes ?? s.selectedDressCodes,
           customDressCodes: {},
           status: data.status ?? s.status,
@@ -167,7 +196,11 @@ export default function StudioClient({
         photoUrl: st.photoUrl,
         activities: ACTIVITIES
           .filter(a => st.selectedActivities.includes(a.id))
-          .map(a => ({ ...a, label: (st.customActivityLabels || {})[a.id] ?? a.label })),
+          .map(a => ({
+            ...a,
+            label: (st.customActivityLabels || {})[a.id] ?? a.label,
+            emoji: (st.customActivityEmojis || {})[a.id] ?? a.emoji ?? "✨",
+          })),
         dressCodes: st.selectedDressCodes.map(dc => (st.customDressCodes || {})[dc] ?? dc),
         status: "published",
         musicUrl: st.musicUrl,
@@ -586,43 +619,42 @@ export default function StudioClient({
                   <p className="text-xs mt-1 opacity-50" style={{ color: theme.text }}>Tampil di halaman pilih tanggal kencan</p>
                 </div>
               </div>
+              <p className="text-xs font-semibold" style={{ color: theme.accent, opacity: 0.9 }}>
+                💡 Tap tombol emoji di sebelah kiri untuk mengganti emoji tiap pilihan tempat!
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 {ACTIVITIES.map(a => {
                   const active = st.selectedActivities.includes(a.id);
-                  const SVG_MAP: Record<string, string> = {
-                    "dinner": "makan.svg",
-                    "cinema": "nonton-film.svg",
-                    "walk": "jalan-jalan.svg",
-                    "gaming": "main-game.svg",
-                    "shopping": "belanja.svg",
-                    "cafe": "ngopi-bareng.svg",
-                    "picnic": "piknik.svg",
-                    "concert": "konser.svg"
-                  };
-                  const svgFileName = SVG_MAP[a.id];
+                  const currentEmoji = (st.customActivityEmojis || {})[a.id] ?? a.emoji;
                   
                   return (
                     <motion.div
                       key={a.id}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => update({ selectedActivities: active ? st.selectedActivities.filter(x => x !== a.id) : [...st.selectedActivities, a.id] })}
-                      className="flex items-center gap-2 p-3 rounded-2xl border-2 transition-all cursor-pointer"
+                      className="flex items-center gap-2 p-2.5 rounded-2xl border-2 transition-all cursor-pointer"
                       style={{
                         background: active ? `${theme.accent}15` : `${theme.accent}05`,
                         borderColor: active ? theme.accent : `${theme.accent}22`,
                         color: theme.text,
                       }}
                     >
-                      {svgFileName ? (
-                        <img 
-                          src={`/${svgFileName}`} 
-                          alt={a.label} 
-                          className="w-4 h-4 object-contain flex-shrink-0"
-                          style={{ filter: active ? "none" : "opacity(0.5) grayscale(100%)" }} 
-                        />
-                      ) : (
-                        <IconSparkle size={16} color={active ? theme.accent : theme.text} className="flex-shrink-0" />
-                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEmojiPickerId(a.id);
+                        }}
+                        className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border transition-transform hover:scale-110 active:scale-95 shadow-xs"
+                        style={{
+                          background: active ? `${theme.accent}25` : "white",
+                          borderColor: active ? theme.accent : `${theme.accent}40`,
+                        }}
+                        title="Klik untuk ganti emoji"
+                      >
+                        <span className="text-lg leading-none select-none">{currentEmoji}</span>
+                      </button>
+
                       <input
                         type="text"
                         value={(st.customActivityLabels || {})[a.id] ?? a.label}
@@ -807,6 +839,53 @@ export default function StudioClient({
                 <button onClick={() => { setShowMusicModal(false); setPreviewUrl(null); }} className="text-sm font-bold" style={{ color: theme.accent }}>Tutup</button>
               </div>
               <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 pb-12 sm:pb-4">
+                {/* Custom Music URL Input Box */}
+                <div className="p-4 rounded-2xl border-2 flex flex-col gap-2.5 transition-all" style={{ background: `${theme.accent}08`, borderColor: `${theme.accent}33` }}>
+                  <p className="font-bold text-xs uppercase tracking-widest flex items-center gap-1.5" style={{ color: theme.accent }}>
+                    <span>🔗</span> Tempel Link Musik (MP3 / Audio URL)
+                  </p>
+                  <input
+                    type="url"
+                    value={customMusicUrl}
+                    onChange={e => setCustomMusicUrl(e.target.value)}
+                    placeholder="https://domain.com/lagu-kita.mp3"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none bg-white border border-pink-200"
+                    style={{ color: theme.text }}
+                  />
+                  <input
+                    type="text"
+                    value={customMusicTitle}
+                    onChange={e => setCustomMusicTitle(e.target.value)}
+                    placeholder="Judul Lagu (opsional: misal Lagu Kenangan Kita)"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none bg-white border border-pink-200"
+                    style={{ color: theme.text }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!customMusicUrl.trim()) return;
+                      update({
+                        musicUrl: customMusicUrl.trim(),
+                        musicTitle: customMusicTitle.trim() || "Lagu Pilihan Kamu 🎵",
+                      });
+                      setShowMusicModal(false);
+                      showToast("Link musik berhasil dipasang!");
+                    }}
+                    disabled={!customMusicUrl.trim()}
+                    className="w-full py-2.5 rounded-xl font-bold text-xs text-white transition-all shadow-xs"
+                    style={{
+                      background: theme.accent,
+                      opacity: customMusicUrl.trim() ? 1 : 0.5,
+                    }}
+                  >
+                    Pasang Link Musik Ini
+                  </button>
+                </div>
+
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest my-1 text-center">
+                  — ATAU PILIH DARI PRESET —
+                </div>
+
                 <button
                   onClick={() => { update({ musicUrl: null, musicTitle: null }); setShowMusicModal(false); setPreviewUrl(null); }}
                   className="w-full p-4 rounded-2xl border-2 flex items-center gap-3 transition-all text-left"
@@ -1034,6 +1113,78 @@ export default function StudioClient({
                 className="w-full py-3 rounded-2xl font-bold text-sm text-white bg-pink-400 hover:bg-pink-500 transition-colors shadow-md shadow-pink-200 shrink-0 mt-1"
               >
                 Paham & Tutup
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Preset Emoji Picker Modal */}
+      <AnimatePresence>
+        {emojiPickerId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            onClick={() => setEmojiPickerId(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[85vh] shadow-2xl flex flex-col gap-3 relative overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
+                <div>
+                  <h3 className="font-bold text-sm text-gray-800">Pilih Emoji Tempat ✨</h3>
+                  <p className="text-[11px] text-pink-500 font-semibold">
+                    {(st.customActivityLabels || {})[emojiPickerId] ?? ACTIVITIES.find(x => x.id === emojiPickerId)?.label ?? "Aktivitas"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setEmojiPickerId(null)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold hover:bg-gray-200 transition-colors shrink-0"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Scrollable Emoji Preset Categories */}
+              <div className="overflow-y-auto flex flex-col gap-4 pr-1 max-h-[55vh]">
+                {EMOJI_CATEGORIES.map((cat) => (
+                  <div key={cat.name} className="flex flex-col gap-1.5">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{cat.name}</span>
+                    <div className="grid grid-cols-6 gap-2">
+                      {cat.emojis.map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => {
+                            update({
+                              customActivityEmojis: {
+                                ...(st.customActivityEmojis || {}),
+                                [emojiPickerId]: emoji,
+                              },
+                            });
+                            setEmojiPickerId(null);
+                          }}
+                          className="w-10 h-10 rounded-2xl flex items-center justify-center text-2xl transition-all hover:scale-125 hover:bg-pink-50 active:scale-95 border border-transparent hover:border-pink-200"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setEmojiPickerId(null)}
+                className="w-full py-2.5 rounded-2xl font-bold text-xs text-white bg-pink-400 hover:bg-pink-500 transition-colors shadow-sm shrink-0 mt-1"
+              >
+                Selesai
               </button>
             </motion.div>
           </motion.div>

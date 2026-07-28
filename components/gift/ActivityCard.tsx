@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ACTIVITY_ICONS } from "@/components/ui/Icon";
 
-interface Activity { id: string; label: string; }
+interface Activity { id: string; label: string; emoji?: string; }
 
 interface Props {
   activities: Activity[];
@@ -95,7 +95,9 @@ export default function ActivityCard({ activities, title = "Nanti kita ngapain s
                     background: isSelected ? "transparent" : `${theme.accent}12`,
                   }}
                 >
-                  {svgFileName ? (
+                  {act.emoji ? (
+                    <span className="text-2xl leading-none select-none">{act.emoji}</span>
+                  ) : svgFileName ? (
                     <img 
                       src={`/${svgFileName}`} 
                       alt={act.label} 
