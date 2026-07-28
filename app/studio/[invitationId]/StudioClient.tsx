@@ -882,10 +882,10 @@ export default function StudioClient({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl flex flex-col gap-4 overflow-hidden relative"
+              className="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[85vh] shadow-2xl flex flex-col gap-3 relative overflow-hidden"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+              {/* Fixed Top Header with Close Button */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="p-2 rounded-xl bg-pink-50">
                     <IconEye size={18} color="#e8789a" strokeWidth={2} />
@@ -904,103 +904,108 @@ export default function StudioClient({
                 </div>
                 <button
                   onClick={() => setPreviewField(null)}
-                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold hover:bg-gray-200 transition-colors"
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold hover:bg-gray-200 transition-colors shrink-0"
+                  title="Tutup Modal"
                 >
                   ✕
                 </button>
               </div>
 
-              {/* Visual Mini Mockup */}
-              <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 p-4 rounded-2xl border border-pink-100 flex flex-col items-center justify-center min-h-[190px]">
-                {previewField === "recipientName" && (
-                  <div className="w-full flex flex-col items-center gap-2 text-center">
-                    <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
-                      <span className="text-[10px] italic text-amber-800 opacity-60 block">{st.invitationTitle || "Invitation From"}</span>
-                      <span className="text-xs font-bold uppercase text-amber-950 block my-1">{st.senderName || "Nama Kamu"}</span>
-                      <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
-                      <span className="text-[10px] italic text-amber-800 opacity-60 block mb-1">For</span>
-                      <div className="relative inline-block px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
-                        <span className="text-sm font-extrabold uppercase text-pink-600">{st.recipientName || "Ziza"}</span>
-                        <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 NAMA PENERIMA</span>
+              {/* Scrollable Content Body */}
+              <div className="overflow-y-auto flex flex-col gap-4 pr-1 max-h-[60vh]">
+                {/* Visual Mini Mockup */}
+                <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 p-4 rounded-2xl border border-pink-100 flex flex-col items-center justify-center min-h-[180px]">
+                  {previewField === "recipientName" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
+                        <span className="text-[10px] italic text-amber-800 opacity-60 block">{st.invitationTitle || "Invitation From"}</span>
+                        <span className="text-xs font-bold uppercase text-amber-950 block my-1">{st.senderName || "Nama Kamu"}</span>
+                        <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
+                        <span className="text-[10px] italic text-amber-800 opacity-60 block mb-1">For</span>
+                        <div className="relative inline-block px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
+                          <span className="text-sm font-extrabold uppercase text-pink-600">{st.recipientName || "Ziza"}</span>
+                          <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 NAMA PENERIMA</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {previewField === "senderName" && (
-                  <div className="w-full flex flex-col items-center gap-2 text-center">
-                    <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
-                      <span className="text-[10px] italic text-amber-800 opacity-60 block">{st.invitationTitle || "Invitation From"}</span>
-                      <div className="relative inline-block my-1 px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
-                        <span className="text-sm font-extrabold uppercase text-pink-600">{st.senderName || "Rayy"}</span>
-                        <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 NAMA KAMU</span>
+                  {previewField === "senderName" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
+                        <span className="text-[10px] italic text-amber-800 opacity-60 block">{st.invitationTitle || "Invitation From"}</span>
+                        <div className="relative inline-block my-1 px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
+                          <span className="text-sm font-extrabold uppercase text-pink-600">{st.senderName || "Rayy"}</span>
+                          <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 NAMA KAMU</span>
+                        </div>
+                        <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
+                        <span className="text-[10px] italic text-amber-800 opacity-60 block">For</span>
+                        <span className="text-xs font-bold uppercase text-amber-950 block mt-0.5">{st.recipientName || "Nama Penerima"}</span>
                       </div>
-                      <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
-                      <span className="text-[10px] italic text-amber-800 opacity-60 block">For</span>
-                      <span className="text-xs font-bold uppercase text-amber-950 block mt-0.5">{st.recipientName || "Nama Penerima"}</span>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {previewField === "invitationTitle" && (
-                  <div className="w-full flex flex-col items-center gap-2 text-center">
-                    <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
-                      <div className="relative inline-block mb-1 px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
-                        <span className="text-xs italic font-bold text-pink-600 block">{st.invitationTitle || "Invitation From"}</span>
-                        <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 JUDUL OPENING</span>
+                  {previewField === "invitationTitle" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
+                        <div className="relative inline-block mb-1 px-3 py-1 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse">
+                          <span className="text-xs italic font-bold text-pink-600 block">{st.invitationTitle || "Invitation From"}</span>
+                          <span className="absolute -top-3 -right-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 JUDUL OPENING</span>
+                        </div>
+                        <span className="text-xs font-bold uppercase text-amber-950 block my-1">{st.senderName || "Rayy"}</span>
+                        <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
+                        <span className="text-[10px] italic text-amber-800 opacity-60 block">For</span>
+                        <span className="text-xs font-bold uppercase text-amber-950 block">{st.recipientName || "Ziza"}</span>
                       </div>
-                      <span className="text-xs font-bold uppercase text-amber-950 block my-1">{st.senderName || "Rayy"}</span>
-                      <div className="w-6 h-px bg-amber-800/30 mx-auto my-1" />
-                      <span className="text-[10px] italic text-amber-800 opacity-60 block">For</span>
-                      <span className="text-xs font-bold uppercase text-amber-950 block">{st.recipientName || "Ziza"}</span>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {previewField === "subText" && (
-                  <div className="w-full flex flex-col items-center gap-2 text-center">
-                    <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
-                      <span className="text-[8px] font-bold text-pink-400 uppercase tracking-widest block mb-1">SPECIAL INVITATION</span>
-                      <p className="text-xs font-bold text-gray-800">Maukah kamu pergi kencan denganku?</p>
-                      <div className="relative inline-block mt-2 px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse w-full">
-                        <p className="text-xs italic text-pink-700 font-medium">{st.subText || "contoh: maukah kamu kencan denganku?"}</p>
-                        <span className="absolute -top-2.5 -right-1 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 SUB-TEKS AJAKAN</span>
+                  {previewField === "subText" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="relative w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200">
+                        <span className="text-[8px] font-bold text-pink-400 uppercase tracking-widest block mb-1">SPECIAL INVITATION</span>
+                        <p className="text-xs font-bold text-gray-800">Maukah kamu pergi kencan denganku?</p>
+                        <div className="relative inline-block mt-2 px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse w-full">
+                          <p className="text-xs italic text-pink-700 font-medium">{st.subText || "contoh: maukah kamu kencan denganku?"}</p>
+                          <span className="absolute -top-2.5 -right-1 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 SUB-TEKS AJAKAN</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {previewField === "closingNote" && (
-                  <div className="w-full flex flex-col items-center gap-2 text-center">
-                    <div className="relative w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300">
-                      <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest border-b pb-1 mb-2">TIKET KENCAN</div>
-                      <p className="text-[10px] text-gray-500">UNTUK: {st.recipientName || "Ziza"}</p>
-                      <p className="text-[10px] text-gray-500 mb-2">KAPAN: Selasa, 28 Juli 2026</p>
-                      <div className="relative w-full rounded-xl p-2.5 bg-pink-100 border-2 border-pink-400 animate-pulse text-left">
-                        <span className="text-[7px] font-bold uppercase text-pink-600 tracking-wider block mb-1">CATATAN DARI {(st.senderName || "RAYY").toUpperCase()}</span>
-                        <p className="text-[11px] italic text-pink-900 leading-snug">{st.closingNote || "Jangan lupa istirahat yang cukup yaa..."}</p>
-                        <span className="absolute -top-2.5 -right-1 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 PESAN PENUTUP</span>
+                  {previewField === "closingNote" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="relative w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300">
+                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest border-b pb-1 mb-2">TIKET KENCAN</div>
+                        <p className="text-[10px] text-gray-500">UNTUK: {st.recipientName || "Ziza"}</p>
+                        <p className="text-[10px] text-gray-500 mb-2">KAPAN: Selasa, 28 Juli 2026</p>
+                        <div className="relative w-full rounded-xl p-2.5 bg-pink-100 border-2 border-pink-400 animate-pulse text-left max-h-[160px] overflow-y-auto">
+                          <span className="text-[7px] font-bold uppercase text-pink-600 tracking-wider block mb-1 sticky top-0 bg-pink-100/90 py-0.5">CATATAN DARI {(st.senderName || "RAYY").toUpperCase()}</span>
+                          <p className="text-[11px] italic text-pink-900 leading-snug whitespace-pre-line">{st.closingNote || "Jangan lupa istirahat yang cukup yaa..."}</p>
+                          <span className="absolute top-1 right-1 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow">📍 PESAN PENUTUP</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+
+                {/* Description */}
+                <div className="bg-pink-50/70 rounded-2xl p-3 border border-pink-100">
+                  <p className="text-xs text-gray-600 leading-snug">
+                    <span className="font-bold text-pink-600">💡 Posisi: </span>
+                    {previewField === "recipientName" && "Tampil sebagai nama tujuan di animasi pembuka dan kartu utama undangan."}
+                    {previewField === "senderName" && "Tampil sebagai nama pengirim di animasi pembuka dan footer tiket akhir."}
+                    {previewField === "invitationTitle" && "Tampil sebagai kata pengantar tepat di atas namamu di animasi bunga pembuka."}
+                    {previewField === "subText" && "Tampil sebagai kalimat ajakan tambahan di kartu undangan utama."}
+                    {previewField === "closingNote" && "Tampil sebagai kotak catatan/surat khusus di bagian paling bawah tiket kencan."}
+                  </p>
+                </div>
               </div>
 
-              {/* Description */}
-              <div className="bg-pink-50/70 rounded-2xl p-3 border border-pink-100">
-                <p className="text-xs text-gray-600 leading-snug">
-                  <span className="font-bold text-pink-600">💡 Posisi: </span>
-                  {previewField === "recipientName" && "Tampil sebagai nama tujuan di animasi pembuka dan kartu utama undangan."}
-                  {previewField === "senderName" && "Tampil sebagai nama pengirim di animasi pembuka dan footer tiket akhir."}
-                  {previewField === "invitationTitle" && "Tampil sebagai kata pengantar tepat di atas namamu di animasi bunga pembuka."}
-                  {previewField === "subText" && "Tampil sebagai kalimat ajakan tambahan di kartu undangan utama."}
-                  {previewField === "closingNote" && "Tampil sebagai kotak catatan/surat khusus di bagian paling bawah tiket kencan."}
-                </p>
-              </div>
-
+              {/* Fixed Bottom Button */}
               <button
                 onClick={() => setPreviewField(null)}
-                className="w-full py-3 rounded-2xl font-bold text-sm text-white bg-pink-400 hover:bg-pink-500 transition-colors shadow-md shadow-pink-200"
+                className="w-full py-3 rounded-2xl font-bold text-sm text-white bg-pink-400 hover:bg-pink-500 transition-colors shadow-md shadow-pink-200 shrink-0 mt-1"
               >
                 Paham & Tutup
               </button>
