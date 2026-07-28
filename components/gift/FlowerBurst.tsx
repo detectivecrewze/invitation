@@ -264,7 +264,10 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
 
     if (openingShape === "star") {
       // Star formation first, then heart
-      const starPts = buildStarPoints(54, HS * 12, HS * 5, 5);
+      // Scale star based on screen size so text in center is fully clear
+      const starOuterR = Math.max(190, Math.min(W, H) * 0.38);
+      const starInnerR = starOuterR * 0.52; // Inner V-indent stays ~100-150px away from center text
+      const starPts = buildStarPoints(60, starOuterR, starInnerR, 5);
       spawnFormation(starPts, HEART_MS, 4000);
 
       const heartPts = buildHeartPoints(54, HS);
