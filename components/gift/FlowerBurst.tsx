@@ -10,6 +10,10 @@ interface Props {
   /** ~14300ms: all petals fallen, overlay faded → remove */
   onDone: () => void;
   theme: { bg: string; card: string; accent: string; text: string };
+  /** Shape to form during opening animation */
+  openingShape?: "heart" | "star";
+  /** Custom title shown above sender name (default: "Invitation From") */
+  invitationTitle?: string;
 }
 
 const FLOWER_SRCS = [
@@ -20,7 +24,7 @@ const FLOWER_SRCS = [
   "/assets/flower_hydrangea-removebg-preview.png",
 ];
 
-export default function FlowerBurst({ recipientName, senderName, onSwitchState, onDone, theme }: Props) {
+export default function FlowerBurst({ recipientName, senderName, onSwitchState, onDone, theme, openingShape = "heart", invitationTitle = "Invitation From" }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const hasRun = useRef(false);
 
@@ -159,7 +163,7 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       const dS = `width:32px;height:1px;background:rgba(100,60,20,.3);margin:0 auto 16px;display:block;`;
 
       card.innerHTML = `
-        ${from ? `<span style="${iS}">Invitation From</span><span style="${nS}margin-bottom:16px;">${from}</span>` : ""}
+        ${from ? `<span style="${iS}">${invitationTitle}</span><span style="${nS}margin-bottom:16px;">${from}</span>` : ""}
         <span style="${dS}"></span>
         ${to   ? `<span style="${iS}">For</span><span style="${nS}">${to}</span>` : ""}
       `;
@@ -176,35 +180,100 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     }, TEXT_MS);
 
     // ════════════════════════════════════════════════════════════════════════
-    // 4. HEART FORMATION  (z-index 200, above petals)
+    // 4. SHAPE FORMATION  (z-index 200) — heart or star based on openingShape
     // ════════════════════════════════════════════════════════════════════════
-    setTimeout(() => {
-      const hw = mkDiv("position:absolute;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:200;");
-      el.appendChild(hw);
 
+    // Helper: generate evenly-spaced points along a parametric curve
+    const buildHeartPoints = (count: number, scale: number): {x:number;y:number}[] => {
       const SAMP=2000; const raw:{x:number;y:number}[]=[];
       for(let i=0;i<SAMP;i++){const t=(i/SAMP)*Math.PI*2;raw.push({x:16*Math.pow(Math.sin(t),3),y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))});}
       const arc=[0];for(let i=1;i<SAMP;i++){const dx=raw[i].x-raw[i-1].x,dy=raw[i].y-raw[i-1].y;arc.push(arc[i-1]+Math.sqrt(dx*dx+dy*dy));}
       const tot=arc[SAMP-1];
-
-      const HC=54, FSZ=Math.min(46,W*.1), HS=Math.min(13,W*.028);
-      const hEls:HTMLDivElement[]=[];
+      const pts: {x:number;y:number}[] = [];
       let si=0;
-
-      for(let i=0;i<HC;i++){
-        const tl=(i/HC)*tot;
+      for(let i=0;i<count;i++){
+        const tl=(i/count)*tot;
         while(si<SAMP-1&&arc[si+1]<tl)si++;
-        const pt=raw[si];
-        const px=cx+pt.x*HS, py=cy+pt.y*HS-30;
-        const d=mkDiv(`position:absolute;width:${FSZ}px;height:${FSZ}px;left:${px-FSZ/2}px;top:${py-FSZ/2}px;opacity:0;transform:scale(.1);will-change:transform,opacity;`);
-        d.appendChild(mkImg(FLOWER_SRCS[i % FLOWER_SRCS.length],i%2===0?"_fi-cw":"_fi-ccw",(4+(i%3)*2).toFixed(2)));
-        hw.appendChild(d); hEls.push(d);
-        setTimeout(()=>d.animate([{transform:"scale(0) rotate(-30deg)",opacity:0},{transform:"scale(1.25) rotate(5deg)",opacity:1,offset:.65},{transform:"scale(1) rotate(0)",opacity:1}],{duration:550,easing:"cubic-bezier(.34,1.56,.64,1)",fill:"both"}),(i/HC)*600);
+        pts.push({x:raw[si].x*scale, y:raw[si].y*scale});
       }
+      return pts;
+    };
 
-      setTimeout(()=>hEls.forEach(d=>d.animate([{transform:"scale(1)"},{transform:"scale(1.08)"},{transform:"scale(1)"}],{duration:900,easing:"ease-in-out",iterations:3})),700);
-      setTimeout(()=>hEls.forEach((d,i)=>setTimeout(()=>d.animate([{transform:"scale(1)",opacity:1},{transform:"scale(.3) rotate(20deg)",opacity:0}],{duration:400,easing:"ease-in",fill:"both"}),(i/HC)*300)),HEART_STAY);
-    }, HEART_MS);
+    const buildStarPoints = (count: number, outerR: number, innerR: number, numPoints: number): {x:number;y:number}[] => {
+      const pts: {x:number;y:number}[] = [];
+      // Build star path vertices
+      const vertices: {x:number;y:number}[] = [];
+      for (let i=0; i<numPoints*2; i++) {
+        const angle = (i * Math.PI / numPoints) - Math.PI/2;
+        const r = i % 2 === 0 ? outerR : innerR;
+        vertices.push({ x: Math.cos(angle)*r, y: Math.sin(angle)*r });
+      }
+      vertices.push(vertices[0]); // close
+      // Compute total arc length
+      const segs: number[] = [0];
+      for(let i=1;i<vertices.length;i++){
+        const dx=vertices[i].x-vertices[i-1].x, dy=vertices[i].y-vertices[i-1].y;
+        segs.push(segs[i-1]+Math.sqrt(dx*dx+dy*dy));
+      }
+      const tot = segs[segs.length-1];
+      // Interpolate count evenly-spaced points
+      let si=0;
+      for(let i=0;i<count;i++){
+        const tl = (i/count)*tot;
+        while(si<segs.length-2 && segs[si+1]<tl) si++;
+        const frac = segs[si+1]-segs[si] > 0 ? (tl-segs[si])/(segs[si+1]-segs[si]) : 0;
+        pts.push({
+          x: vertices[si].x + (vertices[si+1].x-vertices[si].x)*frac,
+          y: vertices[si].y + (vertices[si+1].y-vertices[si].y)*frac,
+        });
+      }
+      return pts;
+    };
+
+    const spawnFormation = (points: {x:number;y:number}[], delay: number, stayDur: number) => {
+      const hw = mkDiv("position:absolute;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:200;");
+      el.appendChild(hw);
+      const FSZ = Math.min(46, W*.1);
+      const hEls: HTMLDivElement[] = [];
+      const count = points.length;
+
+      setTimeout(() => {
+        points.forEach((pt, i) => {
+          const px = cx + pt.x - 30;
+          const py = cy + pt.y - 30;
+          const d = mkDiv(`position:absolute;width:${FSZ}px;height:${FSZ}px;left:${px}px;top:${py}px;opacity:0;transform:scale(.1);will-change:transform,opacity;`);
+          d.appendChild(mkImg(FLOWER_SRCS[i % FLOWER_SRCS.length], i%2===0 ? "_fi-cw" : "_fi-ccw", (4+(i%3)*2).toFixed(2)));
+          hw.appendChild(d); hEls.push(d);
+          setTimeout(() => d.animate(
+            [{transform:"scale(0) rotate(-30deg)",opacity:0},{transform:"scale(1.25) rotate(5deg)",opacity:1,offset:.65},{transform:"scale(1) rotate(0)",opacity:1}],
+            {duration:550, easing:"cubic-bezier(.34,1.56,.64,1)", fill:"both"}
+          ), (i/count)*600);
+        });
+        setTimeout(() => hEls.forEach(d => d.animate(
+          [{transform:"scale(1)"},{transform:"scale(1.08)"},{transform:"scale(1)"}],
+          {duration:900, easing:"ease-in-out", iterations:3}
+        )), 700);
+        setTimeout(() => hEls.forEach((d,i) => setTimeout(() => d.animate(
+          [{transform:"scale(1)",opacity:1},{transform:"scale(.3) rotate(20deg)",opacity:0}],
+          {duration:400, easing:"ease-in", fill:"both"}
+        ), (i/count)*300)), stayDur);
+      }, delay);
+    };
+
+    const HS = Math.min(13, W*.028);
+
+    if (openingShape === "star") {
+      // Star formation first, then heart
+      const starPts = buildStarPoints(54, HS * 12, HS * 5, 5);
+      spawnFormation(starPts, HEART_MS, 4000);
+
+      const heartPts = buildHeartPoints(54, HS);
+      spawnFormation(heartPts, HEART_MS + 5200, HEART_STAY);
+    } else {
+      // Heart only (default)
+      const heartPts = buildHeartPoints(54, HS);
+      spawnFormation(heartPts, HEART_MS, HEART_STAY);
+    }
 
     // ════════════════════════════════════════════════════════════════════════
     // 5. PETAL WATERFALL ── starts AFTER heart + name done (10500ms)

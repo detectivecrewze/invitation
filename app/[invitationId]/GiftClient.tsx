@@ -37,6 +37,9 @@ interface InvitationData {
   musicTitle?: string;
   activityTitle?: string;
   dateTitle?: string;
+  invitationTitle?: string;
+  closingNote?: string;
+  openingShape?: "heart" | "star";
 }
 
 interface Props {
@@ -212,6 +215,8 @@ export default function GiftClient({ data, invitationId }: Props) {
           onSwitchState={handleFlowerSwitchState}
           onDone={handleFlowerDone}
           theme={theme}
+          openingShape={data.openingShape ?? "heart"}
+          invitationTitle={data.invitationTitle ?? "Invitation From"}
         />
       )}
 
@@ -305,6 +310,7 @@ export default function GiftClient({ data, invitationId }: Props) {
                     dressCode: answers.dressCode,
                     message: answers.message,
                     subText: data.subText,
+                    senderNote: data.closingNote,
                   }}
                   theme={theme}
                   onReset={handleReset}

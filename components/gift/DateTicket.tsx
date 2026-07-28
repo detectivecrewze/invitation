@@ -14,6 +14,7 @@ interface DateTimeProps {
     dressCode: string;
     message: string;
     subText?: string;
+    senderNote?: string;
   };
   theme: { bg: string; card: string; accent: string; text: string };
   onReset: () => void;
@@ -168,6 +169,18 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
 
         {/* Footer */}
         <div className="px-6 py-5 flex flex-col items-center text-center gap-3">
+          {/* Closing note from sender (studio-configured) */}
+          {data.senderNote && data.senderNote.trim() !== "" && (
+            <div
+              className="w-full rounded-2xl px-4 py-3 mb-1"
+              style={{ background: `${theme.accent}10`, border: `1px solid ${theme.accent}22` }}
+            >
+              <span className="text-[8px] font-bold tracking-widest uppercase block mb-1" style={{ color: theme.accent }}>Catatan</span>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: "1.1rem", color: theme.text, lineHeight: 1.4 }}>
+                {data.senderNote}
+              </p>
+            </div>
+          )}
           {data.subText && data.subText.trim() !== "" && (
             <p style={{ fontFamily: "var(--font-caveat)", fontSize: "1.1rem", color: theme.text, opacity: 0.9, lineHeight: 1.4 }}>
               {data.subText}

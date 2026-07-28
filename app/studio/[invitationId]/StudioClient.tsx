@@ -24,6 +24,9 @@ interface State {
   musicTitle: string | null;
   activityTitle: string;
   dateTitle: string;
+  invitationTitle: string;
+  closingNote: string;
+  openingShape: "heart" | "star";
 }
 
 const INITIAL: State = {
@@ -41,6 +44,9 @@ const INITIAL: State = {
   musicTitle: null,
   activityTitle: "Nanti kita ngapain sayang?",
   dateTitle: "Kapan sayangku free?",
+  invitationTitle: "Invitation From",
+  closingNote: "",
+  openingShape: "heart",
 };
 
 const STEPS = [
@@ -114,6 +120,9 @@ export default function StudioClient({
           musicTitle: data.musicTitle ?? s.musicTitle,
           activityTitle: data.activityTitle ?? s.activityTitle,
           dateTitle: data.dateTitle ?? s.dateTitle,
+          invitationTitle: data.invitationTitle ?? s.invitationTitle,
+          closingNote: data.closingNote ?? s.closingNote,
+          openingShape: data.openingShape ?? s.openingShape,
         }));
         if (data.status === "published") {
           setPublished(true);
@@ -164,6 +173,9 @@ export default function StudioClient({
         musicTitle: st.musicTitle,
         activityTitle: st.activityTitle || "Nanti kita ngapain sayang?",
         dateTitle: st.dateTitle || "Kapan sayangku free?",
+        invitationTitle: st.invitationTitle || "Invitation From",
+        closingNote: st.closingNote || "",
+        openingShape: st.openingShape || "heart",
         ...(bundleToken ? { bundleToken } : {}),
       };
       const r = await fetch("/api/invitations", {
@@ -321,6 +333,38 @@ export default function StudioClient({
                   </motion.button>
                 ))}
               </div>
+
+              {/* Opening Shape Selector */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-widest block mb-2" style={{ color: theme.accent }}>
+                  Bentuk Animasi Opening ✨
+                </label>
+                <p className="text-xs mb-3" style={{ color: theme.text, opacity: 0.55 }}>Shape yang akan terbentuk dari bunga saat animasi pembuka</p>
+                <div className="flex gap-3">
+                  {(["heart", "star"] as const).map(shape => (
+                    <motion.button
+                      key={shape}
+                      onClick={() => update({ openingShape: shape })}
+                      whileTap={{ scale: 0.96 }}
+                      className="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 transition-all flex flex-col items-center gap-1.5"
+                      style={{
+                        background: st.openingShape === shape ? `${theme.accent}15` : `${theme.accent}05`,
+                        borderColor: st.openingShape === shape ? theme.accent : `${theme.accent}22`,
+                        color: theme.text,
+                        boxShadow: st.openingShape === shape ? `0 4px 16px ${theme.accent}30` : "none",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.6rem", lineHeight: 1 }}>
+                        {shape === "heart" ? "❤️" : "⭐"}
+                      </span>
+                      <span className="text-xs font-bold" style={{ color: st.openingShape === shape ? theme.accent : theme.text }}>
+                        {shape === "heart" ? "Hati" : "Bintang → Hati"}
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
               <button
                 onClick={() => setStep(2)}
                 className="w-full py-3.5 rounded-2xl font-bold text-white"
@@ -360,6 +404,39 @@ export default function StudioClient({
                   />
                 </div>
               ))}
+
+              {/* Invitation Title */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-widest block mb-1.5" style={{ color: theme.accent }}>
+                  Judul Animasi Opening
+                </label>
+                <input
+                  type="text"
+                  value={st.invitationTitle}
+                  onChange={e => update({ invitationTitle: e.target.value })}
+                  placeholder="Invitation From"
+                  className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none"
+                  style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
+                />
+                <p className="text-xs mt-1 opacity-50" style={{ color: theme.text }}>Teks yang muncul sebelum namamu di animasi pembuka (default: &ldquo;Invitation From&rdquo;)</p>
+              </div>
+
+              {/* Closing Note */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-widest block mb-1.5" style={{ color: theme.accent }}>
+                  Pesan Penutup di Tiket (opsional)
+                </label>
+                <textarea
+                  value={st.closingNote}
+                  onChange={e => update({ closingNote: e.target.value })}
+                  placeholder="Tulis pesan spesial yang akan muncul di tiket kencan..."
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none resize-none"
+                  style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
+                />
+                <p className="text-xs mt-1 opacity-50" style={{ color: theme.text }}>Akan tampil di bagian bawah tiket kencan</p>
+              </div>
+
               <div className="flex gap-3">
                 <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-2xl font-bold border-2" style={{ borderColor: `${theme.accent}33`, color: theme.text }}>Kembali</button>
                 <button onClick={() => setStep(3)} className="flex-1 py-3 rounded-2xl font-bold text-white" style={{ background: theme.accent }}>Lanjut</button>
