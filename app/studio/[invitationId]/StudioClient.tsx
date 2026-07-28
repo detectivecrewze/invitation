@@ -133,6 +133,23 @@ export default function StudioClient({
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data) return;
+        const defaultDressCodes = ["Casual", "Semi-formal", "Couple Outfit", "Formal", "Bebas"];
+        const loadedCustomDC: Record<string, string> = {};
+        const loadedSelectedDC: string[] = [];
+
+        if (data.dressCodes && Array.isArray(data.dressCodes)) {
+          const uniqueInput = Array.from(new Set<string>(data.dressCodes));
+          uniqueInput.forEach((dc: string, idx: number) => {
+            if (defaultDressCodes.includes(dc)) {
+              if (!loadedSelectedDC.includes(dc)) loadedSelectedDC.push(dc);
+            } else {
+              const slotKey = defaultDressCodes[idx] ?? defaultDressCodes[loadedSelectedDC.length] ?? dc;
+              loadedCustomDC[slotKey] = dc;
+              if (!loadedSelectedDC.includes(slotKey)) loadedSelectedDC.push(slotKey);
+            }
+          });
+        }
+
         setSt(s => ({
           ...s,
           themeId: data.themeId ?? s.themeId,
@@ -143,8 +160,8 @@ export default function StudioClient({
           selectedActivities: data.activities?.map((a: any) => a.id) ?? s.selectedActivities,
           customActivityLabels: data.activities?.reduce((acc: any, a: any) => ({ ...acc, [a.id]: a.label }), {}) ?? s.customActivityLabels,
           customActivityEmojis: data.activities?.reduce((acc: any, a: any) => (a.emoji ? { ...acc, [a.id]: a.emoji } : acc), {}) ?? s.customActivityEmojis,
-          selectedDressCodes: data.dressCodes ?? s.selectedDressCodes,
-          customDressCodes: {},
+          selectedDressCodes: loadedSelectedDC.length > 0 ? loadedSelectedDC : s.selectedDressCodes,
+          customDressCodes: loadedCustomDC,
           status: data.status ?? s.status,
           musicUrl: data.musicUrl ?? s.musicUrl,
           musicTitle: data.musicTitle ?? s.musicTitle,
@@ -201,7 +218,7 @@ export default function StudioClient({
             label: (st.customActivityLabels || {})[a.id] ?? a.label,
             emoji: (st.customActivityEmojis || {})[a.id] ?? a.emoji ?? "✨",
           })),
-        dressCodes: st.selectedDressCodes.map(dc => (st.customDressCodes || {})[dc] ?? dc),
+        dressCodes: Array.from(new Set(st.selectedDressCodes.map(dc => (st.customDressCodes || {})[dc] ?? dc))),
         status: "published",
         musicUrl: st.musicUrl,
         musicTitle: st.musicTitle,

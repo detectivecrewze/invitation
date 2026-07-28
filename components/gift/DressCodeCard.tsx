@@ -60,11 +60,11 @@ export default function DressCodeCard({ dressCodes, theme, onNext }: Props) {
 
         {/* Dress code pills */}
         <div className="w-full flex flex-wrap justify-center gap-2 mb-4">
-          {dressCodes.map((dc) => {
+          {Array.from(new Set(dressCodes)).map((dc, i) => {
             const isSelected = selected === dc;
             return (
               <motion.button
-                key={dc}
+                key={`${dc}-${i}`}
                 onClick={() => handleSelect(dc)}
                 whileTap={{ scale: 0.95 }}
                 className="px-4 py-2 rounded-full font-medium text-[13px] transition-all"
