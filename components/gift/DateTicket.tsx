@@ -155,7 +155,7 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
             <IconWrapper><IconMessage size={16} color={theme.accent} /></IconWrapper>
             <div className="flex flex-col">
               <span className="text-[8px] font-bold tracking-widest uppercase opacity-60" style={{ color: theme.text }}>PESAN</span>
-              <span style={{ fontFamily: "var(--font-caveat)", fontSize: "1.3rem", color: theme.text, lineHeight: 1.2, marginTop: "2px" }}>
+              <span style={{ fontFamily: "var(--font-caveat)", fontSize: "1.3rem", color: theme.text, lineHeight: 1.3, marginTop: "2px", whiteSpace: "pre-line" }}>
                 {data.message || "-"}
               </span>
             </div>
@@ -172,11 +172,11 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
           {/* Closing note from sender (studio-configured) */}
           {data.senderNote && data.senderNote.trim() !== "" && (
             <div
-              className="w-full rounded-2xl px-4 py-3 mb-1"
+              className="w-full rounded-2xl px-5 py-4 mb-1 text-left"
               style={{ background: `${theme.accent}10`, border: `1px solid ${theme.accent}22` }}
             >
-              <span className="text-[8px] font-bold tracking-widest uppercase block mb-1" style={{ color: theme.accent }}>Catatan</span>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: "1.1rem", color: theme.text, lineHeight: 1.4 }}>
+              <span className="text-[8px] font-bold tracking-widest uppercase block mb-2 opacity-70" style={{ color: theme.accent }}>Catatan</span>
+              <p style={{ fontFamily: "var(--font-caveat)", fontSize: "1.2rem", color: theme.text, lineHeight: 1.5, whiteSpace: "pre-line", wordBreak: "break-word" }}>
                 {data.senderNote}
               </p>
             </div>
