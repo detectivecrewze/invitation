@@ -167,13 +167,13 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
         nameFontSize = "clamp(14px, 4vw, 17px)";
         maxWidth = "min(190px, 52vw)";
       } else {
-        titleFontSize = titleLen > 30 ? "clamp(12px, 1.2vw, 14px)" : titleLen > 18 ? "clamp(13px, 1.4vw, 16px)" : "clamp(14px, 1.6vw, 18px)";
+        titleFontSize = titleLen > 30 ? "clamp(11px, 1.1vw, 13px)" : titleLen > 18 ? "clamp(12px, 1.3vw, 14px)" : "clamp(13px, 1.5vw, 15px)";
         nameFontSize = "clamp(18px, 2.2vw, 24px)";
-        maxWidth = "min(340px, 38vw)";
+        maxWidth = "min(210px, 25vw)"; // Strictly constrain desktop width so long titles wrap nicely into 2 lines instead of 1 long 340px line
       }
 
-      const card = mkDiv(`position:absolute;top:${cy}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "40%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
-      const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.28;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:${isMobile ? "4px" : "8px"};word-break:break-word;overflow-wrap:break-word;hyphens:auto;max-width:100%;`;
+      const card = mkDiv(`position:absolute;top:${cy}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "35%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
+      const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.3;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:${isMobile ? "4px" : "8px"};word-break:break-word;overflow-wrap:break-word;text-wrap:balance;text-align:center;max-width:100%;`;
       const nS = `font-family:'Georgia',serif;letter-spacing:.12em;text-transform:uppercase;font-size:${nameFontSize};color:rgba(50,30,15,.95);font-weight:700;display:block;text-shadow:0 2px 12px rgba(255,255,255,.9),0 1px 3px rgba(255,255,255,1);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
       const dS = `width:${isMobile ? "24px" : "36px"};height:1px;background:rgba(100,60,20,.3);margin:${isMobile ? "4px auto 10px" : "8px auto 16px"};display:block;`;
 
@@ -249,7 +249,7 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       const hw = mkDiv("position:absolute;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:200;");
       el.appendChild(hw);
       const isMobile = W < 640;
-      const FSZ = isMobile ? Math.min(36, Math.max(24, W * 0.08)) : Math.min(46, Math.max(34, Math.min(W, H) * 0.038));
+      const FSZ = isMobile ? Math.min(36, Math.max(24, W * 0.08)) : Math.min(44, Math.max(32, Math.min(W, H) * 0.035));
       const hEls: HTMLDivElement[] = [];
       const count = points.length;
 
@@ -280,8 +280,8 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       // Star formation ONLY
       const starOuterR = isMobile
         ? Math.max(155, Math.min(W, H) * 0.41)
-        : Math.min(290, Math.max(220, Math.min(W, H) * 0.35));
-      const starInnerR = starOuterR * 0.53;
+        : Math.min(300, Math.max(240, Math.min(W, H) * 0.36));
+      const starInnerR = starOuterR * 0.57; // Opened up inner V ratio so text cavity is wider
       const starPts = buildStarPoints(60, starOuterR, starInnerR, 5);
       spawnFormation(starPts, HEART_MS, HEART_STAY);
     } else {
