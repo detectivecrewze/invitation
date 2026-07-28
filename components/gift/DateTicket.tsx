@@ -123,7 +123,7 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
             <IconWrapper><IconUser size={16} color={theme.accent} /></IconWrapper>
             <div className="flex flex-col">
               <span className="text-[8px] font-bold tracking-widest uppercase opacity-60" style={{ color: theme.text }}>UNTUK</span>
-              <span style={{ fontFamily: "var(--font-caveat)", fontSize: "1.4rem", color: theme.text, lineHeight: 1.1 }}>{data.senderName}</span>
+              <span style={{ fontFamily: "var(--font-caveat)", fontSize: "1.4rem", color: theme.text, lineHeight: 1.1 }}>{data.recipientName}</span>
             </div>
           </div>
 
@@ -151,12 +151,12 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
             </div>
           </div>
 
-          {/* Pesan Balasan dari Penerima */}
+          {/* Notes dari Penerima */}
           <div className="flex gap-3 items-start">
             <IconWrapper><IconMessage size={16} color={theme.accent} /></IconWrapper>
             <div className="flex flex-col w-full min-w-0">
               <span className="text-[8px] font-bold tracking-widest uppercase opacity-60 block mb-0.5" style={{ color: theme.text }}>
-                PESAN BALASAN DARI {data.recipientName.toUpperCase()}
+                NOTES DARI {data.recipientName.toUpperCase()}
               </span>
               {data.message && data.message.trim() !== "" ? (
                 <div
@@ -203,7 +203,7 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
             </p>
           )}
           <span className="text-[10px] font-bold" style={{ color: theme.accent }}>
-            dari {data.recipientName}, buat {data.senderName} ♥
+            dari {data.senderName}, buat {data.recipientName} ♥
           </span>
         </div>
       </motion.div>
