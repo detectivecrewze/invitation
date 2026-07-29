@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import * as htmlToImage from "html-to-image";
 import { IconShare, IconWhatsApp, IconUser, IconCalendar, IconSparkle, IconHanger, IconMessage, IconHeart } from "@/components/ui/Icon";
@@ -18,6 +18,66 @@ interface DateTimeProps {
   };
   theme: { bg: string; card: string; accent: string; text: string };
   onReset: () => void;
+}
+
+function TypewriterText({
+  text,
+  speed = 35,
+  isDownloading = false,
+  accentColor,
+  style,
+}: {
+  text: string;
+  speed?: number;
+  isDownloading?: boolean;
+  accentColor?: string;
+  style?: React.CSSProperties;
+}) {
+  const [displayedLength, setDisplayedLength] = useState(isDownloading ? text.length : 0);
+  const [isDone, setIsDone] = useState(isDownloading);
+
+  useEffect(() => {
+    if (isDownloading) {
+      setDisplayedLength(text.length);
+      setIsDone(true);
+      return;
+    }
+
+    setDisplayedLength(0);
+    setIsDone(false);
+
+    let idx = 0;
+    const interval = setInterval(() => {
+      idx++;
+      setDisplayedLength(idx);
+      if (idx >= text.length) {
+        setIsDone(true);
+        clearInterval(interval);
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed, isDownloading]);
+
+  const currentText = isDownloading ? text : text.slice(0, displayedLength);
+
+  return (
+    <div className="relative">
+      <p style={style}>
+        {currentText}
+        {!isDone && !isDownloading && (
+          <motion.span
+            animate={{ opacity: [1, 0] }}
+            transition={{ duration: 0.4, repeat: Infinity, repeatType: "reverse" }}
+            className="inline-block font-sans font-bold text-xs ml-0.5"
+            style={{ color: accentColor || "currentColor" }}
+          >
+            |
+          </motion.span>
+        )}
+      </p>
+    </div>
+  );
 }
 
 export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
@@ -192,9 +252,13 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
               <span className="text-[8px] font-bold tracking-widest uppercase block mb-1.5 opacity-70" style={{ color: theme.accent }}>
                 CATATAN DARI {data.senderName.toUpperCase()}
               </span>
-              <p style={{ fontFamily: "var(--font-caveat)", fontSize: "1.2rem", color: theme.text, lineHeight: 1.5, whiteSpace: "pre-line", wordBreak: "break-word" }}>
-                {data.senderNote}
-              </p>
+              <TypewriterText
+                text={data.senderNote}
+                speed={35}
+                isDownloading={downloading}
+                accentColor={theme.accent}
+                style={{ fontFamily: "var(--font-caveat)", fontSize: "1.2rem", color: theme.text, lineHeight: 1.5, whiteSpace: "pre-line", wordBreak: "break-word" }}
+              />
             </div>
           )}
           {data.subText && data.subText.trim() !== "" && (
