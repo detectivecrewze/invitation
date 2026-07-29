@@ -40,6 +40,7 @@ interface InvitationData {
   invitationTitle?: string;
   closingNote?: string;
   openingShape?: "heart" | "star";
+  ticketTitle?: string;
 }
 
 interface Props {
@@ -311,6 +312,7 @@ export default function GiftClient({ data, invitationId }: Props) {
                     message: answers.message,
                     subText: data.subText,
                     senderNote: data.closingNote,
+                    ticketTitle: data.ticketTitle,
                   }}
                   theme={theme}
                   onReset={handleReset}

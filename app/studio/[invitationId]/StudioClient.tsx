@@ -51,6 +51,7 @@ interface State {
   invitationTitle: string;
   closingNote: string;
   openingShape: "heart" | "star";
+  ticketTitle: string;
 }
 
 const INITIAL: State = {
@@ -72,6 +73,7 @@ const INITIAL: State = {
   invitationTitle: "Invitation From",
   closingNote: "",
   openingShape: "heart",
+  ticketTitle: "Tiket kencan",
 };
 
 const STEPS = [
@@ -170,6 +172,7 @@ export default function StudioClient({
           invitationTitle: data.invitationTitle ?? s.invitationTitle,
           closingNote: data.closingNote ?? s.closingNote,
           openingShape: data.openingShape ?? s.openingShape,
+          ticketTitle: data.ticketTitle ?? s.ticketTitle,
         }));
         if (data.status === "published") {
           setPublished(true);
@@ -227,6 +230,7 @@ export default function StudioClient({
         invitationTitle: st.invitationTitle || "Invitation From",
         closingNote: st.closingNote || "",
         openingShape: st.openingShape || "heart",
+        ticketTitle: st.ticketTitle || "Tiket kencan",
         ...(bundleToken ? { bundleToken } : {}),
       };
       const r = await fetch("/api/invitations", {
@@ -494,6 +498,34 @@ export default function StudioClient({
                   style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
                 />
                 <p className="text-xs mt-1 opacity-50" style={{ color: theme.text }}>Teks yang muncul sebelum namamu di animasi pembuka (default: &ldquo;Invitation From&rdquo;)</p>
+              </div>
+
+              {/* Ticket Title */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold uppercase tracking-widest" style={{ color: theme.accent }}>
+                    Judul Tiket Akhir (opsional)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewField("ticketTitle")}
+                    className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                    style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
+                    title="Klik untuk intip posisi tampilan di undangan"
+                  >
+                    <IconEye size={13} color={theme.accent} strokeWidth={2} />
+                    <span>Intip Tampilan</span>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={st.ticketTitle}
+                  onChange={e => update({ ticketTitle: e.target.value })}
+                  placeholder="Tiket kencan"
+                  className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none"
+                  style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
+                />
+                <p className="text-xs mt-1 opacity-50" style={{ color: theme.text }}>Judul utama di bagian atas tiket kencan (default: &ldquo;Tiket kencan&rdquo;)</p>
               </div>
 
               {/* Closing Note */}
@@ -1109,6 +1141,25 @@ export default function StudioClient({
                       </div>
                     </div>
                   )}
+
+                  {previewField === "ticketTitle" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300 flex flex-col items-center gap-1">
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-1">ADMIT TWO</span>
+                        
+                        <div className="flex flex-col items-center gap-1 w-full">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: JUDUL TIKET AKHIR
+                          </span>
+                          <div className="w-full px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-sm font-bold text-pink-700 block">{st.ticketTitle || "Tiket kencan"}</span>
+                          </div>
+                        </div>
+
+                        <p className="text-[10px] text-gray-500 mt-2">UNTUK: {st.recipientName || "Ziza"}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -1120,6 +1171,7 @@ export default function StudioClient({
                     {previewField === "invitationTitle" && "Tampil sebagai kata pengantar tepat di atas namamu di animasi bunga pembuka."}
                     {previewField === "subText" && "Tampil sebagai kalimat ajakan tambahan di kartu undangan utama."}
                     {previewField === "closingNote" && "Tampil sebagai kotak catatan/surat khusus di bagian paling bawah tiket kencan."}
+                    {previewField === "ticketTitle" && "Tampil sebagai judul utama di bagian paling atas tiket kencan hasil akhir."}
                   </p>
                 </div>
               </div>

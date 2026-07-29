@@ -15,6 +15,7 @@ interface DateTimeProps {
     message: string;
     subText?: string;
     senderNote?: string;
+    ticketTitle?: string;
   };
   theme: { bg: string; card: string; accent: string; text: string };
   onReset: () => void;
@@ -163,7 +164,7 @@ export default function DateTicket({ data, theme, onReset }: DateTimeProps) {
               ADMIT TWO
             </span>
             <h3 style={{ fontFamily: "var(--font-caveat)", fontSize: "2.2rem", color: theme.text, lineHeight: 1 }}>
-              Tiket kencan
+              {data.ticketTitle || "Tiket kencan"}
             </h3>
           </div>
           {/* Stamp */}
