@@ -172,7 +172,8 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
         maxWidth = "min(210px, 25vw)"; // Strictly constrain desktop width so long titles wrap nicely into 2 lines instead of 1 long 340px line
       }
 
-      const card = mkDiv(`position:absolute;top:${cy}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "35%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
+      const cardTopY = openingShape === "heart" ? cy + (isMobile ? 26 : 48) : cy;
+      const card = mkDiv(`position:absolute;top:${cardTopY}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "35%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
       const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.3;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:${isMobile ? "4px" : "8px"};word-break:break-word;overflow-wrap:break-word;text-wrap:balance;text-align:center;max-width:100%;`;
       const nS = `font-family:'Georgia',serif;letter-spacing:.16em;text-transform:uppercase;font-size:${nameFontSize};color:rgba(60,35,20,.9);font-weight:500;display:block;text-shadow:0 1px 6px rgba(255,255,255,.9);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
       const dS = `width:${isMobile ? "24px" : "36px"};height:1px;background:rgba(100,60,20,.3);margin:${isMobile ? "4px auto 10px" : "8px auto 16px"};display:block;`;
@@ -198,20 +199,48 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     // 4. SHAPE FORMATION  (z-index 200) — heart or star based on openingShape
     // ════════════════════════════════════════════════════════════════════════
 
-    // Helper: generate evenly-spaced points along a parametric curve
+    // Helper: generate 100% perfectly symmetrical, evenly-spaced points for heart shape
     const buildHeartPoints = (count: number, scale: number): {x:number;y:number}[] => {
-      const SAMP=2000; const raw:{x:number;y:number}[]=[];
-      for(let i=0;i<SAMP;i++){const t=(i/SAMP)*Math.PI*2;raw.push({x:16*Math.pow(Math.sin(t),3),y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))});}
-      const arc=[0];for(let i=1;i<SAMP;i++){const dx=raw[i].x-raw[i-1].x,dy=raw[i].y-raw[i-1].y;arc.push(arc[i-1]+Math.sqrt(dx*dx+dy*dy));}
-      const tot=arc[SAMP-1];
-      const pts: {x:number;y:number}[] = [];
-      let si=0;
-      for(let i=0;i<count;i++){
-        const tl=(i/count)*tot;
-        while(si<SAMP-1&&arc[si+1]<tl)si++;
-        pts.push({x:raw[si].x*scale, y:raw[si].y*scale});
+      const halfCount = Math.floor(count / 2);
+      const SAMP = 1000;
+      const rawRight: {x:number; y:number}[] = [];
+      
+      // Sample right half from t = 0 (top cleft) to t = Math.PI (bottom tip)
+      for (let i = 0; i <= SAMP; i++) {
+        const t = (i / SAMP) * Math.PI;
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+        rawRight.push({ x: x * scale, y: y * scale });
       }
-      return pts;
+
+      // Compute cumulative arc lengths for right half
+      const arc = [0];
+      for (let i = 1; i <= SAMP; i++) {
+        const dx = rawRight[i].x - rawRight[i-1].x;
+        const dy = rawRight[i].y - rawRight[i-1].y;
+        arc.push(arc[i-1] + Math.sqrt(dx * dx + dy * dy));
+      }
+      const totRight = arc[SAMP];
+
+      // Evenly sample right half
+      const rightPts: {x:number; y:number}[] = [];
+      let si = 0;
+      for (let i = 0; i < halfCount; i++) {
+        const targetArc = (i / halfCount) * totRight;
+        while (si < SAMP - 1 && arc[si + 1] < targetArc) si++;
+        const frac = arc[si + 1] - arc[si] > 0 ? (targetArc - arc[si]) / (arc[si + 1] - arc[si]) : 0;
+        rightPts.push({
+          x: rawRight[si].x + (rawRight[si + 1].x - rawRight[si].x) * frac,
+          y: rawRight[si].y + (rawRight[si + 1].y - rawRight[si].y) * frac,
+        });
+      }
+
+      const bottomTip = rawRight[SAMP];
+
+      // Mirror right points to left side for 100% exact symmetry
+      const leftPts = rightPts.slice(1).map(pt => ({ x: -pt.x, y: pt.y })).reverse();
+      
+      return [...rightPts, bottomTip, ...leftPts];
     };
 
     const buildStarPoints = (count: number, outerR: number, innerR: number, numPoints: number): {x:number;y:number}[] => {
