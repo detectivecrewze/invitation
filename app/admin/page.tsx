@@ -18,10 +18,26 @@ export default function AdminPage() {
   const [tab, setTab] = useState<"invitations" | "tokens" | "barcode">("invitations");
   const [toast, setToast] = useState<string | null>(null);
 
-  // Barcode generator state
+  // Barcode & Physical Gift Card generator state
   const [barcodeUrl, setBarcodeUrl] = useState("");
-  const [barcodeName, setBarcodeName] = useState("");
+  const [barcodeName, setBarcodeName] = useState("Untuk Zahra");
   const [barcodeColor, setBarcodeColor] = useState("#e8789a");
+  const [cardSide, setCardSide] = useState<"front" | "back">("front");
+  
+  // Custom Card Fields
+  const [frontTitle, setFrontTitle] = useState("SOMETHING SPECIAL FOR U");
+  const [badgeText, setBadgeText] = useState("SCAN QR CODE TO OPEN");
+  const [cardNote, setCardNote] = useState("Scan QR code menggunakan kamera HP milikmu untuk membukanya");
+  const [cardWeb, setCardWeb] = useState("for-you-always.my.id");
+  const [cardIg, setCardIg] = useState("foryoualways.id");
+  const [cardTiktok, setCardTiktok] = useState("fya2.id");
+  const [backBrandTitle, setBackBrandTitle] = useState("For you, Always.");
+  const [backSubtitle, setBackSubtitle] = useState("SPECIAL EDITION GIFT CARD");
+  const [backMessage, setBackMessage] = useState(
+    "Scan QR code yang ada di sisi depan kartu ini menggunakan kamera smartphone-mu untuk membuka kado & pesan digital spesial yang telah disiapkan khusus untukmu."
+  );
+  const [backFooter, setBackFooter] = useState("Crafted with Love · for-you-always.my.id");
+  
   const qrWrapRef = useRef<HTMLDivElement>(null);
 
   const [showNew, setShowNew] = useState(false);
@@ -58,35 +74,301 @@ export default function AdminPage() {
     load();
   };
 
-  const downloadQR = async () => {
-    const el = qrWrapRef.current?.querySelector("svg");
-    if (!el) return;
-    const serializer = new XMLSerializer();
-    const svgStr = serializer.serializeToString(el);
-    const img = new Image();
-    const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 600;
-      canvas.height = barcodeName ? 680 : 600;
-      const ctx = canvas.getContext("2d")!;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, 600, 600);
-      if (barcodeName) {
-        ctx.font = "bold 42px Caveat, cursive";
-        ctx.fillStyle = barcodeColor;
+  const downloadCardSide = async (side: "front" | "back") => {
+    if (!barcodeUrl) return;
+    await document.fonts.ready;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 2400;
+    canvas.height = side === "front" ? 2800 : 3200;
+    const ctx = canvas.getContext("2d")!;
+    if (!ctx) return;
+
+    const color = barcodeColor || "#e8789a";
+
+    if (side === "front") {
+      const el = qrWrapRef.current?.querySelector("svg");
+      if (!el) return;
+
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(el);
+      const img = new Image();
+      const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+      const svgUrl = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        // 1. Background Fill
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, 2400, 2800);
+
+        // 2. Outer Frame (Shorter 2800px compact card)
+        ctx.strokeStyle = `${color}40`;
+        ctx.lineWidth = 8;
+        drawRoundedRect(ctx, 100, 100, 2200, 2600, 70);
+        ctx.stroke();
+
+        // Inner Hairline Frame
+        ctx.strokeStyle = `${color}18`;
+        ctx.lineWidth = 3;
+        drawRoundedRect(ctx, 126, 126, 2148, 2548, 52);
+        ctx.stroke();
+
+        // Corner Flourish Dots
+        const dots = [
+          [160, 160], [2240, 160], [160, 2640], [2240, 2640]
+        ];
+        ctx.fillStyle = `${color}60`;
+        dots.forEach(([dx, dy]) => {
+          ctx.beginPath();
+          ctx.arc(dx, dy, 8, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // 3. Top Header Title
+        ctx.font = "bold 46px Inter, sans-serif";
+        ctx.fillStyle = color;
         ctx.textAlign = "center";
-        ctx.fillText(barcodeName, 300, 656);
-      }
-      URL.revokeObjectURL(svgUrl);
+        ctx.letterSpacing = "0.26em";
+        ctx.fillText((frontTitle || "SOMETHING SPECIAL FOR U").toUpperCase(), 1200, 270);
+
+        // Top Ornamental Line: ─── ♥ ───
+        ctx.strokeStyle = `${color}30`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(850, 330);
+        ctx.lineTo(1130, 330);
+        ctx.moveTo(1270, 330);
+        ctx.lineTo(1550, 330);
+        ctx.stroke();
+
+        ctx.font = "30px sans-serif";
+        ctx.fillStyle = color;
+        ctx.fillText("♥", 1200, 338);
+
+        // 4. Center Hero Heart QR Code (Size 1440x1440px, y = 380 to 1820)
+        ctx.drawImage(img, 480, 380, 1440, 1440);
+
+        // 5. Recipient Name / Caption (y = 1910)
+        if (barcodeName) {
+          ctx.strokeStyle = `${color}30`;
+          ctx.lineWidth = 2;
+          const nameTextWidth = ctx.measureText(barcodeName).width || 400;
+          const sideLineW = Math.min(260, Math.max(100, (1800 - nameTextWidth) / 2));
+          
+          ctx.beginPath();
+          ctx.moveTo(1200 - nameTextWidth/2 - sideLineW, 1890);
+          ctx.lineTo(1200 - nameTextWidth/2 - 30, 1890);
+          ctx.moveTo(1200 + nameTextWidth/2 + 30, 1890);
+          ctx.lineTo(1200 + nameTextWidth/2 + sideLineW, 1890);
+          ctx.stroke();
+
+          ctx.font = "bold 105px Caveat, cursive, Georgia";
+          ctx.fillStyle = color;
+          ctx.textAlign = "center";
+          ctx.fillText(barcodeName, 1200, 1910);
+        }
+
+        const hasFooter = Boolean(cardWeb.trim() || cardIg.trim() || cardTiktok.trim());
+
+        // 6. Instruction Badge Pill (Dynamic Y: 2045 with footer, 2100 without footer)
+        const badgeW = 1600;
+        const badgeH = 140;
+        const badgeX = (2400 - badgeW) / 2;
+        const badgeY = hasFooter ? 2045 : 2100;
+        
+        ctx.fillStyle = `${color}12`;
+        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 70);
+        ctx.fill();
+        ctx.strokeStyle = `${color}40`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.font = "bold 45px Inter, sans-serif";
+        ctx.fillStyle = color;
+        ctx.textAlign = "center";
+        ctx.letterSpacing = "0.10em";
+        ctx.fillText(badgeText || "SCAN QR CODE TO OPEN", 1200, badgeY + 88);
+
+        // 7. Short Note Message / Quote (Dynamic Y: 2260 with footer, 2360 without footer)
+        if (cardNote) {
+          ctx.font = "italic 48px Georgia, serif";
+          ctx.fillStyle = `${color}ee`;
+          const noteY = hasFooter ? 2260 : 2360;
+          wrapCanvasText(ctx, `"${cardNote}"`, 1200, noteY, 1800, 64);
+        }
+
+        // 8. Website Link with Globe Icon (y = 2465)
+        if (cardWeb) {
+          const cleanWeb = cardWeb.replace(/^https?:\/\//i, "").trim().toLowerCase();
+          ctx.font = "bold 34px Inter, sans-serif";
+          ctx.fillStyle = color;
+          ctx.textAlign = "left";
+          ctx.letterSpacing = "0.18em";
+
+          const textW = ctx.measureText(`: ${cleanWeb}`).width || 450;
+          const iconSize = 36;
+          const totalW = iconSize + 10 + textW;
+          const startX = (2400 - totalW) / 2;
+
+          drawGlobeIcon(ctx, startX + iconSize/2, 2465, iconSize, color);
+          ctx.fillText(`: ${cleanWeb}`, startX + iconSize + 10, 2477);
+        }
+
+        // 9. Social Media Handles: IG & TikTok (y = 2560)
+        if (cardIg || cardTiktok) {
+          ctx.font = "bold 30px Inter, sans-serif";
+          ctx.fillStyle = `${color}aa`;
+          ctx.letterSpacing = "0.12em";
+
+          const cleanIg = (cardIg || "").replace(/^@/, "").trim().toLowerCase();
+          const cleanTiktok = (cardTiktok || "").replace(/^@/, "").trim().toLowerCase();
+
+          const iconSize = 34;
+          const igTextW = cleanIg ? ctx.measureText(`: ${cleanIg}`).width || 250 : 0;
+          const ttTextW = cleanTiktok ? ctx.measureText(`: ${cleanTiktok}`).width || 150 : 0;
+          const dotW = (cleanIg && cleanTiktok) ? 70 : 0;
+
+          const igBlockW = cleanIg ? (iconSize + 8 + igTextW) : 0;
+          const ttBlockW = cleanTiktok ? (iconSize + 8 + ttTextW) : 0;
+          const totalW = igBlockW + dotW + ttBlockW;
+          let currentX = (2400 - totalW) / 2;
+
+          // Draw IG Part
+          if (cleanIg) {
+            ctx.textAlign = "left";
+            drawInstagramIcon(ctx, currentX + iconSize/2, 2555, iconSize, `${color}aa`);
+            ctx.fillText(`: ${cleanIg}`, currentX + iconSize + 8, 2566);
+            currentX += igBlockW;
+          }
+
+          // Draw Separator Dot
+          if (cleanIg && cleanTiktok) {
+            ctx.textAlign = "center";
+            ctx.fillText("•", currentX + 35, 2566);
+            currentX += dotW;
+          }
+
+          // Draw TikTok Part
+          if (cleanTiktok) {
+            ctx.textAlign = "left";
+            drawTikTokIcon(ctx, currentX + iconSize/2, 2555, iconSize, `${color}aa`);
+            ctx.fillText(`: ${cleanTiktok}`, currentX + iconSize + 8, 2566);
+          }
+        }
+
+        URL.revokeObjectURL(svgUrl);
+
+        const link = document.createElement("a");
+        link.download = `${barcodeName ? barcodeName.replace(/\s+/g, '_') : 'gift_card'}_DEPAN_300DPI.png`;
+        link.href = canvas.toDataURL("image/png", 1.0);
+        link.click();
+      };
+      img.src = svgUrl;
+    } else {
+      // BACK SIDE
+      ctx.fillStyle = "#faf7f9";
+      ctx.fillRect(0, 0, 2400, 3200);
+
+      // Outer Border Frame
+      ctx.strokeStyle = `${color}40`;
+      ctx.lineWidth = 12;
+      drawRoundedRect(ctx, 100, 100, 2200, 3000, 80);
+      ctx.stroke();
+
+      // Inner Accent Line
+      ctx.strokeStyle = `${color}20`;
+      ctx.lineWidth = 4;
+      drawRoundedRect(ctx, 130, 130, 2140, 2940, 60);
+      ctx.stroke();
+
+      // Top Brand Header
+      ctx.font = "bold 96px Georgia, serif";
+      ctx.fillStyle = color;
+      ctx.textAlign = "center";
+      ctx.fillText(backBrandTitle || "For you, Always.", 1200, 420);
+
+      ctx.font = "bold 42px Inter, sans-serif";
+      ctx.fillStyle = `${color}aa`;
+      ctx.fillText((backSubtitle || "SPECIAL EDITION GIFT CARD").toUpperCase(), 1200, 510);
+
+      // Divider Line with Heart
+      ctx.strokeStyle = `${color}40`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(700, 600);
+      ctx.lineTo(1700, 600);
+      ctx.stroke();
+
+      ctx.font = "36px sans-serif";
+      ctx.fillStyle = color;
+      ctx.fillText("♥", 1200, 612);
+
+      // Center Message Box
+      const boxX = 220;
+      const boxY = 720;
+      const boxW = 1960;
+      const boxH = 1500;
+
+      ctx.fillStyle = "#ffffff";
+      drawRoundedRect(ctx, boxX, boxY, boxW, boxH, 60);
+      ctx.fill();
+
+      ctx.strokeStyle = `${color}30`;
+      ctx.lineWidth = 4;
+      ctx.setLineDash([16, 12]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = "bold 44px Inter, sans-serif";
+      ctx.fillStyle = `${color}cc`;
+      ctx.fillText("✉ SURAT / PETUNJUK PENERIMA", 1200, 840);
+
+      ctx.font = "56px Georgia, serif";
+      ctx.fillStyle = "#333333";
+      ctx.textAlign = "center";
+      const msg = backMessage || "Scan QR code yang ada di sisi depan kartu ini menggunakan kamera smartphone-mu untuk membuka kado & pesan digital spesial yang telah disiapkan khusus untukmu.";
+      wrapCanvasText(ctx, msg, 1200, 980, 1700, 95);
+
+      // Circular Stamp
+      const stampY = 2500;
+      ctx.beginPath();
+      ctx.arc(1200, stampY, 130, 0, Math.PI * 2);
+      ctx.strokeStyle = `${color}55`;
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(1200, stampY, 115, 0, Math.PI * 2);
+      ctx.strokeStyle = `${color}33`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 6]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = "60px sans-serif";
+      ctx.fillStyle = color;
+      ctx.fillText("✨", 1200, stampY + 20);
+
+      // Bottom Footer
+      ctx.font = "bold 46px Georgia, serif";
+      ctx.fillStyle = `${color}ee`;
+      ctx.fillText(backFooter || "Crafted with Love · for-you-always.my.id", 1200, 2920);
+
       const link = document.createElement("a");
-      link.download = `${barcodeName || "barcode"}-qr.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.download = `${barcodeName ? barcodeName.replace(/\s+/g, '_') : 'gift_card'}_BELAKANG_300DPI.png`;
+      link.href = canvas.toDataURL("image/png", 1.0);
       link.click();
-    };
-    img.src = svgUrl;
+    }
+  };
+
+  const downloadBothSides = async () => {
+    showToast("Mengunduh Kartu Depan (300 DPI)...");
+    await downloadCardSide("front");
+    setTimeout(async () => {
+      showToast("Mengunduh Kartu Belakang (300 DPI)...");
+      await downloadCardSide("back");
+      showToast("✓ Kartu Depan & Belakang berhasil diunduh!");
+    }, 1200);
   };
 
   const deleteToken = async (id: string) => {
@@ -331,41 +613,49 @@ export default function AdminPage() {
             )}
             {/* Barcode Generator */}
             {tab === "barcode" && (
-              <div className="flex flex-col gap-5">
-                <div className="bg-white rounded-3xl p-6 shadow-sm">
-                  <h3 className="font-bold text-base text-gray-800 mb-4 flex items-center gap-2">
-                    <IconSparkle size={18} color="#e8789a" strokeWidth={2} /> Generator Barcode Hati
-                  </h3>
-                  <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-6">
+                {/* Card Editor Form */}
+                <div className="bg-white rounded-3xl p-6 shadow-sm flex flex-col gap-4">
+                  <div className="flex items-center justify-between border-b pb-3">
+                    <h3 className="font-bold text-base text-gray-800 flex items-center gap-2">
+                      <IconSparkle size={18} color="#e8789a" strokeWidth={2} /> Generator Kartu Fisik & Barcode (300 DPI Ultra HD)
+                    </h3>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-pink-50 text-pink-600 px-2.5 py-1 rounded-full border border-pink-200">
+                      Print Ready / Art Paper
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-4">
+                    {/* Link / URL */}
                     <div>
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">Link / URL</label>
+                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1">
+                        Link / URL Undangan (Target QR)
+                      </label>
                       <input
                         type="url"
                         value={barcodeUrl}
                         onChange={e => setBarcodeUrl(e.target.value)}
-                        placeholder="https://contoh.com/link-undangan"
-                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm focus:border-pink-300 transition-colors"
+                        placeholder="https://mixtape-love.com/kencan-kamu-dan-aku"
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm focus:border-pink-300 font-medium"
                       />
                     </div>
+
+                    {/* Color Palette */}
                     <div>
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">Nama / Caption (opsional)</label>
-                      <input
-                        type="text"
-                        value={barcodeName}
-                        onChange={e => setBarcodeName(e.target.value)}
-                        placeholder="contoh: Untuk Zahra"
-                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm focus:border-pink-300 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">Warna</label>
+                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">
+                        Warna Tema Kartu & QR Code
+                      </label>
                       <div className="flex items-center gap-3">
                         {["#e8789a", "#7b68ee", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#1a1a2e"].map(c => (
                           <button
                             key={c}
                             onClick={() => setBarcodeColor(c)}
                             className="w-8 h-8 rounded-full border-4 transition-all"
-                            style={{ background: c, borderColor: barcodeColor === c ? c : "transparent", boxShadow: barcodeColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : "none" }}
+                            style={{
+                              background: c,
+                              borderColor: barcodeColor === c ? c : "transparent",
+                              boxShadow: barcodeColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : "none",
+                            }}
                           />
                         ))}
                         <input
@@ -377,41 +667,355 @@ export default function AdminPage() {
                         />
                       </div>
                     </div>
+
+                    {/* Customization Accordion Tabs */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                      {/* Front Settings */}
+                      <div className="p-4 rounded-2xl bg-pink-50/50 border border-pink-100 flex flex-col gap-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-pink-600 flex items-center gap-1.5">
+                          🎴 Teks Sisi Depan (Front)
+                        </p>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Judul Atas Kartu</label>
+                          <input
+                            type="text"
+                            value={frontTitle}
+                            onChange={e => setFrontTitle(e.target.value)}
+                            placeholder="SOMETHING SPECIAL FOR U"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Nama / Caption Penerima</label>
+                          <input
+                            type="text"
+                            value={barcodeName}
+                            onChange={e => setBarcodeName(e.target.value)}
+                            placeholder="Untuk Zahra"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Badge Teks Bawah</label>
+                          <input
+                            type="text"
+                            value={badgeText}
+                            onChange={e => setBadgeText(e.target.value)}
+                            placeholder="SCAN QR CODE TO OPEN"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Pesan Pendek / Surat Singkat Kartu</label>
+                          <input
+                            type="text"
+                            value={cardNote}
+                            onChange={e => setCardNote(e.target.value)}
+                            placeholder="Scan QR code menggunakan kamera HP..."
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Website Domain</label>
+                          <input
+                            type="text"
+                            value={cardWeb}
+                            onChange={e => setCardWeb(e.target.value)}
+                            placeholder="for-you-always.my.id"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Instagram Username</label>
+                          <input
+                            type="text"
+                            value={cardIg}
+                            onChange={e => setCardIg(e.target.value)}
+                            placeholder="foryoualways.id"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">TikTok Username</label>
+                          <input
+                            type="text"
+                            value={cardTiktok}
+                            onChange={e => setCardTiktok(e.target.value)}
+                            placeholder="fya2.id"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Back Settings */}
+                      <div className="p-4 rounded-2xl bg-purple-50/50 border border-purple-100 flex flex-col gap-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1.5">
+                          🎴 Teks Sisi Belakang (Back)
+                        </p>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Nama Brand Utama</label>
+                          <input
+                            type="text"
+                            value={backBrandTitle}
+                            onChange={e => setBackBrandTitle(e.target.value)}
+                            placeholder="For you, Always."
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Subtitle Brand</label>
+                          <input
+                            type="text"
+                            value={backSubtitle}
+                            onChange={e => setBackSubtitle(e.target.value)}
+                            placeholder="SPECIAL EDITION GIFT CARD"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Pesan / Surat Petunjuk</label>
+                          <textarea
+                            value={backMessage}
+                            onChange={e => setBackMessage(e.target.value)}
+                            rows={3}
+                            placeholder="Scan QR code yang ada di sisi depan kartu ini..."
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800 resize-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Footer / Website Link</label>
+                          <input
+                            type="text"
+                            value={backFooter}
+                            onChange={e => setBackFooter(e.target.value)}
+                            placeholder="Crafted with Love · for-you-always.my.id"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {barcodeUrl && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-3xl p-6 shadow-sm flex flex-col items-center gap-4"
-                  >
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-center" style={{ color: barcodeColor, opacity: 0.7 }}>Preview Barcode</p>
-                    <div ref={qrWrapRef} className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl" style={{ border: `2px dashed ${barcodeColor}40` }}>
-                      <HeartQRCode url={barcodeUrl} color={barcodeColor} bgColor="#ffffff" size={220} />
-                      {barcodeName && (
-                        <p className="mt-3 font-bold text-base tracking-wide" style={{ color: barcodeColor, fontFamily: "var(--font-caveat)", fontSize: "1.5rem" }}>{barcodeName}</p>
+                  <div className="bg-white rounded-3xl p-6 shadow-sm flex flex-col items-center gap-6">
+                    {/* Toggle Sisi Preview */}
+                    <div className="flex items-center justify-center p-1 bg-gray-100 rounded-2xl w-full max-w-xs">
+                      <button
+                        onClick={() => setCardSide("front")}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${cardSide === "front" ? "bg-white shadow-xs text-pink-600" : "text-gray-500"}`}
+                      >
+                        🎴 Sisi Depan (Front)
+                      </button>
+                      <button
+                        onClick={() => setCardSide("back")}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${cardSide === "back" ? "bg-white shadow-xs text-purple-600" : "text-gray-500"}`}
+                      >
+                        🎴 Sisi Belakang (Back)
+                      </button>
+                    </div>
+
+                    {/* Interactive Live Card Preview */}
+                    <div className="relative w-full max-w-[340px] rounded-3xl p-5 shadow-xl flex flex-col justify-between overflow-hidden transition-all border-4"
+                      style={{
+                        aspectRatio: cardSide === "front" ? "24/28" : "3/4",
+                        background: cardSide === "front" ? "#ffffff" : "#faf7f9",
+                        borderColor: `${barcodeColor}33`,
+                        boxShadow: `0 20px 50px ${barcodeColor}20`,
+                      }}
+                    >
+                      {/* Inner Accent Line */}
+                      <div className="absolute inset-2.5 rounded-2xl border-2 pointer-events-none" style={{ borderColor: `${barcodeColor}20` }} />
+
+                      {/* Corner Flourish Dots */}
+                      <div className="absolute top-4 left-4 w-1.5 h-1.5 rounded-full pointer-events-none opacity-50" style={{ background: barcodeColor }} />
+                      <div className="absolute top-4 right-4 w-1.5 h-1.5 rounded-full pointer-events-none opacity-50" style={{ background: barcodeColor }} />
+                      <div className="absolute bottom-4 left-4 w-1.5 h-1.5 rounded-full pointer-events-none opacity-50" style={{ background: barcodeColor }} />
+                      <div className="absolute bottom-4 right-4 w-1.5 h-1.5 rounded-full pointer-events-none opacity-50" style={{ background: barcodeColor }} />
+
+                      {cardSide === "front" ? (
+                        /* FRONT CARD PREVIEW */
+                        <div className="flex flex-col items-center justify-between h-full relative z-10 pt-1 pb-1">
+                          {/* Top Header */}
+                          <div className="text-center">
+                            <span className="text-[9px] font-bold uppercase tracking-[0.24em] block" style={{ color: barcodeColor }}>
+                              {frontTitle || "SOMETHING SPECIAL FOR U"}
+                            </span>
+                            <div className="flex items-center justify-center gap-1.5 opacity-40 my-0.5">
+                              <span className="w-8 h-[1px]" style={{ background: barcodeColor }} />
+                              <span className="text-[8px]" style={{ color: barcodeColor }}>♥</span>
+                              <span className="w-8 h-[1px]" style={{ background: barcodeColor }} />
+                            </div>
+                          </div>
+
+                          {/* Heart QR Code - Large & Proportional (size 200) */}
+                          <div ref={qrWrapRef} className="flex flex-col items-center justify-center my-auto">
+                            <HeartQRCode url={barcodeUrl} color={barcodeColor} bgColor="#ffffff" size={200} />
+                          </div>
+
+                          {/* Lower Section: Name, Badge, Short Note, Footer, Social */}
+                          <div className={`text-center w-full flex flex-col items-center gap-1 transition-all ${Boolean(cardWeb.trim() || cardIg.trim() || cardTiktok.trim()) ? 'pb-0.5' : 'pb-4 my-auto gap-1.5'}`}>
+                            {barcodeName && (
+                              <div className="flex items-center justify-center gap-2 w-full">
+                                <span className="w-8 h-[1px] opacity-30" style={{ background: barcodeColor }} />
+                                <p className="font-bold text-2xl tracking-wide -my-1" style={{ color: barcodeColor, fontFamily: "var(--font-caveat)" }}>
+                                  {barcodeName}
+                                </p>
+                                <span className="w-8 h-[1px] opacity-30" style={{ background: barcodeColor }} />
+                              </div>
+                            )}
+                            <div className="w-full py-1.5 px-2 rounded-full text-[8.5px] font-bold text-center uppercase tracking-wider shadow-xs"
+                              style={{ background: `${barcodeColor}12`, color: barcodeColor, border: `1px solid ${barcodeColor}40` }}
+                            >
+                              {badgeText || "SCAN QR CODE TO OPEN"}
+                            </div>
+
+                            {/* Short Note Message */}
+                            {cardNote && (
+                              <p className="text-[10px] font-medium italic font-serif opacity-90 px-2 line-clamp-2 leading-tight my-0.5" style={{ color: barcodeColor }}>
+                                "{cardNote}"
+                              </p>
+                            )}
+
+                            {/* Footer Website & Social Handles */}
+                            <div className="flex flex-col items-center gap-0.5 mt-0.5">
+                              {/* Website Domain with Globe Icon */}
+                              {cardWeb && (
+                                <div className="flex items-center justify-center gap-1 opacity-90" style={{ color: barcodeColor }}>
+                                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"/>
+                                  </svg>
+                                  <span className="text-[7.5px] font-bold uppercase tracking-widest">
+                                    : {cardWeb.replace(/^https?:\/\//i, "").trim()}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* IG & TikTok */}
+                              {(cardIg || cardTiktok) && (
+                                <div className="flex items-center justify-center gap-2 opacity-75 mt-0.5" style={{ color: barcodeColor }}>
+                                  {cardIg && (
+                                    <div className="flex items-center gap-1">
+                                      <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                      </svg>
+                                      <span className="text-[7px] font-bold uppercase tracking-wider">
+                                        : {cardIg.replace(/^@/, "").trim()}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {cardIg && cardTiktok && <span className="text-[7px] opacity-40">•</span>}
+
+                                  {cardTiktok && (
+                                    <div className="flex items-center gap-1">
+                                      <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-2.901 2.846 2.894 2.894 0 0 1-2.894-2.894 2.894 2.894 0 0 1 2.894-2.894c.244 0 .478.031.704.086V9.28a6.34 6.34 0 0 0-.704-.039 6.339 6.339 0 0 0-6.339 6.339 6.339 6.339 0 0 0 6.339 6.339 6.339 6.339 0 0 0 6.339-6.339V9.01a8.163 8.163 0 0 0 4.777 1.518V7.08a4.826 4.826 0 0 1-1.004-.394z"/>
+                                      </svg>
+                                      <span className="text-[7px] font-bold uppercase tracking-wider">
+                                        : {cardTiktok.replace(/^@/, "").trim()}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        /* BACK CARD PREVIEW */
+                        <div className="flex flex-col items-center justify-between h-full relative z-10 py-2 text-center">
+                          <div>
+                            <h4 className="text-2xl font-bold font-serif" style={{ color: barcodeColor }}>
+                              {backBrandTitle || "Mixtape Love"}
+                            </h4>
+                            <p className="text-[9px] font-bold uppercase tracking-widest mt-0.5" style={{ color: `${barcodeColor}aa` }}>
+                              {backSubtitle || "SPECIAL EDITION GIFT CARD"}
+                            </p>
+                            <div className="w-24 h-[1px] my-2 mx-auto" style={{ background: `${barcodeColor}40` }} />
+                          </div>
+
+                          {/* Message Box */}
+                          <div className="w-full p-4 rounded-2xl bg-white border-2 border-dashed flex flex-col items-center gap-2 my-auto shadow-xs"
+                            style={{ borderColor: `${barcodeColor}40` }}
+                          >
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-pink-600">✉ SURAT / PETUNJUK PENERIMA</span>
+                            <p className="text-xs text-gray-700 italic leading-relaxed font-serif whitespace-pre-line">
+                              {backMessage || "Scan QR code yang ada di sisi depan kartu ini..."}
+                            </p>
+                          </div>
+
+                          {/* Bottom Emblem & Footer */}
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-8 h-8 rounded-full border border-dashed flex items-center justify-center text-xs mb-1"
+                              style={{ borderColor: barcodeColor, color: barcodeColor }}
+                            >
+                              ✨
+                            </div>
+                            <p className="text-[10px] font-bold text-gray-500 font-serif">
+                              {backFooter || "Crafted with Love · mixtape-love.com"}
+                            </p>
+                          </div>
+                        </div>
                       )}
                     </div>
-                    <button
-                      onClick={downloadQR}
-                      className="w-full py-3 rounded-2xl font-bold text-sm text-white shadow-lg transition-all"
-                      style={{ background: `linear-gradient(135deg, ${barcodeColor}dd, ${barcodeColor})`, boxShadow: `0 6px 16px ${barcodeColor}44` }}
-                    >
-                      ⬇ Download Barcode (PNG)
-                    </button>
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(barcodeUrl); showToast("Link berhasil disalin!"); }}
-                      className="w-full py-3 rounded-2xl font-bold text-sm border-2 transition-all"
-                      style={{ borderColor: `${barcodeColor}33`, color: barcodeColor }}
-                    >
-                      📋 Salin Link
-                    </button>
-                  </motion.div>
+
+                    {/* High Resolution Download Actions */}
+                    <div className="w-full flex flex-col gap-2.5 max-w-md">
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <button
+                          onClick={() => downloadCardSide("front")}
+                          className="py-3 px-4 rounded-2xl font-bold text-xs text-white shadow-md transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+                          style={{ background: `linear-gradient(135deg, ${barcodeColor}dd, ${barcodeColor})` }}
+                        >
+                          🖼️ Download Depan (300DPI)
+                        </button>
+                        <button
+                          onClick={() => downloadCardSide("back")}
+                          className="py-3 px-4 rounded-2xl font-bold text-xs text-white shadow-md transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+                          style={{ background: "linear-gradient(135deg, #7b68ee, #6366f1)" }}
+                        >
+                          🖼️ Download Belakang (300DPI)
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={downloadBothSides}
+                        className="w-full py-3.5 rounded-2xl font-bold text-sm text-white shadow-lg transition-transform active:scale-95"
+                        style={{ background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "0 6px 18px rgba(16,185,129,0.3)" }}
+                      >
+                        📦 Download Paket Lengkap (Depan + Belakang HD)
+                      </button>
+
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(barcodeUrl); showToast("Link berhasil disalin!"); }}
+                        className="w-full py-3 rounded-2xl font-bold text-xs border-2 transition-all text-center"
+                        style={{ borderColor: `${barcodeColor}33`, color: barcodeColor }}
+                      >
+                        📋 Salin Link Target QR
+                      </button>
+                    </div>
+                  </div>
                 )}
 
                 {!barcodeUrl && (
                   <div className="text-center py-10 text-gray-400 text-sm">
-                    Masukkan link di atas untuk melihat preview barcode-nya
+                    Masukkan link di atas untuk melihat preview & mengunduh kartu fisik 300 DPI
                   </div>
                 )}
               </div>
@@ -451,4 +1055,99 @@ export default function AdminPage() {
       </AnimatePresence>
     </div>
   );
+}
+
+// ── Top-level Canvas Helpers for 300 DPI Print Quality Rendering ──────────────
+function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+  const paragraphs = text.split("\n");
+  let currentY = y;
+
+  for (const para of paragraphs) {
+    const words = para.split(" ");
+    let line = "";
+
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + " ";
+      const metrics = ctx.measureText(testLine);
+
+      if (metrics.width > maxWidth && n > 0) {
+        ctx.fillText(line.trim(), x, currentY);
+        line = words[n] + " ";
+        currentY += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line.trim(), x, currentY);
+    currentY += lineHeight * 1.25;
+  }
+}
+
+function drawGlobeIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = size * 0.08;
+
+  // Outer circle
+  ctx.beginPath();
+  ctx.arc(x, y, size * 0.45, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Equator line
+  ctx.beginPath();
+  ctx.moveTo(x - size * 0.45, y);
+  ctx.lineTo(x + size * 0.45, y);
+  ctx.stroke();
+
+  // Longitude ellipse
+  ctx.beginPath();
+  ctx.ellipse(x, y, size * 0.22, size * 0.45, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawInstagramIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = size * 0.09;
+  ctx.fillStyle = color;
+
+  // Outer rounded rect
+  drawRoundedRect(ctx, x - size/2, y - size/2, size, size, size * 0.28);
+  ctx.stroke();
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(x, y, size * 0.26, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Top-right dot
+  ctx.beginPath();
+  ctx.arc(x + size * 0.25, y - size * 0.25, size * 0.08, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawTikTokIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.translate(x - size/2, y - size/2);
+  const s = size / 24;
+  ctx.scale(s, s);
+  
+  const path = new Path2D(
+    "M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-2.901 2.846 2.894 2.894 0 0 1-2.894-2.894 2.894 2.894 0 0 1 2.894-2.894c.244 0 .478.031.704.086V9.28a6.34 6.34 0 0 0-.704-.039 6.339 6.339 0 0 0-6.339 6.339 6.339 6.339 0 0 0 6.339 6.339 6.339 6.339 0 0 0 6.339-6.339V9.01a8.163 8.163 0 0 0 4.777 1.518V7.08a4.826 4.826 0 0 1-1.004-.394z"
+  );
+  ctx.fill(path);
+  ctx.restore();
 }
