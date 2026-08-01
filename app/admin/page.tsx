@@ -22,6 +22,7 @@ export default function AdminPage() {
   const [barcodeUrl, setBarcodeUrl] = useState("");
   const [barcodeName, setBarcodeName] = useState("Untuk Zahra");
   const [barcodeColor, setBarcodeColor] = useState("#e8789a");
+  const [cardBgColor, setCardBgColor] = useState("#ffffff");
   const [cardSide, setCardSide] = useState<"front" | "back">("front");
   
   // Custom Card Fields
@@ -98,7 +99,7 @@ export default function AdminPage() {
 
       img.onload = () => {
         // 1. Background Fill
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = cardBgColor || "#ffffff";
         ctx.fillRect(0, 0, 2400, 2800);
 
         // 2. Outer Frame (Shorter 2800px compact card)
@@ -641,30 +642,72 @@ export default function AdminPage() {
                     </div>
 
                     {/* Color Palette */}
-                    <div>
-                      <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">
-                        Warna Tema Kartu & QR Code
-                      </label>
-                      <div className="flex items-center gap-3">
-                        {["#e8789a", "#7b68ee", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#1a1a2e"].map(c => (
-                          <button
-                            key={c}
-                            onClick={() => setBarcodeColor(c)}
-                            className="w-8 h-8 rounded-full border-4 transition-all"
-                            style={{
-                              background: c,
-                              borderColor: barcodeColor === c ? c : "transparent",
-                              boxShadow: barcodeColor === c ? `0 0 0 2px white, 0 0 0 4px ${c}` : "none",
-                            }}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* 1. Barcode Theme Color */}
+                      <div>
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-pink-400 block mb-1.5">
+                          Warna Aksesori & QR Code
+                        </label>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {["#e8789a", "#7b68ee", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#1a1a2e"].map(c => (
+                            <button
+                              key={c}
+                              onClick={() => setBarcodeColor(c)}
+                              className="w-7 h-7 rounded-full border-2 transition-all"
+                              style={{
+                                background: c,
+                                borderColor: barcodeColor === c ? c : "transparent",
+                                boxShadow: barcodeColor === c ? `0 0 0 2px white, 0 0 0 3px ${c}` : "none",
+                              }}
+                            />
+                          ))}
+                          <input
+                            type="color"
+                            value={barcodeColor}
+                            onChange={e => setBarcodeColor(e.target.value)}
+                            className="w-7 h-7 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
+                            title="Pilih warna kustom"
                           />
-                        ))}
-                        <input
-                          type="color"
-                          value={barcodeColor}
-                          onChange={e => setBarcodeColor(e.target.value)}
-                          className="w-8 h-8 rounded-full border-2 border-gray-200 cursor-pointer overflow-hidden"
-                          title="Pilih warna kustom"
-                        />
+                        </div>
+                      </div>
+
+                      {/* 2. Card Background Color Selector */}
+                      <div>
+                        <label className="text-[11px] font-bold uppercase tracking-widest text-gray-500 block mb-1.5 flex items-center justify-between">
+                          <span>Warna Dasaran Kertas</span>
+                          <span className="text-[9px] text-pink-500 font-semibold uppercase">✨ Krem = Luxury</span>
+                        </label>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {[
+                            { name: "Putih Bersih", hex: "#ffffff" },
+                            { name: "Krem Luxury ⭐", hex: "#faf7f5" },
+                            { name: "Soft Rose", hex: "#fff0f5" },
+                            { name: "Off-White", hex: "#f5f5f7" },
+                          ].map(bg => (
+                            <button
+                              key={bg.hex}
+                              onClick={() => setCardBgColor(bg.hex)}
+                              title={bg.name}
+                              className="px-2.5 py-1 rounded-xl text-[10px] font-bold border transition-all flex items-center gap-1.5"
+                              style={{
+                                background: bg.hex,
+                                color: "#333333",
+                                borderColor: cardBgColor === bg.hex ? barcodeColor : "#e5e7eb",
+                                boxShadow: cardBgColor === bg.hex ? `0 0 0 2px ${barcodeColor}40` : "none",
+                              }}
+                            >
+                              <span className="w-2.5 h-2.5 rounded-full border border-gray-300" style={{ background: bg.hex }} />
+                              {bg.name}
+                            </button>
+                          ))}
+                          <input
+                            type="color"
+                            value={cardBgColor}
+                            onChange={e => setCardBgColor(e.target.value)}
+                            className="w-7 h-7 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
+                            title="Pilih warna background kustom"
+                          />
+                        </div>
                       </div>
                     </div>
 
@@ -830,7 +873,7 @@ export default function AdminPage() {
                     <div className="relative w-full max-w-[340px] rounded-3xl p-5 shadow-xl flex flex-col justify-between overflow-hidden transition-all border-4"
                       style={{
                         aspectRatio: cardSide === "front" ? "24/28" : "3/4",
-                        background: cardSide === "front" ? "#ffffff" : "#faf7f9",
+                        background: cardSide === "front" ? (cardBgColor || "#ffffff") : "#faf7f9",
                         borderColor: `${barcodeColor}33`,
                         boxShadow: `0 20px 50px ${barcodeColor}20`,
                       }}
