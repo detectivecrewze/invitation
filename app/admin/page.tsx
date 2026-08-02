@@ -39,6 +39,19 @@ export default function AdminPage() {
   );
   const [backFooter, setBackFooter] = useState("Crafted with Love · for-you-always.my.id");
   
+  // Custom Typography Color & Size Overrides
+  const [frontTitleColor, setFrontTitleColor] = useState("");
+  const [frontTitleSize, setFrontTitleSize] = useState(46);
+
+  const [nameColor, setNameColor] = useState("");
+  const [nameSize, setNameSize] = useState(105);
+
+  const [badgeTextColor, setBadgeTextColor] = useState("");
+  const [badgeTextSize, setBadgeTextSize] = useState(45);
+
+  const [noteColor, setNoteColor] = useState("");
+  const [noteSize, setNoteSize] = useState(48);
+  
   const qrWrapRef = useRef<HTMLDivElement>(null);
 
   const [showNew, setShowNew] = useState(false);
@@ -126,14 +139,16 @@ export default function AdminPage() {
         });
 
         // 3. Top Header Title
-        ctx.font = "bold 46px Inter, sans-serif";
-        ctx.fillStyle = color;
+        const titleC = frontTitleColor || color;
+        const titleS = frontTitleSize || 46;
+        ctx.font = `bold ${titleS}px Inter, sans-serif`;
+        ctx.fillStyle = titleC;
         ctx.textAlign = "center";
         ctx.letterSpacing = "0.26em";
         ctx.fillText((frontTitle || "SOMETHING SPECIAL FOR U").toUpperCase(), 1200, 270);
 
         // Top Ornamental Line: ─── ♥ ───
-        ctx.strokeStyle = `${color}30`;
+        ctx.strokeStyle = `${titleC}30`;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(850, 330);
@@ -143,7 +158,7 @@ export default function AdminPage() {
         ctx.stroke();
 
         ctx.font = "30px sans-serif";
-        ctx.fillStyle = color;
+        ctx.fillStyle = titleC;
         ctx.fillText("♥", 1200, 338);
 
         // 4. Center Hero Heart QR Code (Size 1440x1440px, y = 380 to 1820)
@@ -151,8 +166,11 @@ export default function AdminPage() {
 
         // 5. Recipient Name / Caption (y = 1910)
         if (barcodeName) {
-          ctx.strokeStyle = `${color}30`;
+          const nameC = nameColor || color;
+          const nameS = nameSize || 105;
+          ctx.strokeStyle = `${nameC}30`;
           ctx.lineWidth = 2;
+          ctx.font = `bold ${nameS}px Caveat, cursive, Georgia`;
           const nameTextWidth = ctx.measureText(barcodeName).width || 400;
           const sideLineW = Math.min(260, Math.max(100, (1800 - nameTextWidth) / 2));
           
@@ -163,42 +181,57 @@ export default function AdminPage() {
           ctx.lineTo(1200 + nameTextWidth/2 + sideLineW, 1890);
           ctx.stroke();
 
-          ctx.font = "bold 105px Caveat, cursive, Georgia";
-          ctx.fillStyle = color;
+          ctx.fillStyle = nameC;
           ctx.textAlign = "center";
           ctx.fillText(barcodeName, 1200, 1910);
         }
 
         const hasFooter = Boolean(cardWeb.trim() || cardIg.trim() || cardTiktok.trim());
 
-        // 6. Instruction Badge Pill (Dynamic Y: 2045 with footer, 2100 without footer)
-        const badgeW = 1600;
-        const badgeH = 140;
+        // 6. Instruction Badge Pill (Dynamic Pill size & position)
+        const bTextColor = badgeTextColor || color;
+        const bTextS = badgeTextSize || 45;
+        const badgeTextStr = badgeText || "SCAN QR CODE TO OPEN";
+        const badgeW = Math.min(2100, Math.max(1400, Math.round(badgeTextStr.length * bTextS * 0.72 + 180)));
+        const badgeH = Math.max(120, Math.round(bTextS * 2.2));
         const badgeX = (2400 - badgeW) / 2;
-        const badgeY = hasFooter ? 2045 : 2100;
+        const badgeY = hasFooter ? 2000 : 2050;
         
-        ctx.fillStyle = `${color}12`;
-        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 70);
+        ctx.fillStyle = `${bTextColor}12`;
+        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, Math.round(badgeH / 2));
         ctx.fill();
-        ctx.strokeStyle = `${color}40`;
+        ctx.strokeStyle = `${bTextColor}40`;
         ctx.lineWidth = 3;
         ctx.stroke();
 
-        ctx.font = "bold 45px Inter, sans-serif";
-        ctx.fillStyle = color;
+        ctx.font = `bold ${bTextS}px Inter, sans-serif`;
+        ctx.fillStyle = bTextColor;
         ctx.textAlign = "center";
         ctx.letterSpacing = "0.10em";
-        ctx.fillText(badgeText || "SCAN QR CODE TO OPEN", 1200, badgeY + 88);
+        ctx.fillText(badgeTextStr, 1200, badgeY + Math.round(badgeH * 0.63));
 
-        // 7. Short Note Message / Quote (Dynamic Y: 2260 with footer, 2360 without footer)
+        // 7. Short Note Message / Quote (Dynamic Y position computed relative to badge bottom!)
         if (cardNote) {
-          ctx.font = "italic 48px Georgia, serif";
-          ctx.fillStyle = `${color}ee`;
-          const noteY = hasFooter ? 2260 : 2360;
-          wrapCanvasText(ctx, `"${cardNote}"`, 1200, noteY, 1800, 64);
+          const ntColor = noteColor || color;
+          const ntSize = noteSize || 48;
+          ctx.font = `italic ${ntSize}px Georgia, serif`;
+          ctx.fillStyle = ntColor.startsWith("#") ? `${ntColor}ee` : ntColor;
+          
+          // Dynamically place note below badge bottom + generous breathing padding
+          const noteGap = Math.max(90, Math.round(ntSize * 1.5));
+          const noteY = badgeY + badgeH + noteGap;
+          wrapCanvasText(ctx, `"${cardNote}"`, 1200, noteY, 1800, Math.round(ntSize * 1.33));
         }
 
-        // 8. Website Link with Globe Icon (y = 2465)
+        // 8. Website Link with Globe Icon (Dynamic Y relative to content above)
+        const noteFontSize = noteSize || 48;
+        const notePadding = Math.max(90, Math.round(noteFontSize * 1.5));
+        const lastContentY = cardNote 
+          ? (badgeY + badgeH + notePadding + Math.round(noteFontSize * 2.2) + 60)
+          : (badgeY + badgeH + 90);
+
+        const webY = Math.max(2470, lastContentY);
+
         if (cardWeb) {
           const cleanWeb = cardWeb.replace(/^https?:\/\//i, "").trim().toLowerCase();
           ctx.font = "bold 34px Inter, sans-serif";
@@ -211,11 +244,13 @@ export default function AdminPage() {
           const totalW = iconSize + 10 + textW;
           const startX = (2400 - totalW) / 2;
 
-          drawGlobeIcon(ctx, startX + iconSize/2, 2465, iconSize, color);
-          ctx.fillText(`: ${cleanWeb}`, startX + iconSize + 10, 2477);
+          drawGlobeIcon(ctx, startX + iconSize/2, webY, iconSize, color);
+          ctx.fillText(`: ${cleanWeb}`, startX + iconSize + 10, webY + 12);
         }
 
-        // 9. Social Media Handles: IG & TikTok (y = 2560)
+        // 9. Social Media Handles: IG & TikTok (Dynamic Y relative to website)
+        const socialY = cardWeb ? (webY + 95) : webY;
+
         if (cardIg || cardTiktok) {
           ctx.font = "bold 30px Inter, sans-serif";
           ctx.fillStyle = `${color}aa`;
@@ -237,23 +272,23 @@ export default function AdminPage() {
           // Draw IG Part
           if (cleanIg) {
             ctx.textAlign = "left";
-            drawInstagramIcon(ctx, currentX + iconSize/2, 2555, iconSize, `${color}aa`);
-            ctx.fillText(`: ${cleanIg}`, currentX + iconSize + 8, 2566);
+            drawInstagramIcon(ctx, currentX + iconSize/2, socialY - 5, iconSize, `${color}aa`);
+            ctx.fillText(`: ${cleanIg}`, currentX + iconSize + 8, socialY + 6);
             currentX += igBlockW;
           }
 
           // Draw Separator Dot
           if (cleanIg && cleanTiktok) {
             ctx.textAlign = "center";
-            ctx.fillText("•", currentX + 35, 2566);
+            ctx.fillText("•", currentX + 35, socialY + 6);
             currentX += dotW;
           }
 
           // Draw TikTok Part
           if (cleanTiktok) {
             ctx.textAlign = "left";
-            drawTikTokIcon(ctx, currentX + iconSize/2, 2555, iconSize, `${color}aa`);
-            ctx.fillText(`: ${cleanTiktok}`, currentX + iconSize + 8, 2566);
+            drawTikTokIcon(ctx, currentX + iconSize/2, socialY - 5, iconSize, `${color}aa`);
+            ctx.fillText(`: ${cleanTiktok}`, currentX + iconSize + 8, socialY + 6);
           }
         }
 
@@ -680,9 +715,9 @@ export default function AdminPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           {[
                             { name: "Putih Bersih", hex: "#ffffff" },
-                            { name: "Krem Luxury ⭐", hex: "#faf7f5" },
+                            { name: "Krem Luxury ⭐", hex: "#faf6ec" },
+                            { name: "Warm Ivory", hex: "#fcf9f2" },
                             { name: "Soft Rose", hex: "#fff0f5" },
-                            { name: "Off-White", hex: "#f5f5f7" },
                           ].map(bg => (
                             <button
                               key={bg.hex}
@@ -719,48 +754,144 @@ export default function AdminPage() {
                           🎴 Teks Sisi Depan (Front)
                         </p>
 
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Judul Atas Kartu</label>
+                        {/* 1. Judul Atas Kartu */}
+                        <div className="space-y-1 bg-white/60 p-2.5 rounded-xl border border-pink-100/60">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[10px] font-bold text-gray-700">1. Judul Atas Kartu</label>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] text-gray-400 font-mono">{frontTitleSize}px</span>
+                              <input
+                                type="color"
+                                value={frontTitleColor || barcodeColor}
+                                onChange={e => setFrontTitleColor(e.target.value)}
+                                className="w-5 h-5 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
+                                title="Warna Judul Atas"
+                              />
+                            </div>
+                          </div>
                           <input
                             type="text"
                             value={frontTitle}
                             onChange={e => setFrontTitle(e.target.value)}
                             placeholder="SOMETHING SPECIAL FOR U"
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
+                            className="w-full px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
                           />
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span className="text-[8px] text-gray-400">Ukuran:</span>
+                            <input
+                              type="range"
+                              min="24"
+                              max="80"
+                              value={frontTitleSize}
+                              onChange={e => setFrontTitleSize(Number(e.target.value))}
+                              className="w-full h-1 accent-pink-500 cursor-pointer"
+                            />
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Nama / Caption Penerima</label>
+                        {/* 2. Nama / Caption Penerima */}
+                        <div className="space-y-1 bg-white/60 p-2.5 rounded-xl border border-pink-100/60">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[10px] font-bold text-gray-700">2. Nama / Caption Penerima</label>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] text-gray-400 font-mono">{nameSize}px</span>
+                              <input
+                                type="color"
+                                value={nameColor || barcodeColor}
+                                onChange={e => setNameColor(e.target.value)}
+                                className="w-5 h-5 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
+                                title="Warna Nama Penerima"
+                              />
+                            </div>
+                          </div>
                           <input
                             type="text"
                             value={barcodeName}
                             onChange={e => setBarcodeName(e.target.value)}
                             placeholder="Untuk Zahra"
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
+                            className="w-full px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-bold text-gray-800"
                           />
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span className="text-[8px] text-gray-400">Ukuran:</span>
+                            <input
+                              type="range"
+                              min="60"
+                              max="160"
+                              value={nameSize}
+                              onChange={e => setNameSize(Number(e.target.value))}
+                              className="w-full h-1 accent-pink-500 cursor-pointer"
+                            />
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Badge Teks Bawah</label>
+                        {/* 3. Badge Teks Bawah */}
+                        <div className="space-y-1 bg-white/60 p-2.5 rounded-xl border border-pink-100/60">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[10px] font-bold text-gray-700">3. Badge Teks Bawah</label>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] text-gray-400 font-mono">{badgeTextSize}px</span>
+                              <input
+                                type="color"
+                                value={badgeTextColor || barcodeColor}
+                                onChange={e => setBadgeTextColor(e.target.value)}
+                                className="w-5 h-5 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
+                                title="Warna Badge Teks"
+                              />
+                            </div>
+                          </div>
                           <input
                             type="text"
                             value={badgeText}
                             onChange={e => setBadgeText(e.target.value)}
                             placeholder="SCAN QR CODE TO OPEN"
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                            className="w-full px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
                           />
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span className="text-[8px] text-gray-400">Ukuran:</span>
+                            <input
+                              type="range"
+                              min="24"
+                              max="70"
+                              value={badgeTextSize}
+                              onChange={e => setBadgeTextSize(Number(e.target.value))}
+                              className="w-full h-1 accent-pink-500 cursor-pointer"
+                            />
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 block mb-1">Pesan Pendek / Surat Singkat Kartu</label>
+                        {/* 4. Pesan Pendek Kartu */}
+                        <div className="space-y-1 bg-white/60 p-2.5 rounded-xl border border-pink-100/60">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[10px] font-bold text-gray-700">4. Pesan Pendek Kartu</label>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] text-gray-400 font-mono">{noteSize}px</span>
+                              <input
+                                type="color"
+                                value={noteColor || barcodeColor}
+                                onChange={e => setNoteColor(e.target.value)}
+                                className="w-5 h-5 rounded-full border border-gray-200 cursor-pointer overflow-hidden"
+                                title="Warna Pesan Pendek"
+                              />
+                            </div>
+                          </div>
                           <input
                             type="text"
                             value={cardNote}
                             onChange={e => setCardNote(e.target.value)}
                             placeholder="Scan QR code menggunakan kamera HP..."
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
+                            className="w-full px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-medium text-gray-800"
                           />
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span className="text-[8px] text-gray-400">Ukuran:</span>
+                            <input
+                              type="range"
+                              min="24"
+                              max="80"
+                              value={noteSize}
+                              onChange={e => setNoteSize(Number(e.target.value))}
+                              className="w-full h-1 accent-pink-500 cursor-pointer"
+                            />
+                          </div>
                         </div>
 
                         <div>
@@ -892,41 +1023,46 @@ export default function AdminPage() {
                         <div className="flex flex-col items-center justify-between h-full relative z-10 pt-1 pb-1">
                           {/* Top Header */}
                           <div className="text-center">
-                            <span className="text-[9px] font-bold uppercase tracking-[0.24em] block" style={{ color: barcodeColor }}>
+                            <span className="font-bold uppercase tracking-[0.24em] block transition-all" style={{ color: frontTitleColor || barcodeColor, fontSize: `${Math.round((frontTitleSize || 46) * 0.19)}px` }}>
                               {frontTitle || "SOMETHING SPECIAL FOR U"}
                             </span>
                             <div className="flex items-center justify-center gap-1.5 opacity-40 my-0.5">
-                              <span className="w-8 h-[1px]" style={{ background: barcodeColor }} />
-                              <span className="text-[8px]" style={{ color: barcodeColor }}>♥</span>
-                              <span className="w-8 h-[1px]" style={{ background: barcodeColor }} />
+                              <span className="w-8 h-[1px]" style={{ background: frontTitleColor || barcodeColor }} />
+                              <span className="text-[8px]" style={{ color: frontTitleColor || barcodeColor }}>♥</span>
+                              <span className="w-8 h-[1px]" style={{ background: frontTitleColor || barcodeColor }} />
                             </div>
                           </div>
 
                           {/* Heart QR Code - Large & Proportional (size 200) */}
                           <div ref={qrWrapRef} className="flex flex-col items-center justify-center my-auto">
-                            <HeartQRCode url={barcodeUrl} color={barcodeColor} bgColor="#ffffff" size={200} />
+                            <HeartQRCode url={barcodeUrl} color={barcodeColor} bgColor={cardBgColor || "#ffffff"} size={200} />
                           </div>
 
                           {/* Lower Section: Name, Badge, Short Note, Footer, Social */}
                           <div className={`text-center w-full flex flex-col items-center gap-1 transition-all ${Boolean(cardWeb.trim() || cardIg.trim() || cardTiktok.trim()) ? 'pb-0.5' : 'pb-4 my-auto gap-1.5'}`}>
                             {barcodeName && (
                               <div className="flex items-center justify-center gap-2 w-full">
-                                <span className="w-8 h-[1px] opacity-30" style={{ background: barcodeColor }} />
-                                <p className="font-bold text-2xl tracking-wide -my-1" style={{ color: barcodeColor, fontFamily: "var(--font-caveat)" }}>
+                                <span className="w-8 h-[1px] opacity-30" style={{ background: nameColor || barcodeColor }} />
+                                <p className="font-bold tracking-wide -my-1 transition-all" style={{ color: nameColor || barcodeColor, fontFamily: "var(--font-caveat)", fontSize: `${Math.round((nameSize || 105) * 0.23)}px` }}>
                                   {barcodeName}
                                 </p>
-                                <span className="w-8 h-[1px] opacity-30" style={{ background: barcodeColor }} />
+                                <span className="w-8 h-[1px] opacity-30" style={{ background: nameColor || barcodeColor }} />
                               </div>
                             )}
-                            <div className="w-full py-1.5 px-2 rounded-full text-[8.5px] font-bold text-center uppercase tracking-wider shadow-xs"
-                              style={{ background: `${barcodeColor}12`, color: barcodeColor, border: `1px solid ${barcodeColor}40` }}
+                            <div className="w-full py-1.5 px-2 rounded-full font-bold text-center uppercase tracking-wider shadow-xs transition-all"
+                              style={{
+                                background: `${badgeTextColor || barcodeColor}12`,
+                                color: badgeTextColor || barcodeColor,
+                                border: `1px solid ${badgeTextColor || barcodeColor}40`,
+                                fontSize: `${Math.round((badgeTextSize || 45) * 0.19)}px`
+                              }}
                             >
                               {badgeText || "SCAN QR CODE TO OPEN"}
                             </div>
 
                             {/* Short Note Message */}
                             {cardNote && (
-                              <p className="text-[10px] font-medium italic font-serif opacity-90 px-2 line-clamp-2 leading-tight my-0.5" style={{ color: barcodeColor }}>
+                              <p className="font-medium italic font-serif opacity-90 px-2 line-clamp-2 leading-tight my-0.5 transition-all" style={{ color: noteColor || barcodeColor, fontSize: `${Math.round((noteSize || 48) * 0.21)}px` }}>
                                 "{cardNote}"
                               </p>
                             )}
