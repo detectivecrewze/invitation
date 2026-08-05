@@ -110,6 +110,37 @@ export default function StudioClient({
   const [emojiPickerId, setEmojiPickerId] = useState<string | null>(null);
   const [customMusicUrl, setCustomMusicUrl] = useState("");
   const [customMusicTitle, setCustomMusicTitle] = useState("");
+  const [showFormatModal, setShowFormatModal] = useState(false);
+  const [switchingFormat, setSwitchingFormat] = useState(false);
+
+  const handleSwitchMode = async (targetMode: "invitation" | "rundown") => {
+    setSwitchingFormat(true);
+    try {
+      await fetch("/api/invitations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invitationId,
+          mode: targetMode,
+          recipientName: st.recipientName,
+          senderName: st.senderName,
+          subText: st.subText,
+          photoUrl: st.photoUrl,
+          themeId: st.themeId,
+          musicUrl: st.musicUrl,
+          musicTitle: st.musicTitle,
+          invitationTitle: st.invitationTitle,
+          closingNote: st.closingNote,
+          ticketTitle: st.ticketTitle,
+          ...(bundleToken ? { bundleToken } : {}),
+        }),
+      });
+      window.location.reload();
+    } catch {
+      showToast("Gagal mengubah format. Coba lagi.");
+      setSwitchingFormat(false);
+    }
+  };
 
   useEffect(() => {
     fetch("/assets/playlist.json")
