@@ -366,12 +366,16 @@ export default function StudioClient({
           <button
             type="button"
             onClick={() => setShowFormatModal(true)}
-            className="text-xs font-extrabold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
-            style={{ background: `${theme.accent}15`, color: theme.accent, border: `1.5px solid ${theme.accent}35` }}
+            className="text-xs font-extrabold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+            style={{
+              background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
+              color: "white",
+              boxShadow: `0 4px 14px ${theme.accent}40`,
+            }}
             title="Klik untuk intip perbedaan / ubah format undangan"
           >
-            <span>💌 Invitation Date</span>
-            <span className="text-[9px] opacity-70">▾</span>
+            <span className="text-sm">💌</span>
+            <span>Format: Invitation ⚙️</span>
           </button>
         </div>
 
@@ -400,6 +404,34 @@ export default function StudioClient({
           {/* Step 1: Theme */}
           {step === 1 && (
             <motion.div key="s1" variants={stepVariants} initial="initial" animate="animate" exit="exit" className="flex flex-col gap-5">
+              
+              {/* Prominent Format Info Banner */}
+              <div className="p-4 rounded-3xl border-2 flex items-center justify-between gap-3 shadow-xs bg-white/90 backdrop-blur-md" style={{ borderColor: `${theme.accent}40` }}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0" style={{ background: `${theme.accent}15` }}>
+                    💌
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full text-white" style={{ background: theme.accent }}>
+                        Format Aktif
+                      </span>
+                      <span className="text-[10px] font-bold text-gray-400">Tap untuk ubah</span>
+                    </div>
+                    <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 truncate mt-0.5">Invitation Date (Interaktif)</h4>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowFormatModal(true)}
+                  className="px-3.5 py-2 rounded-xl text-xs font-extrabold text-white shrink-0 transition-transform active:scale-95 shadow-sm"
+                  style={{ background: theme.accent }}
+                >
+                  Ubah Format ⚙️
+                </button>
+              </div>
+
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: theme.text }}>
                   <IconPalette size={22} color={theme.accent} />
