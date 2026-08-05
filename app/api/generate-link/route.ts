@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     // quota dari request body — default ke 3 (bundle) kalau tidak disertakan
     const quota: number = typeof body.quota === 'number' ? body.quota : 3;
+    const mode: 'invitation' | 'rundown' = body.mode === 'rundown' ? 'rundown' : 'invitation';
     const domainUrl = "https://invitation.for-you-always.my.id";
 
     // ── Mode Satuan (quota === 1) ────────────────────────────────────────────
@@ -43,9 +44,11 @@ export async function POST(req: NextRequest) {
 
       await putInvitation(invitationId, {
         invitationId,
+        mode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         source: "payment-gateway",
+        ...(mode === 'rundown' ? { rundownItems: [], rundownTitle: "Rundown Acara" } : {}),
       });
 
       const studioUrl = `${domainUrl}/studio/${invitationId}`;
