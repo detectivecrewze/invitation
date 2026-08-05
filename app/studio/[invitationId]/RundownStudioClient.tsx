@@ -383,12 +383,37 @@ export default function RundownStudioClient({
   const photoInputRef = useRef<HTMLInputElement>(null);
   const barcodeCardRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetch("/assets/playlist.json")
-      .then((res) => res.json())
-      .then((data) => setPlaylist(data))
-      .catch(() => {});
-  }, []);
+  const [showFormatModal, setShowFormatModal] = useState(false);
+  const [switchingFormat, setSwitchingFormat] = useState(false);
+
+  const handleSwitchMode = async (targetMode: "invitation" | "rundown") => {
+    setSwitchingFormat(true);
+    try {
+      await fetch("/api/invitations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invitationId,
+          mode: targetMode,
+          recipientName: st.recipientName,
+          senderName: st.senderName,
+          subText: st.subText,
+          photoUrl: st.photoUrl,
+          themeId: st.themeId,
+          musicUrl: st.musicUrl,
+          musicTitle: st.musicTitle,
+          invitationTitle: st.invitationTitle,
+          closingNote: st.closingNote,
+          ticketTitle: st.ticketTitle,
+          ...(bundleToken ? { bundleToken } : {}),
+        }),
+      });
+      window.location.reload();
+    } catch {
+      showToast("Gagal mengubah format. Coba lagi.");
+      setSwitchingFormat(false);
+    }
+  };
 
   const theme = getTheme(st.themeId);
 
@@ -634,6 +659,28 @@ export default function RundownStudioClient({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Top Header Bar */}
+      <header className="bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-base">⏱️</span>
+            <h1 className="font-extrabold text-sm text-gray-800">
+              Rundown Studio
+            </h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowFormatModal(true)}
+            className="text-xs font-extrabold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
+            style={{ background: `${theme.accent}15`, color: theme.accent, border: `1.5px solid ${theme.accent}35` }}
+            title="Klik untuk intip perbedaan / ubah format undangan"
+          >
+            <span>⏱️ Rundown Date</span>
+            <span className="text-[9px] opacity-70">▾</span>
+          </button>
+        </div>
+      </header>
 
       {/* Step bar */}
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -1574,6 +1621,89 @@ export default function RundownStudioClient({
                     </div>
                   );
                 })}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Format Comparison & Switch Modal */}
+      <AnimatePresence>
+        {showFormatModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            onClick={() => setShowFormatModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl p-6 w-full max-w-md max-h-[85vh] shadow-2xl flex flex-col gap-4 relative overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
+                <div>
+                  <h3 className="font-extrabold text-sm text-gray-800">Format Undangan Kencan ✨</h3>
+                  <p className="text-[11px] text-pink-500 font-semibold">Pilih format terbaik untuk momen kalian</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowFormatModal(false)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold hover:bg-gray-200 transition-colors shrink-0"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Scrollable Format Comparison */}
+              <div className="overflow-y-auto flex flex-col gap-3 pr-1 max-h-[60vh]">
+                {/* Target Switch Mode Card: Invitation Date */}
+                <div className="p-4 rounded-2xl border border-gray-200 bg-gray-50 flex flex-col gap-2 hover:border-pink-300 transition-all">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">💌</span>
+                    <h4 className="font-extrabold text-sm text-gray-800">Invitation Date (Interaktif)</h4>
+                  </div>
+                  <p className="text-xs text-gray-600 leading-snug">
+                    Format di mana <b>pasangan yang menentukan sendiri</b> tanggal, kegiatan, & dresscode kencan melalui survey interaktif.
+                  </p>
+                  <ul className="text-[11px] text-gray-500 flex flex-col gap-1 list-disc pl-4 mt-1 font-medium">
+                    <li>Ada animasi amplop & bunga pembuka.</li>
+                    <li>Pasangan memilih dari opsi tanggal & kegiatan.</li>
+                    <li>Menghasilkan Tiket Kencan sesuai pilihan pasangan.</li>
+                  </ul>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchMode("invitation")}
+                    disabled={switchingFormat}
+                    className="w-full py-2.5 mt-1 rounded-xl text-xs font-bold text-white bg-pink-500 hover:bg-pink-600 transition-colors shadow-sm disabled:opacity-50"
+                  >
+                    {switchingFormat ? "Mengubah Format..." : "Ubah ke Invitation Date 💌"}
+                  </button>
+                </div>
+
+                {/* Active Mode Card: Rundown Date */}
+                <div className="p-4 rounded-2xl border-2 border-pink-400 bg-pink-50/60 flex flex-col gap-2 relative">
+                  <span className="absolute top-3 right-3 text-[9px] font-extrabold bg-pink-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Format Aktif
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">⏱️</span>
+                    <h4 className="font-extrabold text-sm text-gray-800">Rundown Date (Itinerary)</h4>
+                  </div>
+                  <p className="text-xs text-gray-600 leading-snug">
+                    Format susunan agenda kencan <b>jam demi jam</b> yang sudah kamu rencanakan rapi dari pagi hingga malam.
+                  </p>
+                  <ul className="text-[11px] text-gray-500 flex flex-col gap-1 list-disc pl-4 mt-1 font-medium">
+                    <li>Linimasa itinerary waktu & lokasi (09:00, 12:00, 15:00).</li>
+                    <li>Dilengkapi QR Barcode Tiket Masuk Kencan.</li>
+                    <li>Cocok untuk Anniversary / Trip Seharian.</li>
+                  </ul>
+                </div>
               </div>
             </motion.div>
           </motion.div>

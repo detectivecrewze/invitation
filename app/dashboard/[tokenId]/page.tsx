@@ -138,6 +138,8 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchToken(); }, [fetchToken]);
 
+  const [selectedMode, setSelectedMode] = useState<"invitation" | "rundown">("invitation");
+
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSlug) return;
@@ -152,6 +154,7 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           invitationId: id, 
+          mode: selectedMode,
           bundleToken: tokenId,
           status: "draft",
           themeId: "baby-blue", // Default
@@ -267,15 +270,64 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <form onSubmit={handleCreateSubmit} className="flex flex-col gap-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs uppercase tracking-widest text-pink-400 font-bold">Custom Link</label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] uppercase tracking-widest text-pink-400 font-bold">Custom Link</label>
                     <button type="button" onClick={() => { const rand = Math.random().toString(36).substring(2, 9); setNewSlug(`kencan-${rand}`); setCreateError(""); }} className="text-[10px] uppercase tracking-wider font-bold text-blue-500 hover:text-blue-600">
                       Auto Generate
                     </button>
                   </div>
-                  <input type="text" value={newSlug} onChange={e => { setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, '-')); setCreateError(""); }} placeholder="e.g. kencan-aku-dan-kamu" autoFocus required className="w-full px-5 py-4 rounded-2xl text-sm font-bold text-center tracking-wide outline-none border bg-gray-50/50 focus:bg-white transition-colors" style={{ borderColor: createError ? "#f48080" : "rgba(232,120,154,0.2)", color: "#8a3050" }} />
+                  <input type="text" value={newSlug} onChange={e => { setNewSlug(e.target.value.toLowerCase().replace(/\s+/g, '-')); setCreateError(""); }} placeholder="e.g. kencan-aku-dan-kamu" autoFocus required className="w-full px-4 py-3 rounded-2xl text-xs font-bold text-center tracking-wide outline-none border bg-gray-50/50 focus:bg-white transition-colors" style={{ borderColor: createError ? "#f48080" : "rgba(232,120,154,0.2)", color: "#8a3050" }} />
+
+                  {/* Format Selection Cards */}
+                  <div className="flex flex-col gap-1.5 my-1">
+                    <label className="text-[10px] uppercase tracking-widest text-pink-400 font-bold block text-left">
+                      Format Undangan
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* Option 1: Invitation Date */}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedMode("invitation")}
+                        className="p-3 rounded-2xl border-2 text-left flex flex-col gap-1 transition-all relative overflow-hidden"
+                        style={{
+                          borderColor: selectedMode === "invitation" ? "#e8789a" : "#f3f4f6",
+                          background: selectedMode === "invitation" ? "#fdf2f7" : "#fafafa",
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-base">💌</span>
+                          {selectedMode === "invitation" && (
+                            <span className="text-[9px] font-extrabold bg-pink-500 text-white px-1.5 py-0.5 rounded-full">✓</span>
+                          )}
+                        </div>
+                        <p className="font-extrabold text-xs text-gray-800">Invitation Date</p>
+                        <p className="text-[10px] text-gray-500 leading-snug">Jawaban interaktif (Tanggal & Aktivitas).</p>
+                      </button>
+
+                      {/* Option 2: Rundown Date */}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedMode("rundown")}
+                        className="p-3 rounded-2xl border-2 text-left flex flex-col gap-1 transition-all relative overflow-hidden"
+                        style={{
+                          borderColor: selectedMode === "rundown" ? "#e8789a" : "#f3f4f6",
+                          background: selectedMode === "rundown" ? "#fdf2f7" : "#fafafa",
+                        }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-base">⏱️</span>
+                          {selectedMode === "rundown" && (
+                            <span className="text-[9px] font-extrabold bg-pink-500 text-white px-1.5 py-0.5 rounded-full">✓</span>
+                          )}
+                        </div>
+                        <p className="font-extrabold text-xs text-gray-800">Rundown Date</p>
+                        <p className="text-[10px] text-gray-500 leading-snug">Itinerary susunan jam & Barcode Tiket.</p>
+                      </button>
+                    </div>
+                  </div>
+
                   {createError && <p className="text-xs text-center text-red-500 font-bold">{createError}</p>}
-                  <div className="flex gap-3 mt-3">
+                  <div className="flex gap-3 mt-2">
                     <button type="button" onClick={() => setShowCreate(false)} className="flex-1 py-3.5 rounded-2xl text-sm font-bold tracking-wider bg-gray-50 text-gray-500 hover:bg-gray-100">
                       Batal
                     </button>
