@@ -1614,6 +1614,9 @@ export default function RundownStudioClient({
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Dress Code Outfit Icon Picker Modal (100% Mobile Centered Modal) */}
       <AnimatePresence>
         {editingIconDc && (
