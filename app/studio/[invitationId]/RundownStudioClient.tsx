@@ -62,7 +62,7 @@ const INITIAL: RundownState = {
   themeId: "pink",
   recipientName: "",
   senderName: "",
-  subText: "Special Date Invitation & Itinerary",
+  subText: "Special Date Rundown & Invitation",
   photoUrl: null,
   rundownItems: DEFAULT_ENGLISH_ITEMS.map(it => ({ ...it, id: nanoid(6) })),
   rundownTitle: "Date Itinerary & Rundown",
@@ -72,7 +72,7 @@ const INITIAL: RundownState = {
   status: "draft",
   musicUrl: null,
   musicTitle: null,
-  invitationTitle: "Invitation From",
+  invitationTitle: "Rundown & Invitation From",
   closingNote: "If you feel tired or want to change anything, we can tweak the schedule together!",
   openingShape: "heart",
   ticketTitle: "Date Ticket & Itinerary",
@@ -610,7 +610,7 @@ export default function RundownStudioClient({
         status:          "published",
         musicUrl:        st.musicUrl,
         musicTitle:      st.musicTitle,
-        invitationTitle: st.invitationTitle || "Invitation From",
+        invitationTitle: st.invitationTitle || "Rundown & Invitation From",
         closingNote:     st.closingNote  || "",
         openingShape:    st.openingShape || "heart",
         ticketTitle:     st.ticketTitle  || "Rundown Kencan",
@@ -840,16 +840,16 @@ export default function RundownStudioClient({
                       className={inputClass}
                       value={st.subText}
                       onChange={(e) => update({ subText: e.target.value })}
-                      placeholder="Special Date Invitation & Itinerary"
+                      placeholder="Special Date Rundown & Invitation"
                     />
                   </Field>
 
-                  <Field label="Judul Undangan" accent={theme.accent} onPreview={() => setPreviewField("invitationTitle")}>
+                  <Field label="Judul Rundown & Opening" accent={theme.accent} onPreview={() => setPreviewField("invitationTitle")}>
                     <input
                       className={inputClass}
                       value={st.invitationTitle}
                       onChange={(e) => update({ invitationTitle: e.target.value })}
-                      placeholder="Invitation From"
+                      placeholder="Rundown & Invitation From"
                     />
                   </Field>
 
@@ -1844,7 +1844,7 @@ export default function RundownStudioClient({
                     <div className="w-full flex flex-col items-center gap-2 text-center">
                       <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
                         <span className="text-[9px] font-bold text-amber-800 opacity-60 uppercase tracking-wider block">
-                          {st.invitationTitle || "Invitation From"} {st.senderName || "Nama Kamu"}
+                          {st.invitationTitle || "Rundown & Invitation From"} {st.senderName || "Nama Kamu"}
                         </span>
                         <span className="text-xs font-extrabold text-gray-800 block">
                           For {st.recipientName || "Nama Penerima"}
@@ -1855,7 +1855,7 @@ export default function RundownStudioClient({
                             📍 POSISI: SUB TEKS (OPSIONAL)
                           </span>
                           <div className="w-full px-3 py-2 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
-                            <p className="text-xs italic text-pink-700 font-extrabold">{st.subText || "Special Date Invitation & Itinerary"}</p>
+                            <p className="text-xs italic text-pink-700 font-extrabold">{st.subText || "Special Date Rundown & Invitation"}</p>
                           </div>
                         </div>
                       </div>
@@ -1867,7 +1867,7 @@ export default function RundownStudioClient({
                     <div className="w-full flex flex-col items-center gap-2 text-center">
                       <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
                         <span className="text-[9px] font-bold text-amber-800 opacity-60 uppercase tracking-wider block">
-                          {st.invitationTitle || "Invitation From"} {st.senderName || "Nama Kamu"}
+                          {st.invitationTitle || "Rundown & Invitation From"} {st.senderName || "Nama Kamu"}
                         </span>
                         
                         <div className="flex flex-col items-center gap-1 w-full max-w-[220px]">
@@ -1889,7 +1889,7 @@ export default function RundownStudioClient({
                     <div className="w-full flex flex-col items-center gap-2 text-center">
                       <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
                         <span className="text-[9px] font-bold text-amber-800 opacity-60 uppercase tracking-wider block">
-                          {st.invitationTitle || "Invitation From"}
+                          {st.invitationTitle || "Rundown & Invitation From"}
                         </span>
 
                         <div className="flex flex-col items-center gap-1 w-full max-w-[220px]">
@@ -1917,7 +1917,7 @@ export default function RundownStudioClient({
                             📍 POSISI: JUDUL UNGKAPAN / OPENING
                           </span>
                           <div className="w-full px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
-                            <span className="text-xs italic font-bold text-pink-700 block">{st.invitationTitle || "Invitation From"}</span>
+                            <span className="text-xs italic font-bold text-pink-700 block">{st.invitationTitle || "Rundown & Invitation From"}</span>
                           </div>
                         </div>
 
