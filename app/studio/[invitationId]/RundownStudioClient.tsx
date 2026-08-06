@@ -18,6 +18,7 @@ import {
   IconWhatsApp,
   IconShare,
   IconMessage,
+  IconEye,
   RUNDOWN_SVG_OPTIONS,
   ActivityIconSvg,
   DRESSCODE_SVG_OPTIONS,
@@ -378,6 +379,7 @@ export default function RundownStudioClient({
   const [customMusicUrl, setCustomMusicUrl] = useState("");
   const [customMusicTitle, setCustomMusicTitle] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewField, setPreviewField] = useState<string | null>(null);
   const [playlist, setPlaylist] = useState<Array<{ title: string; artist: string; audioUrl: string; coverUrl: string }>>(PRESET_PLAYLIST);
 
   useEffect(() => {
@@ -815,64 +817,49 @@ export default function RundownStudioClient({
               <div className="flex flex-col gap-5">
                 <StepHeader accent={theme.accent} label="Informasi Dasar" sub="Nama pengirim, penerima, dan teks pendamping" />
                 <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
-                  <Field label="Nama Penerima" accent={theme.accent}>
+                  <Field label="Nama Penerima" accent={theme.accent} onPreview={() => setPreviewField("recipientName")}>
                     <input
                       className={inputClass}
                       value={st.recipientName}
                       onChange={(e) => update({ recipientName: e.target.value })}
                       placeholder="Nama pasangan / orang spesialmu"
                     />
-                    <p className="text-[11px] text-gray-400 font-medium mt-1">
-                      Nama pasangan atau orang spesial yang akan menerima undangan kencan ini.
-                    </p>
                   </Field>
 
-                  <Field label="Nama Pengirim" accent={theme.accent}>
+                  <Field label="Nama Pengirim" accent={theme.accent} onPreview={() => setPreviewField("senderName")}>
                     <input
                       className={inputClass}
                       value={st.senderName}
                       onChange={(e) => update({ senderName: e.target.value })}
                       placeholder="Namamu"
                     />
-                    <p className="text-[11px] text-gray-400 font-medium mt-1">
-                      Nama kamu sendiri sebagai pengirim undangan kencan.
-                    </p>
                   </Field>
 
-                  <Field label="Sub Teks (opsional)" accent={theme.accent}>
+                  <Field label="Sub Teks (opsional)" accent={theme.accent} onPreview={() => setPreviewField("subText")}>
                     <input
                       className={inputClass}
                       value={st.subText}
                       onChange={(e) => update({ subText: e.target.value })}
                       placeholder="Special Date Invitation & Itinerary"
                     />
-                    <p className="text-[11px] text-gray-400 font-medium mt-1">
-                      Sub-judul singkat yang muncul di bawah nama pada kartu pembuka undangan.
-                    </p>
                   </Field>
 
-                  <Field label="Judul Undangan" accent={theme.accent}>
+                  <Field label="Judul Undangan" accent={theme.accent} onPreview={() => setPreviewField("invitationTitle")}>
                     <input
                       className={inputClass}
                       value={st.invitationTitle}
                       onChange={(e) => update({ invitationTitle: e.target.value })}
                       placeholder="Invitation From"
                     />
-                    <p className="text-[11px] text-gray-400 font-medium mt-1">
-                      Teks yang muncul sebelum namamu pada animasi bunga pembuka (default: &ldquo;Invitation From&rdquo;).
-                    </p>
                   </Field>
 
-                  <Field label="Judul Tiket Akhir" accent={theme.accent}>
+                  <Field label="Judul Tiket Akhir" accent={theme.accent} onPreview={() => setPreviewField("ticketTitle")}>
                     <input
                       className={inputClass}
                       value={st.ticketTitle}
                       onChange={(e) => update({ ticketTitle: e.target.value })}
                       placeholder="Date Ticket & Itinerary"
                     />
-                    <p className="text-[11px] text-gray-400 font-medium mt-1">
-                      Judul utama pada header kartu tiket kencan di halaman akhir.
-                    </p>
                   </Field>
 
                   {/* Background Music Selector Field */}
@@ -1158,9 +1145,21 @@ export default function RundownStudioClient({
 
                 {/* Textarea Input */}
                 <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-3">
-                  <label className="text-[11px] font-extrabold uppercase tracking-widest block" style={{ color: theme.accent }}>
-                    Note Dari Kamu
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-extrabold uppercase tracking-widest block" style={{ color: theme.accent }}>
+                      Note Dari Kamu
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewField("closingNote")}
+                      className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
+                      style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
+                      title="Klik untuk intip posisi tampilan di undangan"
+                    >
+                      <IconEye size={13} color={theme.accent} strokeWidth={2} />
+                      <span>Intip Tampilan</span>
+                    </button>
+                  </div>
                   <textarea
                     rows={4}
                     className="w-full p-4 rounded-2xl border border-gray-200 text-sm text-gray-800 outline-none focus:border-pink-300 bg-gray-50 transition-colors font-medium leading-relaxed"
@@ -1791,6 +1790,211 @@ export default function RundownStudioClient({
         )}
       </AnimatePresence>
 
+      {/* ── Visual Position Preview Modal (Eye Button 👁️ Modal) ── */}
+      <AnimatePresence>
+        {previewField && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            onClick={() => setPreviewField(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[85vh] shadow-2xl flex flex-col gap-3 relative overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-pink-50">
+                    <IconEye size={18} color={theme.accent} strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-gray-800">Pratinjau Posisi Tampilan</h3>
+                    <p className="text-[11px] text-pink-500 font-semibold">
+                      {previewField === "recipientName" && "Nama Penerima"}
+                      {previewField === "senderName" && "Nama Pengirim / Kamu"}
+                      {previewField === "subText" && "Sub Teks (Opsional)"}
+                      {previewField === "invitationTitle" && "Judul Undangan Opening"}
+                      {previewField === "ticketTitle" && "Judul Tiket Akhir"}
+                      {previewField === "closingNote" && "Note / Pesan Penutup"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewField(null)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold hover:bg-gray-200 transition-colors shrink-0"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Scrollable Content Body */}
+              <div className="overflow-y-auto flex flex-col gap-4 pr-1 max-h-[60vh]">
+                {/* Visual Mini Mockup */}
+                <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 p-4 rounded-2xl border border-pink-100 flex flex-col items-center justify-center min-h-[180px]">
+                  
+                  {/* Mockup for Sub Teks */}
+                  {previewField === "subText" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <span className="text-[9px] font-bold text-amber-800 opacity-60 uppercase tracking-wider block">
+                          {st.invitationTitle || "Invitation From"} {st.senderName || "Nama Kamu"}
+                        </span>
+                        <span className="text-xs font-extrabold text-gray-800 block">
+                          For {st.recipientName || "Nama Penerima"}
+                        </span>
+                        
+                        <div className="flex flex-col items-center gap-1 mt-1 w-full">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: SUB TEKS (OPSIONAL)
+                          </span>
+                          <div className="w-full px-3 py-2 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <p className="text-xs italic text-pink-700 font-extrabold">{st.subText || "Special Date Invitation & Itinerary"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mockup for Recipient Name */}
+                  {previewField === "recipientName" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <span className="text-[9px] font-bold text-amber-800 opacity-60 uppercase tracking-wider block">
+                          {st.invitationTitle || "Invitation From"} {st.senderName || "Nama Kamu"}
+                        </span>
+                        
+                        <div className="flex flex-col items-center gap-1 w-full max-w-[220px]">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: NAMA PENERIMA
+                          </span>
+                          <div className="w-full px-4 py-2 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-base font-extrabold uppercase text-pink-700 block tracking-wide">{st.recipientName || "Nevan"}</span>
+                          </div>
+                        </div>
+
+                        <p className="text-[10px] text-gray-500 mt-1">{st.subText || "Special Date"}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mockup for Sender Name */}
+                  {previewField === "senderName" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <span className="text-[9px] font-bold text-amber-800 opacity-60 uppercase tracking-wider block">
+                          {st.invitationTitle || "Invitation From"}
+                        </span>
+
+                        <div className="flex flex-col items-center gap-1 w-full max-w-[220px]">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: NAMA KAMU (PENGIRIM)
+                          </span>
+                          <div className="w-full px-4 py-2 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-sm font-extrabold uppercase text-pink-700 block tracking-wide">{st.senderName || "Kalula"}</span>
+                          </div>
+                        </div>
+
+                        <span className="text-xs font-extrabold text-gray-800 block mt-1">
+                          For {st.recipientName || "Nevan"}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mockup for Invitation Title */}
+                  {previewField === "invitationTitle" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <div className="flex flex-col items-center gap-1 w-full max-w-[220px]">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: JUDUL UNGKAPAN / OPENING
+                          </span>
+                          <div className="w-full px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-xs italic font-bold text-pink-700 block">{st.invitationTitle || "Invitation From"}</span>
+                          </div>
+                        </div>
+
+                        <span className="text-xs font-bold uppercase text-gray-800 block">{st.senderName || "Kalula"}</span>
+                        <span className="text-xs font-extrabold text-gray-800 block">For {st.recipientName || "Nevan"}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mockup for Ticket Title */}
+                  {previewField === "ticketTitle" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300 flex flex-col items-center gap-1">
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block mb-1">ADMIT TWO</span>
+                        
+                        <div className="flex flex-col items-center gap-1 w-full">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: JUDUL TIKET AKHIR
+                          </span>
+                          <div className="w-full px-3 py-1.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <span className="text-sm font-bold text-pink-700 block">{st.ticketTitle || "Date Ticket & Itinerary"}</span>
+                          </div>
+                        </div>
+
+                        <p className="text-[10px] text-gray-500 mt-2">UNTUK: {st.recipientName || "Nevan"}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mockup for Closing Note */}
+                  {previewField === "closingNote" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300 flex flex-col items-center gap-1">
+                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest border-b pb-1 w-full text-center">RUNDOWN DATE TICKET</div>
+                        <p className="text-[10px] text-gray-500">UNTUK: {st.recipientName || "Nevan"}</p>
+                        
+                        <div className="flex flex-col items-center gap-1 w-full mt-1">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: PESAN PENUTUP / SURAT
+                          </span>
+                          <div className="w-full rounded-xl p-3 bg-pink-100 border-2 border-pink-400 animate-pulse text-left max-h-[160px] overflow-y-auto">
+                            <span className="text-[8px] font-bold uppercase text-pink-600 tracking-wider block mb-1">CATATAN DARI {(st.senderName || "KALULA").toUpperCase()}</span>
+                            <p className="text-[11px] italic text-pink-900 leading-snug whitespace-pre-line">{st.closingNote || "Jangan lupa istirahat yang cukup yaa..."}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Description Text */}
+                <div className="bg-pink-50/70 rounded-2xl p-3 border border-pink-100">
+                  <p className="text-xs text-gray-600 leading-snug">
+                    <span className="font-bold text-pink-600">💡 Penjelasan Posisi: </span>
+                    {previewField === "subText" && "Tampil sebagai teks sub-judul pemanis tepat di bawah nama pada kartu pembuka dan header utama undangan."}
+                    {previewField === "recipientName" && "Tampil sebagai nama penerima kencan di kartu pembuka dan barcode tiket."}
+                    {previewField === "senderName" && "Tampil sebagai namamu sebagai pengirim undangan."}
+                    {previewField === "invitationTitle" && "Tampil sebagai kata pengantar (contoh: Invitation From / Special Invite) di paling atas kartu pembuka."}
+                    {previewField === "ticketTitle" && "Tampil sebagai judul utama di bagian paling atas kartu tiket kencan dan barcode."}
+                    {previewField === "closingNote" && "Tampil sebagai kotak surat / pesan ucapan di bagian bawah sebelum tiket kencan."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setPreviewField(null)}
+                className="w-full py-3 rounded-2xl font-bold text-sm text-white bg-pink-400 hover:bg-pink-500 transition-colors shadow-md shadow-pink-200 shrink-0 mt-1"
+              >
+                Paham & Tutup
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hidden audio element for preview playing in studio */}
       {previewUrl && <audio src={previewUrl} autoPlay onEnded={() => setPreviewUrl(null)} />}
     </div>
@@ -1820,20 +2024,36 @@ function StepHeader({
 function Field({
   label,
   accent,
+  onPreview,
   children,
 }: {
   label: string;
   accent: string;
+  onPreview?: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label
-        className="text-[11px] font-extrabold uppercase tracking-widest block mb-1.5"
-        style={{ color: accent }}
-      >
-        {label}
-      </label>
+      <div className="flex items-center justify-between mb-1.5">
+        <label
+          className="text-[11px] font-extrabold uppercase tracking-widest block"
+          style={{ color: accent }}
+        >
+          {label}
+        </label>
+        {onPreview && (
+          <button
+            type="button"
+            onClick={onPreview}
+            className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
+            style={{ background: `${accent}15`, color: accent, border: `1px solid ${accent}30` }}
+            title="Klik untuk intip posisi tampilan di undangan"
+          >
+            <IconEye size={13} color={accent} strokeWidth={2} />
+            <span>Intip Tampilan</span>
+          </button>
+        )}
+      </div>
       {children}
     </div>
   );
