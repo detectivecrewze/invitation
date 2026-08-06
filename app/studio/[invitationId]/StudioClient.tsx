@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as htmlToImage from "html-to-image";
-import { THEMES, ACTIVITIES, DRESS_CODES, getTheme } from "@/lib/constants";
+import { THEMES, ACTIVITIES, DRESS_CODES, PRESET_PLAYLIST, getTheme } from "@/lib/constants";
 import {
   IconPalette, IconMail, IconCamera, IconSparkle, IconHanger, IconRocket, ACTIVITY_ICONS, IconCheck, IconShare, IconEye
 } from "@/components/ui/Icon";
@@ -103,7 +103,7 @@ export default function StudioClient({
   const [copied, setCopied] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
-  const [playlist, setPlaylist] = useState<any[]>([]);
+  const [playlist, setPlaylist] = useState<any[]>(PRESET_PLAYLIST);
   const [showMusicModal, setShowMusicModal] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewField, setPreviewField] = useState<string | null>(null);

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { nanoid } from "nanoid";
-import { THEMES, DRESS_CODES, getTheme } from "@/lib/constants";
+import { THEMES, DRESS_CODES, PRESET_PLAYLIST, getTheme } from "@/lib/constants";
 import type { RundownItem } from "@/lib/types";
 import * as htmlToImage from "html-to-image";
 import HeartQRCode from "@/components/ui/HeartQRCode";
@@ -378,7 +378,18 @@ export default function RundownStudioClient({
   const [customMusicUrl, setCustomMusicUrl] = useState("");
   const [customMusicTitle, setCustomMusicTitle] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [playlist, setPlaylist] = useState<Array<{ title: string; artist: string; audioUrl: string; coverUrl: string }>>([]);
+  const [playlist, setPlaylist] = useState<Array<{ title: string; artist: string; audioUrl: string; coverUrl: string }>>(PRESET_PLAYLIST);
+
+  useEffect(() => {
+    fetch("/assets/playlist.json")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setPlaylist(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const barcodeCardRef = useRef<HTMLDivElement>(null);
