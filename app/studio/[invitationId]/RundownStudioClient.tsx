@@ -1049,140 +1049,6 @@ export default function RundownStudioClient({
                               )}
                             </div>
                           </div>
-
-                          {/* Outfit Icon/Emoji Selector Popover */}
-                          {editingIconDc === dc && (
-                            <div
-                              onClick={(e) => e.stopPropagation()}
-                              className="absolute top-12 left-0 z-30 p-3.5 bg-white border border-gray-200 rounded-3xl shadow-xl flex flex-col gap-3 w-72 animate-in fade-in zoom-in-95"
-                            >
-                              {/* Tab Switcher */}
-                              <div className="flex items-center justify-between border-b pb-2 border-gray-100">
-                                <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl">
-                                  <button
-                                    type="button"
-                                    onClick={() => setDcPickerTab("svg")}
-                                    className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all"
-                                    style={{
-                                      background: dcPickerTab === "svg" ? theme.accent : "transparent",
-                                      color: dcPickerTab === "svg" ? "white" : "#4b5563",
-                                    }}
-                                  >
-                                    Vector (SVG)
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setDcPickerTab("emoji")}
-                                    className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all"
-                                    style={{
-                                      background: dcPickerTab === "emoji" ? theme.accent : "transparent",
-                                      color: dcPickerTab === "emoji" ? "white" : "#4b5563",
-                                    }}
-                                  >
-                                    Emoji ✨
-                                  </button>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => setEditingIconDc(null)}
-                                  className="text-xs font-bold text-gray-400 hover:text-gray-600 px-1"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-
-                              {/* Tab Content: SVG Vector */}
-                              {dcPickerTab === "svg" && (
-                                <div className="grid grid-cols-3 gap-1.5 max-h-52 overflow-y-auto pr-0.5">
-                                  {DRESSCODE_SVG_OPTIONS.map(({ key: iconKey, label, Icon }) => {
-                                    const isActive = currentIconKey === iconKey;
-                                    return (
-                                      <button
-                                        key={iconKey}
-                                        type="button"
-                                        onClick={() => {
-                                          update({
-                                            dressCodeIcons: {
-                                              ...(st.dressCodeIcons || {}),
-                                              [dc]: iconKey,
-                                            },
-                                          });
-                                          setEditingIconDc(null);
-                                        }}
-                                        className="p-2 rounded-xl flex flex-col items-center gap-1 border text-center transition-all hover:scale-105 active:scale-95"
-                                        style={{
-                                          background: isActive ? `${theme.accent}15` : "#f9fafb",
-                                          borderColor: isActive ? theme.accent : "#f3f4f6",
-                                          color: isActive ? theme.accent : "#4b5563",
-                                        }}
-                                      >
-                                        <Icon size={18} color={theme.accent} />
-                                        <span className="text-[9px] font-bold leading-tight">{label}</span>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              )}
-
-                              {/* Tab Content: Emoji & Custom Input */}
-                              {dcPickerTab === "emoji" && (
-                                <div className="flex flex-col gap-2.5">
-                                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-200">
-                                    <span className="text-[11px] font-bold text-gray-500 shrink-0 pl-1">
-                                      Paste Emoji:
-                                    </span>
-                                    <input
-                                      type="text"
-                                      value={/\p{Extended_Pictographic}/u.test(currentIconKey) ? currentIconKey : ""}
-                                      onChange={(e) => {
-                                        const val = e.target.value;
-                                        update({
-                                          dressCodeIcons: {
-                                            ...(st.dressCodeIcons || {}),
-                                            [dc]: val,
-                                          },
-                                        });
-                                      }}
-                                      placeholder="👔 / 👗 / 👟"
-                                      className="w-full px-2 py-1 rounded-xl border border-gray-200 text-sm text-center bg-white outline-none focus:border-pink-400 font-bold"
-                                    />
-                                  </div>
-
-                                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-gray-400">
-                                    Emoji Outfit Populer:
-                                  </span>
-
-                                  <div className="grid grid-cols-6 gap-1.5 max-h-36 overflow-y-auto pr-0.5">
-                                    {["👔", "👕", "👗", "👖", "👟", "🕶️", "⌚", "🧢", "🎀", "👠", "👢", "👑", "💍", "🧥", "👙", "✨"].map((em) => {
-                                      const active = currentIconKey === em;
-                                      return (
-                                        <button
-                                          key={em}
-                                          type="button"
-                                          onClick={() => {
-                                            update({
-                                              dressCodeIcons: {
-                                                ...(st.dressCodeIcons || {}),
-                                                [dc]: em,
-                                              },
-                                            });
-                                            setEditingIconDc(null);
-                                          }}
-                                          className="w-8 h-8 rounded-xl bg-gray-50 text-base hover:scale-110 shadow-xs border flex items-center justify-center transition-transform active:scale-95 shrink-0"
-                                          style={{
-                                            borderColor: active ? theme.accent : "#e5e7eb",
-                                            background: active ? `${theme.accent}20` : "#f9fafb",
-                                          }}
-                                        >
-                                          {em}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -1735,6 +1601,177 @@ export default function RundownStudioClient({
                   </ul>
                 </div>
               </div>
+            </motion.div>
+          </motion.div>
+      {/* Dress Code Outfit Icon Picker Modal (100% Mobile Centered Modal) */}
+      <AnimatePresence>
+        {editingIconDc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+            onClick={() => setEditingIconDc(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl p-5 w-full max-w-sm max-h-[85vh] shadow-2xl flex flex-col gap-4 relative overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-pink-50 text-pink-500 shrink-0">
+                    <IconShirt size={18} color={theme.accent} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-extrabold text-sm text-gray-800">Pilih Ikon Dress Code ✨</h3>
+                    <p className="text-[11px] text-pink-500 font-semibold truncate">
+                      {(st.customDressCodes || {})[editingIconDc] ?? editingIconDc}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingIconDc(null)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold hover:bg-gray-200 transition-colors shrink-0"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Tab Switcher (Vector SVG vs Emoji) */}
+              <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-2xl shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setDcPickerTab("svg")}
+                  className="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all"
+                  style={{
+                    background: dcPickerTab === "svg" ? theme.accent : "transparent",
+                    color: dcPickerTab === "svg" ? "white" : "#4b5563",
+                    boxShadow: dcPickerTab === "svg" ? `0 2px 8px ${theme.accent}40` : "none",
+                  }}
+                >
+                  Vector (SVG) 🎨
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDcPickerTab("emoji")}
+                  className="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all"
+                  style={{
+                    background: dcPickerTab === "emoji" ? theme.accent : "transparent",
+                    color: dcPickerTab === "emoji" ? "white" : "#4b5563",
+                    boxShadow: dcPickerTab === "emoji" ? `0 2px 8px ${theme.accent}40` : "none",
+                  }}
+                >
+                  Emoji ✨
+                </button>
+              </div>
+
+              {/* Tab Content: SVG Vector */}
+              {dcPickerTab === "svg" && (
+                <div className="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[50vh] p-0.5">
+                  {DRESSCODE_SVG_OPTIONS.map(({ key: iconKey, label, Icon }) => {
+                    const dcKey = editingIconDc;
+                    const currentIconKey = (st.dressCodeIcons || {})[dcKey] ?? (dcKey === "Casual" ? "shirt" : dcKey === "Formal" ? "suit" : dcKey === "Semi-formal" ? "dress" : dcKey === "Couple Outfit" ? "sparkles" : "hanger");
+                    const isActive = currentIconKey === iconKey;
+                    return (
+                      <button
+                        key={iconKey}
+                        type="button"
+                        onClick={() => {
+                          update({
+                            dressCodeIcons: {
+                              ...(st.dressCodeIcons || {}),
+                              [dcKey]: iconKey,
+                            },
+                          });
+                          setEditingIconDc(null);
+                        }}
+                        className="p-3 rounded-2xl flex flex-col items-center justify-center gap-1.5 border text-center transition-all hover:scale-105 active:scale-95 shadow-xs"
+                        style={{
+                          background: isActive ? `${theme.accent}18` : "#f9fafb",
+                          borderColor: isActive ? theme.accent : "#e5e7eb",
+                          color: isActive ? theme.accent : "#4b5563",
+                        }}
+                      >
+                        <Icon size={22} color={theme.accent} />
+                        <span className="text-[10px] font-extrabold leading-tight">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Tab Content: Emoji & Custom Input */}
+              {dcPickerTab === "emoji" && (
+                <div className="flex flex-col gap-3 overflow-y-auto pr-1 max-h-[50vh]">
+                  <div className="flex items-center gap-2 p-2.5 bg-gray-50 rounded-2xl border border-gray-200">
+                    <span className="text-xs font-bold text-gray-600 shrink-0 pl-1">
+                      Paste Emoji:
+                    </span>
+                    <input
+                      type="text"
+                      value={/\p{Extended_Pictographic}/u.test((st.dressCodeIcons || {})[editingIconDc] ?? "") ? (st.dressCodeIcons || {})[editingIconDc] : ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        update({
+                          dressCodeIcons: {
+                            ...(st.dressCodeIcons || {}),
+                            [editingIconDc]: val,
+                          },
+                        });
+                      }}
+                      placeholder="👔 / 👗 / 👟 / 👑"
+                      className="w-full px-3 py-1.5 rounded-xl border border-gray-200 text-sm text-center bg-white outline-none focus:border-pink-400 font-bold"
+                    />
+                  </div>
+
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
+                    Atau Pilih Emoji Outfit Populer:
+                  </span>
+
+                  <div className="grid grid-cols-6 gap-2 p-0.5">
+                    {["👔", "👕", "👗", "👖", "👟", "🕶️", "⌚", "🧢", "🎀", "👠", "👢", "👑", "💍", "🧥", "👙", "✨", "🎒", "🥾"].map((em) => {
+                      const currentIconKey = (st.dressCodeIcons || {})[editingIconDc] ?? "";
+                      const active = currentIconKey === em;
+                      return (
+                        <button
+                          key={em}
+                          type="button"
+                          onClick={() => {
+                            update({
+                              dressCodeIcons: {
+                                ...(st.dressCodeIcons || {}),
+                                [editingIconDc]: em,
+                              },
+                            });
+                            setEditingIconDc(null);
+                          }}
+                          className="w-10 h-10 rounded-2xl bg-gray-50 text-xl hover:scale-110 shadow-xs border flex items-center justify-center transition-transform active:scale-95 shrink-0"
+                          style={{
+                            borderColor: active ? theme.accent : "#e5e7eb",
+                            background: active ? `${theme.accent}25` : "#f9fafb",
+                          }}
+                        >
+                          {em}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setEditingIconDc(null)}
+                className="w-full py-3 rounded-2xl font-bold text-xs text-white transition-colors shadow-sm shrink-0 mt-1"
+                style={{ background: theme.accent }}
+              >
+                Selesai & Simpan
+              </button>
             </motion.div>
           </motion.div>
         )}
