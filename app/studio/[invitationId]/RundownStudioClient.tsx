@@ -1638,7 +1638,7 @@ export default function RundownStudioClient({
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-pink-50 text-pink-500 shrink-0">
-                    <IconShirt size={18} color={theme.accent} />
+                    <IconHanger size={18} color={theme.accent} />
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-extrabold text-sm text-gray-800">Pilih Ikon Dress Code ✨</h3>
