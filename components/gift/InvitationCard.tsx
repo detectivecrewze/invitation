@@ -2,17 +2,19 @@
 
 import { useState, useRef } from "react";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
-import { IconHeart } from "@/components/ui/Icon";
+import { formatIndonesianDate } from "@/lib/constants";
+import { IconHeart, IconCalendar } from "@/components/ui/Icon";
 
 interface Props {
   senderName: string;
   subText: string;
+  eventDate?: string;
   photoUrl?: string;
   theme: { bg: string; card: string; accent: string; text: string };
   onAccept: () => void;
 }
 
-export default function InvitationCard({ senderName, subText, photoUrl, theme, onAccept }: Props) {
+export default function InvitationCard({ senderName, subText, eventDate, photoUrl, theme, onAccept }: Props) {
   const [rejectCount, setRejectCount] = useState(0);
   const [rejectPos, setRejectPos] = useState({ x: 0, y: 0 });
   const [accepted, setAccepted] = useState(false);
@@ -173,6 +175,22 @@ export default function InvitationCard({ senderName, subText, photoUrl, theme, o
               </p>
               <div className="h-px w-8" style={{ background: `${theme.accent}30` }} />
             </div>
+
+            {eventDate && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold shadow-xs border"
+                style={{
+                  background: `${theme.accent}12`,
+                  borderColor: `${theme.accent}30`,
+                  color: theme.accent,
+                }}
+              >
+                <IconCalendar size={14} color={theme.accent} strokeWidth={2} className="shrink-0" />
+                <span>{formatIndonesianDate(eventDate)}</span>
+              </motion.div>
+            )}
           </div>
 
           {/* Buttons */}

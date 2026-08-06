@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { nanoid } from "nanoid";
-import { THEMES, DRESS_CODES, PRESET_PLAYLIST, getTheme } from "@/lib/constants";
+import { THEMES, DRESS_CODES, PRESET_PLAYLIST, getTheme, formatIndonesianDate } from "@/lib/constants";
 import type { RundownItem } from "@/lib/types";
 import * as htmlToImage from "html-to-image";
 import HeartQRCode from "@/components/ui/HeartQRCode";
@@ -19,6 +19,7 @@ import {
   IconShare,
   IconMessage,
   IconEye,
+  IconCalendar,
   RUNDOWN_SVG_OPTIONS,
   ActivityIconSvg,
   DRESSCODE_SVG_OPTIONS,
@@ -32,6 +33,7 @@ interface RundownState {
   recipientName: string;
   senderName: string;
   subText: string;
+  eventDate: string;
   photoUrl: string | null;
   rundownItems: RundownItem[];
   rundownTitle: string;
@@ -63,6 +65,7 @@ const INITIAL: RundownState = {
   recipientName: "",
   senderName: "",
   subText: "Special Date Rundown & Invitation",
+  eventDate: "",
   photoUrl: null,
   rundownItems: DEFAULT_ENGLISH_ITEMS.map(it => ({ ...it, id: nanoid(6) })),
   rundownTitle: "Date Itinerary & Rundown",
@@ -411,6 +414,7 @@ export default function RundownStudioClient({
           recipientName: st.recipientName,
           senderName: st.senderName,
           subText: st.subText,
+          eventDate: st.eventDate,
           photoUrl: st.photoUrl,
           themeId: st.themeId,
           musicUrl: st.musicUrl,
@@ -497,6 +501,7 @@ export default function RundownStudioClient({
           recipientName:    data.recipientName     ?? s.recipientName,
           senderName:       data.senderName        ?? s.senderName,
           subText:          data.subText           ?? s.subText,
+          eventDate:        data.eventDate         ?? s.eventDate,
           photoUrl:         data.photoUrl          ?? s.photoUrl,
           rundownItems:     data.rundownItems && data.rundownItems.length > 0 ? data.rundownItems : s.rundownItems,
           rundownTitle:     data.rundownTitle      ?? s.rundownTitle,
@@ -602,6 +607,7 @@ export default function RundownStudioClient({
         recipientName:   st.recipientName,
         senderName:      st.senderName,
         subText:         st.subText,
+        eventDate:       st.eventDate,
         photoUrl:        st.photoUrl,
         rundownItems:    st.rundownItems,
         rundownTitle:    st.rundownTitle  || "Rundown Date Special",
@@ -842,6 +848,22 @@ export default function RundownStudioClient({
                       onChange={(e) => update({ subText: e.target.value })}
                       placeholder="Special Date Rundown & Invitation"
                     />
+                  </Field>
+
+                  <Field label="Tanggal Kencan / Acara" accent={theme.accent} onPreview={() => setPreviewField("eventDate")}>
+                    <input
+                      type="date"
+                      className={inputClass}
+                      value={st.eventDate}
+                      onChange={(e) => update({ eventDate: e.target.value })}
+                    />
+                    {st.eventDate && (
+                      <p className="text-[11px] font-semibold mt-1 flex items-center gap-1" style={{ color: theme.accent }}>
+                        <IconCalendar size={13} color={theme.accent} strokeWidth={2} className="shrink-0" />
+                        <span>Terpilih:</span>
+                        <span className="font-bold">{formatIndonesianDate(st.eventDate)}</span>
+                      </p>
+                    )}
                   </Field>
 
                   <Field label="Judul Rundown & Opening" accent={theme.accent} onPreview={() => setPreviewField("invitationTitle")}>
@@ -1819,6 +1841,7 @@ export default function RundownStudioClient({
                       {previewField === "recipientName" && "Nama Penerima"}
                       {previewField === "senderName" && "Nama Pengirim / Kamu"}
                       {previewField === "subText" && "Sub Teks (Opsional)"}
+                      {previewField === "eventDate" && "Tanggal Kencan / Acara"}
                       {previewField === "invitationTitle" && "Judul Undangan Opening"}
                       {previewField === "ticketTitle" && "Judul Tiket Akhir"}
                       {previewField === "closingNote" && "Note / Pesan Penutup"}
@@ -1839,6 +1862,30 @@ export default function RundownStudioClient({
                 {/* Visual Mini Mockup */}
                 <div className="bg-gradient-to-br from-pink-50/50 to-purple-50/50 p-4 rounded-2xl border border-pink-100 flex flex-col items-center justify-center min-h-[180px]">
                   
+                  {/* Mockup for Event Date */}
+                  {previewField === "eventDate" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <span className="text-[9px] font-bold text-amber-800 opacity-60 uppercase tracking-wider block">
+                          {st.invitationTitle || "Rundown & Invitation From"} {st.senderName || "Nama Kamu"}
+                        </span>
+                        <span className="text-xs font-extrabold text-gray-800 block">
+                          For {st.recipientName || "Nama Penerima"}
+                        </span>
+                        
+                        <div className="flex flex-col items-center gap-1 mt-1 w-full">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: TANGGAL KENCAN / ACARA
+                          </span>
+                          <div className="px-3.5 py-1.5 rounded-full bg-pink-100 border-2 border-pink-400 animate-pulse text-center inline-flex items-center gap-1.5">
+                            <IconCalendar size={13} color="#be185d" strokeWidth={2} className="shrink-0" />
+                            <span className="text-xs font-extrabold text-pink-700">{formatIndonesianDate(st.eventDate) || "Sabtu, 14 Februari 2026"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Mockup for Sub Teks */}
                   {previewField === "subText" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
@@ -1973,6 +2020,7 @@ export default function RundownStudioClient({
                   <p className="text-xs text-gray-600 leading-snug">
                     <span className="font-bold text-pink-600">💡 Penjelasan Posisi: </span>
                     {previewField === "subText" && "Tampil sebagai teks sub-judul pemanis tepat di bawah nama pada kartu pembuka dan header utama undangan."}
+                    {previewField === "eventDate" && "Tampil sebagai lencana tanggal resmi kencan di kartu pembuka dan tiket rundown akhir."}
                     {previewField === "recipientName" && "Tampil sebagai nama penerima kencan di kartu pembuka dan barcode tiket."}
                     {previewField === "senderName" && "Tampil sebagai namamu sebagai pengirim undangan."}
                     {previewField === "invitationTitle" && "Tampil sebagai kata pengantar (contoh: Invitation From / Special Invite) di paling atas kartu pembuka."}

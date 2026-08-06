@@ -3,9 +3,9 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as htmlToImage from "html-to-image";
-import { THEMES, ACTIVITIES, DRESS_CODES, PRESET_PLAYLIST, getTheme } from "@/lib/constants";
+import { THEMES, ACTIVITIES, DRESS_CODES, PRESET_PLAYLIST, getTheme, formatIndonesianDate } from "@/lib/constants";
 import {
-  IconPalette, IconMail, IconCamera, IconSparkle, IconHanger, IconRocket, ACTIVITY_ICONS, IconCheck, IconShare, IconEye
+  IconPalette, IconMail, IconCamera, IconSparkle, IconHanger, IconRocket, ACTIVITY_ICONS, IconCheck, IconShare, IconEye, IconCalendar
 } from "@/components/ui/Icon";
 import HeartQRCode from "@/components/ui/HeartQRCode";
 
@@ -37,6 +37,7 @@ interface State {
   recipientName: string;
   senderName: string;
   subText: string;
+  eventDate: string;
   photoUrl: string | null;
   selectedActivities: string[];
   customActivityLabels: Record<string, string>;
@@ -59,6 +60,7 @@ const INITIAL: State = {
   recipientName: "",
   senderName: "",
   subText: "",
+  eventDate: "",
   photoUrl: null,
   selectedActivities: ["dinner", "cinema", "walk", "gaming", "shopping", "cafe"],
   customActivityLabels: {},
@@ -189,6 +191,7 @@ export default function StudioClient({
           recipientName: data.recipientName ?? s.recipientName,
           senderName: data.senderName ?? s.senderName,
           subText: data.subText ?? s.subText,
+          eventDate: data.eventDate ?? s.eventDate,
           photoUrl: data.photoUrl ?? s.photoUrl,
           selectedActivities: data.activities?.map((a: any) => a.id) ?? s.selectedActivities,
           customActivityLabels: data.activities?.reduce((acc: any, a: any) => ({ ...acc, [a.id]: a.label }), {}) ?? s.customActivityLabels,
@@ -244,6 +247,7 @@ export default function StudioClient({
         recipientName: st.recipientName,
         senderName: st.senderName,
         subText: st.subText,
+        eventDate: st.eventDate,
         photoUrl: st.photoUrl,
         activities: ACTIVITIES
           .filter(a => st.selectedActivities.includes(a.id))
@@ -541,6 +545,39 @@ export default function StudioClient({
                   />
                 </div>
               ))}
+
+              {/* Tanggal Kencan / Acara */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold uppercase tracking-widest" style={{ color: theme.accent }}>
+                    Tanggal Kencan / Acara
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewField("eventDate")}
+                    className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                    style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
+                    title="Klik untuk intip posisi tampilan di undangan"
+                  >
+                    <IconEye size={13} color={theme.accent} strokeWidth={2} />
+                    <span>Intip Tampilan</span>
+                  </button>
+                </div>
+                <input
+                  type="date"
+                  value={st.eventDate}
+                  onChange={e => update({ eventDate: e.target.value })}
+                  className="w-full px-4 py-3 rounded-2xl font-medium text-sm outline-none"
+                  style={{ background: `${theme.accent}0a`, border: `2px solid ${theme.accent}22`, color: theme.text }}
+                />
+                {st.eventDate && (
+                  <p className="text-[11px] font-semibold mt-1 flex items-center gap-1" style={{ color: theme.accent }}>
+                    <IconCalendar size={13} color={theme.accent} strokeWidth={2} className="shrink-0" />
+                    <span>Terpilih:</span>
+                    <span className="font-bold">{formatIndonesianDate(st.eventDate)}</span>
+                  </p>
+                )}
+              </div>
 
               {/* Invitation Title */}
               <div>
@@ -1192,6 +1229,25 @@ export default function StudioClient({
                     </div>
                   )}
 
+                  {previewField === "eventDate" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <span className="text-[8px] font-bold text-pink-400 uppercase tracking-widest block mb-1">SPECIAL INVITATION</span>
+                        <p className="text-xs font-bold text-gray-800">For {st.recipientName || "Ziza"}</p>
+                        
+                        <div className="flex flex-col items-center gap-1 mt-1 w-full">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: TANGGAL KENCAN / ACARA
+                          </span>
+                          <div className="px-3.5 py-1.5 rounded-full bg-pink-100 border-2 border-pink-400 animate-pulse text-center inline-flex items-center gap-1.5">
+                            <IconCalendar size={13} color="#be185d" strokeWidth={2} className="shrink-0" />
+                            <span className="text-xs font-extrabold text-pink-700">{formatIndonesianDate(st.eventDate) || "Sabtu, 14 Februari 2026"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {previewField === "closingNote" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
                       <div className="w-full bg-white rounded-2xl p-3.5 shadow-sm border border-dashed border-pink-300 flex flex-col items-center gap-1">
@@ -1240,6 +1296,7 @@ export default function StudioClient({
                     {previewField === "senderName" && "Tampil sebagai nama pengirim di animasi pembuka dan footer tiket akhir."}
                     {previewField === "invitationTitle" && "Tampil sebagai kata pengantar tepat di atas namamu di animasi bunga pembuka."}
                     {previewField === "subText" && "Tampil sebagai kalimat ajakan tambahan di kartu undangan utama."}
+                    {previewField === "eventDate" && "Tampil sebagai lencana tanggal resmi kencan di kartu pembuka dan tiket kencan."}
                     {previewField === "closingNote" && "Tampil sebagai kotak catatan/surat khusus di bagian paling bawah tiket kencan."}
                     {previewField === "ticketTitle" && "Tampil sebagai judul utama di bagian paling atas tiket kencan hasil akhir."}
                   </p>

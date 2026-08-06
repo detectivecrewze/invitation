@@ -2,12 +2,13 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { getTheme } from "@/lib/constants";
+import { getTheme, formatIndonesianDate } from "@/lib/constants";
 import type { RundownData } from "@/lib/types";
 import LoadingScreen from "@/components/gift/LoadingScreen";
 import EnvelopeGate from "@/components/gift/EnvelopeGate";
 import FlowerBurst from "@/components/gift/FlowerBurst";
 import InvitationCard from "@/components/gift/InvitationCard";
+import { IconCalendar } from "@/components/ui/Icon";
 // ─── Sender Letter Card ───────────────────────────────────────────────────────
 // Displayed for recipient in Rundown mode — displays the sender's special note written in Studio.
 
@@ -256,6 +257,20 @@ function RundownTicket({
             <p className="text-[11px] text-gray-400 font-medium mt-1">
               {data.subText || "Special Date Invitation"}
             </p>
+
+            {data.eventDate && (
+              <div
+                className="mt-2 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold border shadow-xs"
+                style={{
+                  background: `${theme.accent}12`,
+                  borderColor: `${theme.accent}30`,
+                  color: theme.accent,
+                }}
+              >
+                <IconCalendar size={14} color={theme.accent} strokeWidth={2} className="shrink-0" />
+                <span>{formatIndonesianDate(data.eventDate)}</span>
+              </div>
+            )}
           </div>
 
           {/* Rundown items */}
@@ -642,6 +657,7 @@ export default function RundownGiftClient({ data }: Props) {
             <InvitationCard
               senderName={data.senderName}
               subText={data.subText}
+              eventDate={data.eventDate}
               photoUrl={data.photoUrl ?? undefined}
               theme={theme}
               onAccept={handleAccept}

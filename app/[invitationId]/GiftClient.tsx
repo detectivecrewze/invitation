@@ -230,6 +230,7 @@ export default function GiftClient({ data, invitationId }: Props) {
                 <InvitationCard
                   senderName={data.senderName}
                   subText={data.subText ?? ""}
+                  eventDate={data.eventDate}
                   photoUrl={data.photoUrl}
                   theme={theme}
                   onAccept={handleAccept}

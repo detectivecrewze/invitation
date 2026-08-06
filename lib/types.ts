@@ -7,6 +7,7 @@ export interface BaseData {
   recipientName: string;
   senderName: string;
   subText: string;
+  eventDate?: string;
   photoUrl: string | null;
   dressCodes: string[];
   dressCodeIcons?: Record<string, string>;
