@@ -28,6 +28,7 @@ interface InvitationData {
   recipientName: string;
   senderName: string;
   subText?: string;
+  eventDate?: string;
   photoUrl?: string;
   themeId?: string;
   suggestedDates?: string[];
