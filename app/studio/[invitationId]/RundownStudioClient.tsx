@@ -831,9 +831,9 @@ export default function RundownStudioClient({
             {/* ── Step 2: Info ─────────────────────────────────────────────── */}
             {step === 2 && (
               <div className="flex flex-col gap-5">
-                <StepHeader accent={theme.accent} label="Informasi Dasar" sub="Nama pengirim, penerima, dan teks pendamping" />
+                <StepHeader accent={theme.accent} label="Informasi Dasar" sub="Isi info yang akan tampil di cover pembuka & tiket rundown" />
                 <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
-                  <Field label="Nama Penerima" accent={theme.accent} onPreview={() => setPreviewField("recipientName")}>
+                  <Field label="Nama Penerima" hint="Nama pasangan yang menerima rundown ini" accent={theme.accent} onPreview={() => setPreviewField("recipientName")}>
                     <input
                       className={inputClass}
                       value={st.recipientName}
@@ -842,7 +842,7 @@ export default function RundownStudioClient({
                     />
                   </Field>
 
-                  <Field label="Nama Pengirim" accent={theme.accent} onPreview={() => setPreviewField("senderName")}>
+                  <Field label="Nama Pengirim" hint="Namamu — muncul sebagai 'dari ...' di bawah judul cover" accent={theme.accent} onPreview={() => setPreviewField("senderName")}>
                     <input
                       className={inputClass}
                       value={st.senderName}
@@ -851,12 +851,17 @@ export default function RundownStudioClient({
                     />
                   </Field>
 
-                  <Field label="Sub Teks (opsional)" accent={theme.accent} onPreview={() => setPreviewField("subText")}>
+                  <Field
+                    label="Judul Utama (Cover Foto)"
+                    hint="Teks besar yang tampil di atas foto — judul acara atau nama kalian berdua"
+                    accent={theme.accent}
+                    onPreview={() => setPreviewField("subText")}
+                  >
                     <input
                       className={inputClass}
                       value={st.subText}
                       onChange={(e) => update({ subText: e.target.value })}
-                      placeholder="Special Date Rundown & Invitation"
+                      placeholder="Special Date • Nama & Nama"
                     />
                   </Field>
 
@@ -876,16 +881,26 @@ export default function RundownStudioClient({
                     )}
                   </Field>
 
-                  <Field label="Judul Rundown & Opening" accent={theme.accent} onPreview={() => setPreviewField("invitationTitle")}>
+                  <Field
+                    label="Label Cover (Atas Foto)"
+                    hint="Teks kecil yang muncul di pojok kiri atas cover foto — identitas acara ini"
+                    accent={theme.accent}
+                    onPreview={() => setPreviewField("invitationTitle")}
+                  >
                     <input
                       className={inputClass}
                       value={st.invitationTitle}
                       onChange={(e) => update({ invitationTitle: e.target.value })}
-                      placeholder="Rundown & Invitation From"
+                      placeholder="Date Night Itinerary"
                     />
                   </Field>
 
-                  <Field label="Judul Tiket Akhir" accent={theme.accent} onPreview={() => setPreviewField("ticketTitle")}>
+                  <Field
+                    label="Judul Tiket Akhir"
+                    hint="Tampil sebagai judul besar di tiket / summary yang dibagikan di akhir"
+                    accent={theme.accent}
+                    onPreview={() => setPreviewField("ticketTitle")}
+                  >
                     <input
                       className={inputClass}
                       value={st.ticketTitle}
@@ -2114,18 +2129,20 @@ function StepHeader({
 
 function Field({
   label,
+  hint,
   accent,
   onPreview,
   children,
 }: {
   label: string;
+  hint?: string;
   accent: string;
   onPreview?: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center justify-between mb-1">
         <label
           className="text-[11px] font-extrabold uppercase tracking-widest block"
           style={{ color: accent }}
@@ -2145,6 +2162,11 @@ function Field({
           </button>
         )}
       </div>
+      {hint && (
+        <p className="text-[10px] text-gray-500 font-medium mb-1.5 leading-tight">
+          {hint}
+        </p>
+      )}
       {children}
     </div>
   );

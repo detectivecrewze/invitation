@@ -7,7 +7,7 @@ import type { RundownData } from "@/lib/types";
 import LoadingScreen from "@/components/gift/LoadingScreen";
 import EnvelopeGate from "@/components/gift/EnvelopeGate";
 import FlowerBurst from "@/components/gift/FlowerBurst";
-import InvitationCard from "@/components/gift/InvitationCard";
+import RundownOpeningCard from "@/components/gift/RundownOpeningCard";
 import { IconCalendar } from "@/components/ui/Icon";
 // ─── Sender Letter Card ───────────────────────────────────────────────────────
 // Displayed for recipient in Rundown mode — displays the sender's special note written in Studio.
@@ -651,16 +651,18 @@ export default function RundownGiftClient({ data }: Props) {
       {/* ── Phases rendered below flowers ─────────────────────────────────── */}
       <AnimatePresence mode="wait">
 
-        {/* invitation */}
+        {/* invitation (Rundown mode: Magazine Cover opening) */}
         {phase === "invitation" && !showFlowers && (
           <motion.div key="invitation" {...cardVariants} className="relative z-10 w-full px-4">
-            <InvitationCard
+            <RundownOpeningCard
               senderName={data.senderName}
+              recipientName={data.recipientName}
               subText={data.subText}
+              invitationTitle={data.invitationTitle}
               eventDate={data.eventDate}
               photoUrl={data.photoUrl ?? undefined}
               theme={theme}
-              onAccept={handleAccept}
+              onStart={handleAccept}
             />
           </motion.div>
         )}
