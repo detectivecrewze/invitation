@@ -8,6 +8,8 @@ import type { BarcodeStyle } from "@/components/barcode/types";
 import GiftCardBarcode from "@/components/barcode/GiftCardBarcode";
 import MovieTicketBarcode from "@/components/barcode/MovieTicketBarcode";
 
+import { formatIndonesianDate } from "@/lib/constants";
+
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [pass, setPass] = useState("");
@@ -17,6 +19,7 @@ export default function AdminPage() {
   const [newTokenQuota, setNewTokenQuota] = useState(1);
   const [newTokenLabel, setNewTokenLabel] = useState("");
   const [tab, setTab] = useState<"invitations" | "tokens" | "barcode">("invitations");
+  const [modeFilter, setModeFilter] = useState<"all" | "invitation" | "rundown">("all");
   const [toast, setToast] = useState<string | null>(null);
 
   // ── Barcode & Physical Card Generator State ──────────────────────────────
@@ -54,13 +57,19 @@ export default function AdminPage() {
     setLoading(true);
     try {
       const [invRes, tokRes] = await Promise.all([
-        fetch("/api/invitations").then(r => r.json()),
-        fetch("/api/tokens").then(r => r.json()),
+        fetch("/api/invitations").then(r => (r.ok ? r.json() : {})).catch(() => ({})),
+        fetch("/api/tokens").then(r => (r.ok ? r.json() : {})).catch(() => ({})),
       ]);
-      const invIds: string[] = invRes.ids ?? [];
-      const details = await Promise.all(invIds.map(id => fetch(`/api/invitations?id=${id}`).then(r => r.json())));
-      setInvitations(details.filter(Boolean));
-      setTokens(tokRes.tokens ?? []);
+      const invIds: string[] = (invRes as any)?.ids ?? [];
+      const details = await Promise.all(
+        invIds.map(id =>
+          fetch(`/api/invitations?id=${id}`)
+            .then(r => (r.ok ? r.json() : null))
+            .catch(() => null)
+        )
+      );
+      setInvitations(details.filter(d => d && !d.error));
+      setTokens((tokRes as any)?.tokens ?? []);
     } finally {
       setLoading(false);
     }
@@ -185,16 +194,17 @@ export default function AdminPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           {[
-            { label: "Total Undangan", value: invitations.length, icon: <IconMail size={24} color="#e8789a" strokeWidth={2} /> },
-            { label: "Published", value: invitations.filter(i => i.status === "published").length, icon: <IconCheck size={24} color="#e8789a" strokeWidth={2.5} /> },
-            { label: "Total Token", value: tokens.length, icon: <IconTicket size={24} color="#e8789a" strokeWidth={2} /> },
+            { label: "Total Undangan", value: invitations.length, icon: <IconMail size={20} color="#e8789a" strokeWidth={2} /> },
+            { label: "💌 Invitation", value: invitations.filter(i => (i.mode || "invitation") === "invitation").length, icon: <span className="text-sm">💌</span> },
+            { label: "⏱️ Rundown", value: invitations.filter(i => i.mode === "rundown").length, icon: <span className="text-sm">⏱️</span> },
+            { label: "Published", value: invitations.filter(i => i.status === "published").length, icon: <IconCheck size={20} color="#e8789a" strokeWidth={2.5} /> },
           ].map(s => (
-            <div key={s.label} className="bg-white rounded-2xl p-4 shadow-sm text-center flex flex-col items-center">
-              <div className="mb-2 bg-pink-50 p-2 rounded-full">{s.icon}</div>
-              <p className="text-2xl font-bold text-gray-800">{s.value}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+            <div key={s.label} className="bg-white rounded-2xl p-3 shadow-xs text-center flex flex-col items-center border border-pink-100">
+              <div className="mb-1 bg-pink-50 p-1.5 rounded-full">{s.icon}</div>
+              <p className="text-xl font-extrabold text-gray-800">{s.value}</p>
+              <p className="text-[11px] text-gray-500 font-semibold mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
@@ -227,35 +237,96 @@ export default function AdminPage() {
           <>
             {/* Invitations list */}
             {tab === "invitations" && (
-              <div className="flex flex-col gap-3">
-                {invitations.length === 0 ? (
-                  <div className="text-center py-12 text-gray-400">Belum ada undangan yang dibuat.</div>
-                ) : (
-                  invitations.map(inv => (
-                    <div key={inv.invitationId} className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4">
-                      {inv.photoUrl && <img src={inv.photoUrl} alt="" className="w-12 h-12 rounded-xl object-cover" />}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-sm text-gray-800 truncate">
-                          {inv.recipientName || "—"} ← {inv.senderName || "—"}
-                        </p>
-                        <p className="text-xs text-gray-400 truncate">{inv.invitationId}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${inv.status === "published" ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}>
-                          {inv.status}
-                        </span>
-                        <a href={`/${inv.invitationId}`} target="_blank" rel="noopener noreferrer"
-                          className="text-xs font-bold text-pink-400 underline">
-                          Lihat
-                        </a>
-                        <a href={`/studio/${inv.invitationId}`} target="_blank" rel="noopener noreferrer"
-                          className="text-xs font-bold text-blue-400 underline">
-                          Edit
-                        </a>
-                      </div>
+              <div className="flex flex-col gap-4">
+                {/* Format Filter Pills */}
+                <div className="flex items-center gap-2 bg-white/70 p-1.5 rounded-2xl border border-pink-100/80 shadow-xs self-start">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 px-2">Filter Format:</span>
+                  {[
+                    { id: "all", label: `Semua (${invitations.length})` },
+                    { id: "invitation", label: `💌 Invitation (${invitations.filter(i => (i.mode || "invitation") === "invitation").length})` },
+                    { id: "rundown", label: `⏱️ Rundown (${invitations.filter(i => i.mode === "rundown").length})` },
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => setModeFilter(f.id as any)}
+                      className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                        modeFilter === f.id
+                          ? "bg-pink-400 text-white shadow-xs"
+                          : "text-gray-600 hover:bg-pink-50"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {invitations.filter(i => modeFilter === "all" || (i.mode || "invitation") === modeFilter).length === 0 ? (
+                    <div className="text-center py-12 text-gray-400 font-medium bg-white rounded-2xl border border-gray-100">
+                      Tidak ada undangan dengan format ini.
                     </div>
-                  ))
-                )}
+                  ) : (
+                    invitations
+                      .filter(i => modeFilter === "all" || (i.mode || "invitation") === modeFilter)
+                      .map(inv => {
+                        const isRundownMode = inv.mode === "rundown";
+                        return (
+                          <div key={inv.invitationId} className="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3 border border-gray-100 hover:border-pink-200 transition-colors">
+                            <div className="flex items-center gap-3 min-w-0">
+                              {inv.photoUrl ? (
+                                <img src={inv.photoUrl} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0 shadow-xs" />
+                              ) : (
+                                <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center text-xl shrink-0">
+                                  {isRundownMode ? "⏱️" : "💌"}
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                  <p className="font-extrabold text-sm text-gray-800 truncate">
+                                    {inv.recipientName || "—"} <span className="text-gray-400 font-normal">←</span> {inv.senderName || "—"}
+                                  </p>
+                                  {/* Format Badge */}
+                                  {isRundownMode ? (
+                                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+                                      ⏱️ Rundown
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 border border-pink-200 shrink-0">
+                                      💌 Invitation
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+                                  <span className="font-mono text-gray-500 font-semibold">{inv.invitationId}</span>
+                                  {inv.eventDate && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-pink-600 font-bold">📅 {formatIndonesianDate(inv.eventDate)}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${inv.status === "published" ? "bg-green-100 text-green-700 border border-green-200" : "bg-gray-100 text-gray-500"}`}>
+                                {inv.status === "published" ? "Published" : "Draft"}
+                              </span>
+                              <a href={`/${inv.invitationId}`} target="_blank" rel="noopener noreferrer"
+                                className="text-xs font-bold px-3 py-1.5 rounded-xl bg-pink-50 text-pink-600 hover:bg-pink-100 transition-colors">
+                                Lihat
+                              </a>
+                              <a href={`/studio/${inv.invitationId}`} target="_blank" rel="noopener noreferrer"
+                                className="text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+                                Edit
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })
+                  )}
+                </div>
               </div>
             )}
 

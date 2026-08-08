@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 const BASE = () =>
   `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces/${process.env.KV_NAMESPACE_ID}`;
 
@@ -14,45 +17,94 @@ export function isKVConfigured(): boolean {
   );
 }
 
-function checkConfig() {
-  if (!isKVConfigured()) {
-    throw new Error(
-      "Missing Cloudflare KV Configuration. Please set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN, and KV_NAMESPACE_ID in your environment variables."
-    );
+// ---------------------------------------------------------------------------
+// Local Disk Storage Fallback (.data/local-db.json)
+// ---------------------------------------------------------------------------
+const LOCAL_DB_DIR = path.join(process.cwd(), '.data');
+const LOCAL_DB_FILE = path.join(LOCAL_DB_DIR, 'local-db.json');
+
+function getLocalDb(): Record<string, unknown> {
+  try {
+    if (!fs.existsSync(LOCAL_DB_DIR)) {
+      fs.mkdirSync(LOCAL_DB_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(LOCAL_DB_FILE)) {
+      fs.writeFileSync(LOCAL_DB_FILE, JSON.stringify({}), 'utf-8');
+      return {};
+    }
+    const content = fs.readFileSync(LOCAL_DB_FILE, 'utf-8');
+    return JSON.parse(content || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalDb(db: Record<string, unknown>) {
+  try {
+    if (!fs.existsSync(LOCAL_DB_DIR)) {
+      fs.mkdirSync(LOCAL_DB_DIR, { recursive: true });
+    }
+    fs.writeFileSync(LOCAL_DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Failed to write local DB fallback:', e);
   }
 }
 
 async function kvGet(key: string): Promise<unknown> {
-  checkConfig();
-  const res = await fetch(`${BASE()}/values/${encodeURIComponent(key)}`, {
-    headers: cfHeaders(),
-    cache: 'no-store',
-  });
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error(`KV GET failed: ${res.status} ${await res.text()}`);
-  const text = await res.text();
-  try { return JSON.parse(text); } catch { return text; }
+  if (isKVConfigured()) {
+    try {
+      const res = await fetch(`${BASE()}/values/${encodeURIComponent(key)}`, {
+        headers: cfHeaders(),
+        cache: 'no-store',
+      });
+      if (res.status === 404) return null;
+      if (res.ok) {
+        const text = await res.text();
+        try { return JSON.parse(text); } catch { return text; }
+      }
+    } catch (e) {
+      console.warn(`[KV] Cloudflare KV fetch failed for ${key}, falling back to local storage:`, e);
+    }
+  }
+  const db = getLocalDb();
+  return db[key] ?? null;
 }
 
 async function kvPut(key: string, value: unknown): Promise<void> {
-  checkConfig();
-  const body = typeof value === 'string' ? value : JSON.stringify(value);
-  const res = await fetch(`${BASE()}/values/${encodeURIComponent(key)}`, {
-    method: 'PUT',
-    headers: cfHeaders(),
-    body,
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error(`KV PUT failed: ${res.status} ${await res.text()}`);
+  if (isKVConfigured()) {
+    try {
+      const body = typeof value === 'string' ? value : JSON.stringify(value);
+      const res = await fetch(`${BASE()}/values/${encodeURIComponent(key)}`, {
+        method: 'PUT',
+        headers: cfHeaders(),
+        body,
+        cache: 'no-store',
+      });
+      if (res.ok) return;
+    } catch (e) {
+      console.warn(`[KV] Cloudflare KV PUT failed for ${key}, saving locally:`, e);
+    }
+  }
+  const db = getLocalDb();
+  db[key] = value;
+  saveLocalDb(db);
 }
 
 async function kvDelete(key: string): Promise<void> {
-  checkConfig();
-  const res = await fetch(`${BASE()}/values/${encodeURIComponent(key)}`, {
-    method: 'DELETE',
-    headers: cfHeaders(),
-  });
-  if (!res.ok) throw new Error(`KV DELETE failed: ${res.status} ${await res.text()}`);
+  if (isKVConfigured()) {
+    try {
+      const res = await fetch(`${BASE()}/values/${encodeURIComponent(key)}`, {
+        method: 'DELETE',
+        headers: cfHeaders(),
+      });
+      if (res.ok) return;
+    } catch (e) {
+      console.warn(`[KV] Cloudflare KV DELETE failed for ${key}, deleting locally:`, e);
+    }
+  }
+  const db = getLocalDb();
+  delete db[key];
+  saveLocalDb(db);
 }
 
 // ---------------------------------------------------------------------------

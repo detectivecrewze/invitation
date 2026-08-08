@@ -600,6 +600,16 @@ export default function RundownStudioClient({
         )
       );
 
+      const resolvedDressCodeIcons: Record<string, string> = { ...(st.dressCodeIcons || {}) };
+      st.selectedDressCodes.forEach((dcKey) => {
+        const finalText = (st.customDressCodes || {})[dcKey] ?? dcKey;
+        const icon = (st.dressCodeIcons || {})[dcKey];
+        if (icon) {
+          resolvedDressCodeIcons[finalText] = icon;
+          resolvedDressCodeIcons[dcKey] = icon;
+        }
+      });
+
       const payload = {
         invitationId,
         mode: "rundown",
@@ -612,7 +622,7 @@ export default function RundownStudioClient({
         rundownItems:    st.rundownItems,
         rundownTitle:    st.rundownTitle  || "Rundown Date Special",
         dressCodes:      resolvedDressCodes,
-        dressCodeIcons:  st.dressCodeIcons || {},
+        dressCodeIcons:  resolvedDressCodeIcons,
         status:          "published",
         musicUrl:        st.musicUrl,
         musicTitle:      st.musicTitle,
@@ -988,7 +998,7 @@ export default function RundownStudioClient({
                 <StepHeader
                   accent={theme.accent}
                   label="Dress Code / Outfit"
-                  sub="Pilih maksimal 2 dress code, edit teks &amp; pilih icon SVG (sepatu, celana, dress, dll)"
+                  sub="Pilih dress code pilihanmu, edit teks &amp; pilih icon SVG (sepatu, celana, dress, dll)"
                 />
                 <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
                   <div className="flex flex-wrap gap-2.5">
@@ -1006,10 +1016,6 @@ export default function RundownStudioClient({
                                   selectedDressCodes: st.selectedDressCodes.filter((x) => x !== dc),
                                 });
                               } else {
-                                if (st.selectedDressCodes.length >= 2) {
-                                  showToast("Maksimal pilih 2 dress code saja!");
-                                  return;
-                                }
                                 update({
                                   selectedDressCodes: [...st.selectedDressCodes, dc],
                                 });
@@ -1095,9 +1101,21 @@ export default function RundownStudioClient({
 
                 {/* Rundown title */}
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                  <label className="text-[11px] font-extrabold uppercase tracking-widest block mb-1.5" style={{ color: theme.accent }}>
-                    Judul Header Rundown
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[11px] font-extrabold uppercase tracking-widest block" style={{ color: theme.accent }}>
+                      Judul Header Rundown
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewField("rundownTitle")}
+                      className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                      style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
+                      title="Klik untuk intip posisi tampilan di undangan"
+                    >
+                      <IconEye size={13} color={theme.accent} strokeWidth={2} />
+                      <span>Intip Tampilan</span>
+                    </button>
+                  </div>
                   <input
                     className={inputClass}
                     value={st.rundownTitle}
@@ -1710,7 +1728,7 @@ export default function RundownStudioClient({
                 <div className="grid grid-cols-3 gap-2 overflow-y-auto pr-1 max-h-[50vh] p-0.5">
                   {DRESSCODE_SVG_OPTIONS.map(({ key: iconKey, label, Icon }) => {
                     const dcKey = editingIconDc;
-                    const currentIconKey = (st.dressCodeIcons || {})[dcKey] ?? (dcKey === "Casual" ? "shirt" : dcKey === "Formal" ? "suit" : dcKey === "Semi-formal" ? "dress" : dcKey === "Couple Outfit" ? "sparkles" : "hanger");
+                    const currentIconKey = (st.dressCodeIcons || {})[dcKey] ?? (dcKey === "Casual" ? "shirt" : dcKey === "Formal" ? "formal" : dcKey === "Semi-formal" ? "formal" : dcKey === "Couple Outfit" ? "sparkles" : "hanger");
                     const isActive = currentIconKey === iconKey;
                     return (
                       <button
@@ -1844,6 +1862,7 @@ export default function RundownStudioClient({
                       {previewField === "eventDate" && "Tanggal Kencan / Acara"}
                       {previewField === "invitationTitle" && "Judul Undangan Opening"}
                       {previewField === "ticketTitle" && "Judul Tiket Akhir"}
+                      {previewField === "rundownTitle" && "Judul Header Rundown"}
                       {previewField === "closingNote" && "Note / Pesan Penutup"}
                     </p>
                   </div>
@@ -1994,6 +2013,29 @@ export default function RundownStudioClient({
                     </div>
                   )}
 
+                  {/* Mockup for Rundown Title */}
+                  {previewField === "rundownTitle" && (
+                    <div className="w-full flex flex-col items-center gap-2 text-center">
+                      <div className="w-full bg-white rounded-2xl p-4 shadow-sm border border-pink-200 flex flex-col items-center gap-2">
+                        <span className="text-[8px] font-bold text-pink-500 uppercase tracking-widest bg-pink-50 px-2 py-0.5 rounded-full border border-pink-200">
+                          🔆 AGENDA 2 DARI 6
+                        </span>
+
+                        <div className="flex flex-col items-center gap-1 w-full mt-1">
+                          <span className="bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                            📍 POSISI: JUDUL HEADER RUNDOWN
+                          </span>
+                          <div className="w-full px-3 py-2.5 rounded-xl bg-pink-100 border-2 border-pink-400 animate-pulse text-center">
+                            <h2 className="text-base font-extrabold text-pink-900 tracking-tight">
+                              {st.rundownTitle || "Date Itinerary & Rundown"}
+                            </h2>
+                            <p className="text-[10px] text-pink-600 font-medium">Membuka rencana satu per satu...</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Mockup for Closing Note */}
                   {previewField === "closingNote" && (
                     <div className="w-full flex flex-col items-center gap-2 text-center">
@@ -2025,6 +2067,7 @@ export default function RundownStudioClient({
                     {previewField === "senderName" && "Tampil sebagai namamu sebagai pengirim undangan."}
                     {previewField === "invitationTitle" && "Tampil sebagai kata pengantar (contoh: Invitation From / Special Invite) di paling atas kartu pembuka."}
                     {previewField === "ticketTitle" && "Tampil sebagai judul utama di bagian paling atas kartu tiket kencan dan barcode."}
+                    {previewField === "rundownTitle" && "Tampil sebagai judul header utama di halaman daftar kegiatan rundown kencan."}
                     {previewField === "closingNote" && "Tampil sebagai kotak surat / pesan ucapan di bagian bawah sebelum tiket kencan."}
                   </p>
                 </div>
