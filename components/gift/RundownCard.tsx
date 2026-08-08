@@ -180,64 +180,80 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
     >
       {/* Outer Aesthetic Container Card */}
       <div
-        className="relative rounded-[2.5rem] p-6 sm:p-7 overflow-hidden flex flex-col gap-6 shadow-2xl backdrop-blur-xl"
+        className="relative rounded-[2.5rem] p-6 sm:p-7 overflow-hidden flex flex-col gap-6 shadow-2xl backdrop-blur-2xl"
         style={{
-          background: "rgba(255, 255, 255, 0.94)",
+          background: "rgba(255, 255, 255, 0.92)",
           border: `1.5px solid ${theme.accent}35`,
-          boxShadow: `0 24px 60px -12px ${theme.accent}35, 0 8px 24px rgba(0, 0, 0, 0.04)`,
+          boxShadow: `0 28px 65px -12px ${theme.accent}35, 0 8px 24px rgba(0, 0, 0, 0.04)`,
         }}
       >
         {/* Decorative Ambient Background Glow */}
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.35, 0.2] }}
-          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
           className="absolute -top-16 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full blur-3xl pointer-events-none"
           style={{ background: theme.accent }}
         />
 
-        {/* Header & Reveal Progress */}
+        {/* ── Editorial Header & Segmented Chapter Progress ──────────────── */}
         <div className="text-center flex flex-col items-center relative z-10">
-          <div
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-[0.25em] mb-2 border shadow-sm"
-            style={{ background: `${theme.accent}15`, color: theme.accent, borderColor: `${theme.accent}30` }}
-          >
-            <IconSparkle size={12} color={theme.accent} strokeWidth={2} />
-            <span>
-              {revealedCount === 0
-                ? "Mempersiapkan..."
-                : `AGENDA ${Math.min(revealedCount, items.length)} DARI ${items.length}`}
+          {/* Top Label with Accent Lines */}
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-px w-5" style={{ background: `${theme.accent}40` }} />
+            <span
+              className="text-[9px] font-extrabold uppercase tracking-[0.3em] inline-flex items-center gap-1.5"
+              style={{ color: theme.accent }}
+            >
+              <IconSparkle size={11} color={theme.accent} strokeWidth={2.5} />
+              <span>
+                {revealedCount === 0
+                  ? "MEMPERSIAPKAN JOURNEY"
+                  : `CHAPTER ${Math.min(revealedCount, items.length)} DARI ${items.length}`}
+              </span>
             </span>
+            <div className="h-px w-5" style={{ background: `${theme.accent}40` }} />
           </div>
 
-          <h2 className="text-2xl font-extrabold text-gray-800 tracking-tight">
+          <h2
+            className="text-2xl font-extrabold tracking-tight text-gray-800"
+            style={{ fontFamily: "var(--font-caveat)", fontSize: "2.1rem" }}
+          >
             {title || "Rundown Ngedate"}
           </h2>
+
           <p className="text-xs text-gray-400 mt-1 font-medium">
             {revealedCount === 0
-              ? "Sebentar lagi..."
+              ? "Menyusun jadwal kegiatan kita..."
               : allRevealed
               ? "Semua rencana siap! Gimana, seru kan? 🎉"
-              : "Membuka rencana satu per satu..."}
+              : "Membuka agenda kegiatan satu per satu..."}
           </p>
 
-          {/* Reveal Progress Bar */}
-          <div className="w-full max-w-[200px] h-2 bg-gray-100 rounded-full mt-3 overflow-hidden border border-gray-200/60">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ background: `linear-gradient(90deg, ${theme.accent} 0%, ${theme.accent}cc 100%)` }}
-              initial={{ width: "0%" }}
-              animate={{ width: revealedCount === 0 ? "0%" : `${(revealedCount / items.length) * 100}%` }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            />
+          {/* Segmented Chapter Progress Bar */}
+          <div className="w-full max-w-[220px] flex gap-1.5 mt-3.5">
+            {items.map((_, i) => {
+              const isRevealed = i < revealedCount;
+              return (
+                <div key={i} className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200/50">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: theme.accent }}
+                    initial={{ width: "0%" }}
+                    animate={{ width: isRevealed ? "100%" : "0%" }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Timeline Items List (Revealed One-By-One) */}
+        {/* ── Timeline Chapter Items List (Revealed One-By-One) ───────────── */}
         <div className="relative flex flex-col gap-4 py-2 min-h-[220px]" ref={listRef}>
           {/* Vertical Connecting Line — grows as items reveal */}
           <motion.div
             className="absolute left-[27px] top-7 w-0.5 rounded-full pointer-events-none origin-top"
-            style={{ background: `linear-gradient(180deg, ${theme.accent}70 0%, ${theme.accent}15 100%)` }}
+            style={{ background: `linear-gradient(180deg, ${theme.accent}80 0%, ${theme.accent}20 100%)` }}
             initial={{ scaleY: 0, height: "calc(100% - 28px)" }}
             animate={{ scaleY: revealedCount > 0 ? 1 : 0 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
@@ -254,14 +270,14 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                   initial={{ opacity: 0, x: -24, scale: 0.88, filter: "blur(6px)" }}
                   animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative flex items-start gap-3.5 group"
+                  className="relative flex items-start gap-3.5 group z-10"
                 >
                   {/* Left Icon Badge — with glow ping on latest */}
                   <div className="relative shrink-0">
                     <motion.div
                       animate={
                         isLatestRevealed
-                          ? { scale: [0.8, 1.15, 1.0], rotate: [0, -8, 4, 0] }
+                          ? { scale: [0.85, 1.12, 1.0], rotate: [0, -6, 3, 0] }
                           : { scale: 1, rotate: 0 }
                       }
                       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -288,9 +304,9 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                     {isLatestRevealed && <GlowPing accent={theme.accent} />}
                   </div>
 
-                  {/* Right Details Card */}
+                  {/* Right Details Glass Card */}
                   <motion.div
-                    className="flex-1 p-4 rounded-2xl border transition-all"
+                    className="flex-1 p-4 rounded-2xl border transition-all relative overflow-hidden shadow-xs"
                     animate={
                       isLatestRevealed
                         ? { boxShadow: [`0 0 0px ${theme.accent}00`, `0 8px 28px -4px ${theme.accent}35`] }
@@ -299,21 +315,39 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                     transition={{ duration: 0.5 }}
                     style={{
                       background: isLatestRevealed
-                        ? `linear-gradient(135deg, ${theme.bg}50 0%, #ffffff 100%)`
-                        : "rgba(249, 250, 251, 0.85)",
+                        ? `linear-gradient(135deg, ${theme.bg}70 0%, #ffffff 100%)`
+                        : "rgba(249, 250, 251, 0.90)",
                       borderColor: isLatestRevealed ? `${theme.accent}50` : "rgba(229, 231, 235, 0.8)",
                     }}
                   >
-                    {/* Time Badge */}
-                    <div className="flex items-center justify-between mb-1">
+                    {/* Subtle Left Accent Border Stripe on latest */}
+                    {isLatestRevealed && (
+                      <div
+                        className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full"
+                        style={{ background: theme.accent }}
+                      />
+                    )}
+
+                    {/* Top Row: Time Ticket Badge & Chapter Tag */}
+                    <div className="flex items-center justify-between mb-1.5">
                       <span
-                        className="inline-flex items-center gap-1 text-[11px] font-extrabold font-mono px-2.5 py-0.5 rounded-md"
-                        style={{ background: `${theme.accent}15`, color: theme.accent }}
+                        className="inline-flex items-center gap-1 text-[10px] font-extrabold font-mono px-2.5 py-0.5 rounded-lg border shadow-2xs"
+                        style={{
+                          background: `${theme.accent}15`,
+                          color: theme.accent,
+                          borderColor: `${theme.accent}25`,
+                        }}
                       >
                         <span>⏰</span>
                         <span>{item.time || "Flexibel"}</span>
                       </span>
-                      <span className="text-[10px] font-bold text-gray-300">#{idx + 1}</span>
+
+                      <span
+                        className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                        style={{ color: `${theme.accent}aa`, background: `${theme.accent}10` }}
+                      >
+                        CHAPTER 0{idx + 1}
+                      </span>
                     </div>
 
                     {/* Activity Title */}
@@ -321,19 +355,22 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                       {item.title || "Kegiatan"}
                     </h3>
 
-                    {/* Location */}
+                    {/* Location Badge */}
                     {item.location && (
-                      <div className="flex items-center gap-1 text-[11px] text-gray-500 font-medium mt-1">
-                        <IconMapPin size={12} color={theme.accent} strokeWidth={2} />
+                      <div className="flex items-center gap-1 text-[11px] text-gray-500 font-semibold mt-1.5">
+                        <IconMapPin size={12} color={theme.accent} strokeWidth={2.5} />
                         <span className="truncate">{item.location}</span>
                       </div>
                     )}
 
-                    {/* Optional Note */}
+                    {/* Optional Note (Italic Quote Block) */}
                     {item.note && (
                       <div
-                        className="text-[11px] mt-2 pt-1.5 border-t italic font-medium"
-                        style={{ color: `${theme.accent}bb`, borderColor: "rgba(229, 231, 235, 0.6)" }}
+                        className="text-[11px] mt-2 pt-2 border-t italic font-medium relative pl-2 border-l-2"
+                        style={{
+                          color: `${theme.accent}dd`,
+                          borderColor: `${theme.accent}40`,
+                        }}
                       >
                         &ldquo;{item.note}&rdquo;
                       </div>
@@ -352,32 +389,39 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
               className="flex items-center gap-3 pl-4"
             >
               <div className="w-14 h-10 flex items-center justify-center">
-                <div className="flex gap-1">
+                <div className="flex gap-1.5">
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
                       className="w-2 h-2 rounded-full"
-                      style={{ background: `${theme.accent}60` }}
-                      animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }}
+                      style={{ background: theme.accent }}
+                      animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
                       transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.2 }}
                     />
                   ))}
                 </div>
               </div>
-              <span className="text-[11px] text-gray-400 font-medium italic">Masih ada lagi...</span>
+              <span className="text-[11px] text-gray-400 font-semibold italic">Membuka chapter berikutnya...</span>
             </motion.div>
           )}
         </div>
 
-        {/* Skip Auto-Reveal Button */}
+        {/* Skip Auto-Reveal Button (Glass Pill Style) */}
         {!allRevealed && revealedCount > 0 && (
-          <button
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={handleRevealAll}
-            className="text-[11px] font-bold text-gray-400 hover:text-gray-600 text-center transition-colors -mt-2"
+            className="text-[11px] font-extrabold px-4 py-2 rounded-full border mx-auto transition-all shadow-xs -mt-1 cursor-pointer"
+            style={{
+              color: theme.accent,
+              borderColor: `${theme.accent}35`,
+              background: `${theme.accent}10`,
+            }}
           >
             ⚡ Tampilkan Semua Sekaligus
-          </button>
+          </motion.button>
         )}
 
         {/* Continue Action Button */}
@@ -387,6 +431,7 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.6, ease: "backOut", delay: 0.4 }}
+              className="w-full z-10"
             >
               <motion.button
                 onClick={onContinue}
@@ -396,10 +441,17 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                 style={{
                   background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}ee 100%)`,
                   boxShadow: `0 12px 32px -6px ${theme.accent}65`,
+                  letterSpacing: "0.03em",
                 }}
               >
                 <span>Lanjut Ke Pesan Spesial</span>
-                <span className="text-base font-normal">→</span>
+                <motion.span
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  className="text-base font-normal"
+                >
+                  →
+                </motion.span>
               </motion.button>
             </motion.div>
           )}

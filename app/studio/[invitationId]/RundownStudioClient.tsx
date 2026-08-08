@@ -445,7 +445,8 @@ export default function RundownStudioClient({
     try {
       const dataUrl = await htmlToImage.toPng(barcodeCardRef.current, {
         quality: 1,
-        pixelRatio: 3,
+        pixelRatio: 3.125, // 300 DPI resolution (300 / 96 = 3.125)
+        cacheBust: true,
         style: { transform: "scale(1)", margin: "0" },
       });
 

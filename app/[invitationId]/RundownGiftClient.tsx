@@ -8,7 +8,8 @@ import LoadingScreen from "@/components/gift/LoadingScreen";
 import EnvelopeGate from "@/components/gift/EnvelopeGate";
 import FlowerBurst from "@/components/gift/FlowerBurst";
 import RundownOpeningCard from "@/components/gift/RundownOpeningCard";
-import { IconCalendar } from "@/components/ui/Icon";
+import { IconCalendar, IconMail } from "@/components/ui/Icon";
+
 // ─── Sender Letter Card ───────────────────────────────────────────────────────
 // Displayed for recipient in Rundown mode — displays the sender's special note written in Studio.
 
@@ -52,73 +53,139 @@ function SenderLetterCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      initial={{ opacity: 0, y: 35, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -30, scale: 0.95 }}
+      exit={{ opacity: 0, y: -25, scale: 0.96 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full max-w-sm mx-auto flex flex-col gap-6 px-3 py-2"
+      className="w-full max-w-sm mx-auto flex flex-col gap-6 px-2 py-2"
     >
+      {/* ── Editorial Container Card ───────────────────────────────────── */}
       <div
-        className="relative rounded-[2.5rem] p-7 overflow-hidden text-center flex flex-col items-center gap-6 shadow-2xl backdrop-blur-xl"
+        className="relative rounded-[2.5rem] p-7 overflow-hidden text-center flex flex-col items-center gap-6 shadow-2xl backdrop-blur-2xl"
         style={{
-          background: "rgba(255, 255, 255, 0.94)",
-          border: `1.5px solid ${theme.accent}30`,
-          boxShadow: `0 20px 50px -10px ${theme.accent}25, 0 8px 20px rgba(0, 0, 0, 0.04)`,
+          background: "rgba(255, 255, 255, 0.92)",
+          border: `1.5px solid ${theme.accent}35`,
+          boxShadow: `0 28px 65px -12px ${theme.accent}35, 0 8px 24px rgba(0, 0, 0, 0.04)`,
         }}
       >
-        <div
-          className="absolute -top-12 -left-12 w-32 h-32 rounded-full blur-2xl opacity-25 pointer-events-none"
+        {/* Decorative Ambient Background Glow */}
+        <motion.div
+          animate={{ scale: [1, 1.25, 1], opacity: [0.2, 0.35, 0.2] }}
+          transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
+          className="absolute -top-16 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full blur-3xl pointer-events-none"
           style={{ background: theme.accent }}
         />
 
-        <div className="text-center">
-          <span
-            className="text-[10px] font-extrabold uppercase tracking-[0.3em] block mb-1"
-            style={{ color: theme.accent }}
+        {/* ── Top Wax Seal Monogram Badge ───────────────────────────────── */}
+        <motion.div
+          initial={{ scale: 0, rotate: -15 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 220, damping: 16 }}
+          className="relative group z-10"
+        >
+          {/* Outer Glowing Pulsing Ring */}
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.8, 0.4] }}
+            transition={{ repeat: Infinity, duration: 2.8, ease: "easeInOut" }}
+            className="absolute -inset-2 rounded-[2rem] blur-sm pointer-events-none"
+            style={{ background: `${theme.accent}30` }}
+          />
+
+          {/* Squircle Badge */}
+          <div
+            className="w-20 h-20 rounded-[1.75rem] flex items-center justify-center relative shadow-lg z-10"
+            style={{
+              background: `linear-gradient(135deg, ${theme.bg} 0%, #ffffff 100%)`,
+              border: `1.5px solid ${theme.accent}40`,
+              boxShadow: `0 10px 24px -4px ${theme.accent}35`,
+            }}
           >
-            A SPECIAL NOTE FOR YOU
-          </span>
+            <IconMail size={32} color={theme.accent} strokeWidth={1.8} />
+          </div>
+        </motion.div>
+
+        {/* ── Editorial Header ─────────────────────────────────────────── */}
+        <div className="flex flex-col items-center z-10">
+          {/* Top Label with Accent Lines */}
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-px w-5" style={{ background: `${theme.accent}40` }} />
+            <span
+              className="text-[9px] font-extrabold uppercase tracking-[0.32em]"
+              style={{ color: theme.accent }}
+            >
+              PERSONAL NOTE &amp; DEDICATION
+            </span>
+            <div className="h-px w-5" style={{ background: `${theme.accent}40` }} />
+          </div>
+
           <h2
-            className="text-2xl font-normal leading-tight"
-            style={{ fontFamily: "var(--font-caveat)", color: theme.text }}
+            className="text-2xl font-bold tracking-tight text-gray-800"
+            style={{ fontFamily: "var(--font-caveat)", fontSize: "2.1rem" }}
           >
             Pesan dari {senderName || "Ayangg"}
           </h2>
         </div>
 
-        {/* Letter / Note Container */}
+        {/* ── Luxury Letterhead Stationery Container ──────────────────── */}
         <div
-          className="w-full p-5 rounded-2xl border text-center flex flex-col justify-center gap-3 relative shadow-inner min-h-[140px]"
+          className="w-full p-6 rounded-3xl border text-center flex flex-col justify-center gap-4 relative shadow-inner min-h-[140px] z-10 overflow-hidden"
           style={{
-            background: `linear-gradient(135deg, ${theme.bg}70 0%, #ffffff 100%)`,
-            borderColor: `${theme.accent}30`,
+            background: `linear-gradient(135deg, ${theme.bg}60 0%, #ffffff 100%)`,
+            borderColor: `${theme.accent}35`,
+            boxShadow: `inset 0 0 20px ${theme.accent}12`,
           }}
         >
+          {/* Subtle Fine Inner Border Frame */}
+          <div
+            className="absolute inset-2.5 rounded-2xl pointer-events-none border border-dashed"
+            style={{ borderColor: `${theme.accent}25` }}
+          />
+
+          {/* Letter Content */}
           <p
-            className="text-lg leading-relaxed text-gray-800 italic whitespace-pre-line relative"
-            style={{ fontFamily: "var(--font-caveat)" }}
+            className="text-xl leading-relaxed text-gray-800 italic whitespace-pre-line relative z-10 px-2"
+            style={{ fontFamily: "var(--font-caveat)", letterSpacing: "0.01em" }}
           >
             &ldquo;{displayedText}&rdquo;
             {!isTypingComplete && (
-              <span
-                className="inline-block w-0.5 h-4 ml-0.5 align-middle animate-pulse"
+              <motion.span
+                animate={{ opacity: [1, 0, 1] }}
+                transition={{ repeat: Infinity, duration: 0.8 }}
+                className="inline-block w-0.5 h-5 ml-1 align-middle rounded-full"
                 style={{ background: theme.accent }}
               />
             )}
           </p>
         </div>
 
-        <button
-          onClick={onContinue}
-          className="w-full py-4 rounded-2xl text-sm font-bold text-white shadow-lg transition-transform active:scale-[0.98] hover:opacity-95 flex items-center justify-center gap-2"
-          style={{
-            background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}ee 100%)`,
-            boxShadow: `0 10px 25px -5px ${theme.accent}60`,
-          }}
+        {/* ── Action Button ────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="w-full z-10"
         >
-          <span>Buka Tiket Kencan</span>
-          <span className="text-base font-normal">→</span>
-        </button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onContinue}
+            className="w-full py-4 rounded-2xl text-sm font-bold text-white shadow-xl flex items-center justify-center gap-2"
+            style={{
+              background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}ee 100%)`,
+              boxShadow: `0 12px 32px -6px ${theme.accent}65`,
+              letterSpacing: "0.03em",
+            }}
+          >
+            <span>Buka Tiket Kencan</span>
+            <motion.span
+              animate={{ x: [0, 4, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              className="text-base font-normal"
+            >
+              →
+            </motion.span>
+          </motion.button>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -177,7 +244,8 @@ function RundownTicket({
     try {
       const dataUrl = await htmlToImage.toPng(ticketRef.current, {
         quality: 1,
-        pixelRatio: 3,
+        pixelRatio: 3.125, // 300 DPI resolution (300 / 96 = 3.125)
+        cacheBust: true,
         style: { transform: "scale(1)", margin: "0" },
       });
 
@@ -225,42 +293,59 @@ function RundownTicket({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      initial={{ opacity: 0, y: 35, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="w-full max-w-md mx-auto flex flex-col gap-5 px-2 py-4"
     >
-      {/* Ticket Container Card (Target for htmlToImage download) */}
+      {/* ── Ticket Container Card (Target for htmlToImage download) ─────── */}
       <div
         ref={ticketRef}
-        className="rounded-[2.5rem] overflow-hidden shadow-2xl backdrop-blur-xl bg-white/95 border relative"
-        style={{ borderColor: `${theme.accent}30` }}
+        className="rounded-[2.5rem] overflow-hidden shadow-2xl backdrop-blur-2xl bg-white/95 border relative"
+        style={{ borderColor: `${theme.accent}35` }}
       >
-        {/* Top accent strip */}
-        <div className="h-2.5 w-full" style={{ background: `linear-gradient(90deg, ${theme.accent}, ${theme.accent}aa)` }} />
+        {/* Top Accent Gradient Bar */}
+        <div
+          className="h-3 w-full"
+          style={{ background: `linear-gradient(90deg, ${theme.accent} 0%, ${theme.accent}aa 100%)` }}
+        />
 
-        <div className="px-6 py-7 flex flex-col gap-6">
-          {/* Header */}
-          <div className="text-center border-b pb-5" style={{ borderColor: `${theme.accent}20` }}>
+        {/* ── Ticket Top Stub Section ───────────────────────────────────── */}
+        <div className="px-6 pt-6 pb-5 flex flex-col gap-4 text-center relative z-10">
+          {/* Serial Number Stamp & Ticket Title */}
+          <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: `${theme.accent}20` }}>
             <span
-              className="text-[10px] font-extrabold uppercase tracking-[0.25em] px-3.5 py-1 rounded-full border mb-2 inline-block"
-              style={{ background: `${theme.accent}15`, color: theme.accent, borderColor: `${theme.accent}30` }}
+              className="text-[9px] font-extrabold uppercase tracking-[0.25em] font-mono px-2.5 py-0.5 rounded-md"
+              style={{ background: `${theme.accent}12`, color: theme.accent }}
+            >
+              PASS NO. RD-2001
+            </span>
+            <span
+              className="text-[9px] font-extrabold uppercase tracking-[0.25em]"
+              style={{ color: `${theme.accent}bb` }}
             >
               {data.ticketTitle || "TIKET RUNDOWN KENCAN"}
             </span>
+          </div>
+
+          {/* Recipient & Sender Names */}
+          <div>
             <h2
-              className="text-3xl tracking-wide mt-1 block font-normal"
-              style={{ fontFamily: "var(--font-caveat)", color: theme.text }}
+              className="text-3xl tracking-wide block font-normal leading-tight"
+              style={{ fontFamily: "var(--font-caveat)", color: theme.text, fontSize: "2.3rem" }}
             >
               {data.recipientName} &amp; {data.senderName}
             </h2>
-            <p className="text-[11px] text-gray-400 font-medium mt-1">
+            <p className="text-[11px] text-gray-400 font-semibold mt-0.5">
               {data.subText || "Special Date Invitation"}
             </p>
+          </div>
 
-            {data.eventDate && (
+          {/* Event Date Badge */}
+          {data.eventDate && (
+            <div className="flex justify-center">
               <div
-                className="mt-2 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold border shadow-xs"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold border shadow-2xs font-mono"
                 style={{
                   background: `${theme.accent}12`,
                   borderColor: `${theme.accent}30`,
@@ -270,39 +355,82 @@ function RundownTicket({
                 <IconCalendar size={14} color={theme.accent} strokeWidth={2} className="shrink-0" />
                 <span>{formatIndonesianDate(data.eventDate)}</span>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* Rundown items */}
+        {/* ── Ticket Stub Cutout Divider (Ticket Tear Notches) ──────────── */}
+        <div className="relative w-full flex items-center my-1">
+          {/* Left Semi-Circle Ticket Notch */}
+          <div
+            className="w-7 h-7 rounded-full absolute -left-3.5 shadow-inner z-20"
+            style={{
+              background: theme.bg,
+              boxShadow: `inset -3px 0 6px rgba(0,0,0,0.08)`,
+              borderRight: `1.5px solid ${theme.accent}35`,
+            }}
+          />
+
+          {/* Dashed Tear Line */}
+          <div
+            className="w-full border-t-2 border-dashed z-10 opacity-40 mx-4"
+            style={{ borderColor: theme.accent }}
+          />
+
+          {/* Right Semi-Circle Ticket Notch */}
+          <div
+            className="w-7 h-7 rounded-full absolute -right-3.5 shadow-inner z-20"
+            style={{
+              background: theme.bg,
+              boxShadow: `inset 3px 0 6px rgba(0,0,0,0.08)`,
+              borderLeft: `1.5px solid ${theme.accent}35`,
+            }}
+          />
+        </div>
+
+        {/* ── Ticket Main Content Body ──────────────────────────────────── */}
+        <div className="px-6 pt-4 pb-7 flex flex-col gap-5 z-10 relative">
+          {/* Rundown Items Summary */}
           <div className="flex flex-col gap-3">
-            <p
-              className="text-[10px] font-extrabold uppercase tracking-[0.2em]"
-              style={{ color: theme.accent }}
-            >
-              {data.rundownTitle || "JADWAL NGEDATE"}
-            </p>
+            <div className="flex items-center gap-2">
+              <div className="h-px w-4" style={{ background: `${theme.accent}40` }} />
+              <span
+                className="text-[9px] font-extrabold uppercase tracking-[0.28em]"
+                style={{ color: theme.accent }}
+              >
+                {data.rundownTitle || "JADWAL NGEDATE"}
+              </span>
+              <div className="h-px flex-1" style={{ background: `${theme.accent}20` }} />
+            </div>
 
             <div className="flex flex-col gap-2.5">
-              {data.rundownItems.map((item) => (
+              {data.rundownItems.map((item, idx) => (
                 <div
-                  key={item.id}
-                  className="flex items-center gap-3 p-3.5 rounded-2xl border"
-                  style={{ background: `${theme.bg}50`, borderColor: "rgba(229, 231, 235, 0.8)" }}
+                  key={item.id || idx}
+                  className="flex items-center gap-3 p-3.5 rounded-2xl border transition-all"
+                  style={{
+                    background: `linear-gradient(135deg, ${theme.bg}40 0%, #ffffff 100%)`,
+                    borderColor: `${theme.accent}25`,
+                  }}
                 >
-                  <ActivityIconSvg iconKey={item.icon || item.emoji} size={20} color={theme.accent} className="shrink-0" />
+                  <ActivityIconSvg iconKey={item.icon || item.emoji} size={22} color={theme.accent} className="shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-bold text-gray-800 truncate">{item.title}</p>
+                      <p className="text-xs font-extrabold text-gray-800 truncate">{item.title}</p>
                       <span
-                        className="text-[10px] font-bold font-mono px-2 py-0.5 rounded shrink-0"
-                        style={{ background: `${theme.accent}15`, color: theme.accent }}
+                        className="text-[10px] font-extrabold font-mono px-2 py-0.5 rounded-md border shrink-0"
+                        style={{
+                          background: `${theme.accent}15`,
+                          color: theme.accent,
+                          borderColor: `${theme.accent}25`,
+                        }}
                       >
                         {item.time || "Flexibel"}
                       </span>
                     </div>
                     {item.location && (
-                      <p className="text-[10px] text-gray-500 font-medium truncate mt-0.5 inline-flex items-center gap-1">
-                        <IconMapPin size={11} color={theme.accent} strokeWidth={2} className="shrink-0" />
+                      <p className="text-[10px] text-gray-500 font-semibold truncate mt-0.5 inline-flex items-center gap-1">
+                        <IconMapPin size={11} color={theme.accent} strokeWidth={2.5} className="shrink-0" />
                         <span>{item.location}</span>
                       </p>
                     )}
@@ -312,30 +440,34 @@ function RundownTicket({
             </div>
           </div>
 
-          {/* Dress code */}
+          {/* Dress Code Section */}
           {data.dressCodes && data.dressCodes.length > 0 && (
             <div
               className="border-t pt-4 flex flex-col gap-2"
               style={{ borderColor: `${theme.accent}20` }}
             >
-              <p
-                className="text-[10px] font-extrabold uppercase tracking-[0.2em]"
-                style={{ color: theme.accent }}
-              >
-                DRESS CODE OUTFIT
-              </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <div className="h-px w-4" style={{ background: `${theme.accent}40` }} />
+                <span
+                  className="text-[9px] font-extrabold uppercase tracking-[0.28em]"
+                  style={{ color: theme.accent }}
+                >
+                  DRESS CODE OUTFIT
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-1">
                 {data.dressCodes.map((dc) => (
                   <span
                     key={dc}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 shadow-2xs"
                     style={{
-                      background: `${theme.accent}12`,
+                      background: `linear-gradient(135deg, ${theme.accent}15 0%, #ffffff 100%)`,
                       color: theme.text,
-                      borderColor: `${theme.accent}25`,
+                      borderColor: `${theme.accent}30`,
                     }}
                   >
-                    <DressCodeIconSvg iconKey={(data.dressCodeIcons || {})[dc]} size={14} color={theme.accent} />
+                    <DressCodeIconSvg iconKey={(data.dressCodeIcons || {})[dc]} size={15} color={theme.accent} />
                     <span>{dc}</span>
                   </span>
                 ))}
@@ -343,20 +475,20 @@ function RundownTicket({
             </div>
           )}
 
-          {/* Recipient message */}
+          {/* Recipient Reply Message (if exists) */}
           {message && (
             <div
               className="border-t pt-4"
               style={{ borderColor: `${theme.accent}20` }}
             >
-              <p
-                className="text-[10px] font-extrabold uppercase tracking-[0.2em] mb-1.5"
+              <span
+                className="text-[9px] font-extrabold uppercase tracking-[0.28em] block mb-1.5"
                 style={{ color: theme.accent }}
               >
                 PESAN BALASAN
-              </p>
+              </span>
               <div className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100">
-                <p className="text-xs text-gray-700 italic font-medium leading-relaxed">&ldquo;{message}&rdquo;</p>
+                <p className="text-xs text-gray-700 italic font-semibold leading-relaxed">&ldquo;{message}&rdquo;</p>
               </div>
             </div>
           )}
@@ -367,12 +499,12 @@ function RundownTicket({
               className="border-t pt-4 text-center"
               style={{ borderColor: `${theme.accent}20` }}
             >
-              <p
-                className="text-[9px] font-extrabold uppercase tracking-[0.2em] mb-1.5"
+              <span
+                className="text-[9px] font-extrabold uppercase tracking-[0.28em] block mb-1.5"
                 style={{ color: theme.accent }}
               >
                 NOTE DARI {(data.senderName || "PENGIRIM").toUpperCase()}
-              </p>
+              </span>
               <p
                 className="text-base leading-relaxed text-gray-800 italic whitespace-pre-line max-w-xs mx-auto font-normal"
                 style={{ fontFamily: "var(--font-caveat)" }}
@@ -384,27 +516,31 @@ function RundownTicket({
         </div>
       </div>
 
-      {/* Action Buttons Bar: Download PNG, WhatsApp Share, Copy Link */}
-      <div className="flex flex-col gap-2.5 w-full">
+      {/* ── Action Buttons Bar ─────────────────────────────────────────── */}
+      <div className="flex flex-col gap-2.5 w-full z-10">
         {/* Download Ticket Image */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
           onClick={handleDownloadImage}
           disabled={downloading}
-          className="w-full py-4 rounded-2xl font-bold text-sm text-white shadow-xl transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-2xl font-bold text-sm text-white shadow-xl flex items-center justify-center gap-2 cursor-pointer"
           style={{
             background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}ee 100%)`,
-            boxShadow: `0 10px 25px -5px ${theme.accent}60`,
+            boxShadow: `0 12px 32px -6px ${theme.accent}65`,
+            letterSpacing: "0.03em",
           }}
         >
           <IconShare size={18} color="white" />
           <span>{downloading ? "Mengunduh Tiket..." : "Simpan Gambar Tiket (PNG)"}</span>
-        </button>
+        </motion.button>
 
         <div className="grid grid-cols-2 gap-2.5">
           {/* WhatsApp Share */}
           <button
+            type="button"
             onClick={handleWhatsAppShare}
-            className="py-3.5 rounded-2xl font-bold text-xs border bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+            className="py-3.5 rounded-2xl font-bold text-xs border bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
           >
             <IconWhatsApp size={16} color="#047857" />
             <span>Bagikan ke WA</span>
@@ -412,12 +548,13 @@ function RundownTicket({
 
           {/* Copy Link */}
           <button
+            type="button"
             onClick={() => {
               navigator.clipboard.writeText(invitationUrl);
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            className="py-3.5 rounded-2xl font-bold text-xs border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+            className="py-3.5 rounded-2xl font-bold text-xs border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
           >
             <IconSparkle size={16} color={theme.accent} />
             <span>{copied ? "Link Tersalin!" : "Salin Link Tiket"}</span>
@@ -425,10 +562,11 @@ function RundownTicket({
         </div>
       </div>
 
-      {/* Reset */}
+      {/* Reset Button */}
       <button
+        type="button"
         onClick={onReset}
-        className="text-xs font-semibold text-gray-400 hover:text-gray-600 text-center mt-2 transition-colors"
+        className="text-xs font-semibold text-gray-400 hover:text-gray-600 text-center mt-2 transition-colors cursor-pointer"
       >
         Buka ulang dari awal
       </button>
