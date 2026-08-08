@@ -206,7 +206,7 @@ export default function ReadOnlyDressCodeCard({
               letterSpacing: "0.03em",
             }}
           >
-            <span>Lihat Rundown Acara</span>
+            <span>Next</span>
             <motion.span
               animate={{ x: [0, 4, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}

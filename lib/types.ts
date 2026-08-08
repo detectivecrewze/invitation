@@ -46,6 +46,7 @@ export interface RundownItem {
   time: string;     // e.g. "18:00" or "07:30 - 08:10"
   title: string;    // e.g. "Makan malam"
   location: string; // e.g. "Restoran X"
+  locationUrl?: string; // optional Google Maps URL or search link
   note: string;     // optional note, can be empty string
   emoji?: string;   // optional emoji key or emoji string
   icon?: string;    // optional SVG icon key

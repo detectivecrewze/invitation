@@ -16,6 +16,70 @@ interface Props {
   onStart: () => void;
 }
 
+// ─── Countdown Timer Hook ──────────────────────────────────────────────────
+function useCountdown(eventDate?: string) {
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    isPast: boolean;
+    isToday: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!eventDate) return;
+
+    const calculate = () => {
+      const target = new Date(`${eventDate}T00:00:00`);
+      const now = new Date();
+      const diff = target.getTime() - now.getTime();
+
+      if (isNaN(target.getTime())) {
+        setTimeLeft(null);
+        return;
+      }
+
+      const isSameDay =
+        target.getFullYear() === now.getFullYear() &&
+        target.getMonth() === now.getMonth() &&
+        target.getDate() === now.getDate();
+
+      if (diff <= 0) {
+        setTimeLeft({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          isPast: !isSameDay,
+          isToday: isSameDay,
+        });
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      setTimeLeft({
+        days,
+        hours,
+        minutes,
+        seconds,
+        isPast: false,
+        isToday: isSameDay,
+      });
+    };
+
+    calculate();
+    const interval = setInterval(calculate, 1000);
+    return () => clearInterval(interval);
+  }, [eventDate]);
+
+  return timeLeft;
+}
+
 // ─── Letter stagger reveal animation ───────────────────────────────────────────
 function StaggerText({ text, className, style, delay = 0 }: {
   text: string;
@@ -57,6 +121,7 @@ export default function RundownOpeningCard({
 }: Props) {
   const [photoLoaded, setPhotoLoaded] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const timeLeft = useCountdown(eventDate);
 
   // Delay content reveal until photo fades in
   useEffect(() => {
@@ -72,22 +137,22 @@ export default function RundownOpeningCard({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.97 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full max-w-sm mx-auto"
+      className="w-full max-w-xs sm:max-w-sm mx-auto"
     >
       <div
-        className="relative w-full rounded-[2rem] overflow-hidden"
+        className="relative w-full rounded-[1.75rem] sm:rounded-[2rem] overflow-hidden"
         style={{
-          boxShadow: `0 28px 70px -10px ${theme.accent}40, 0 8px 24px rgba(0,0,0,0.10)`,
+          boxShadow: `0 20px 50px -10px ${theme.accent}40, 0 8px 24px rgba(0,0,0,0.10)`,
           border: `1.5px solid ${theme.accent}20`,
           background: theme.bg,
         }}
       >
         {/* ── Photo Section (Magazine Cover Hero) ─────────────────────── */}
-        <div className="relative w-full overflow-hidden" style={{ minHeight: 320 }}>
+        <div className="relative w-full overflow-hidden min-h-[300px] sm:min-h-[340px]" style={{ minHeight: 300 }}>
           {/* Photo — Ken Burns zoom */}
           {photoUrl ? (
             <motion.div
-              className="absolute inset-0"
+              className="absolute inset-0 w-full h-full"
               initial={{ scale: 1.08 }}
               animate={{ scale: photoLoaded ? 1.0 : 1.08 }}
               transition={{ duration: 6, ease: "easeOut" }}
@@ -95,21 +160,23 @@ export default function RundownOpeningCard({
               <img
                 src={photoUrl}
                 alt={displayTitle}
-                className="w-full h-full object-cover"
-                style={{ minHeight: 320 }}
+                className="w-full h-full object-cover min-h-[300px]"
+                style={{ minHeight: 300 }}
                 onLoad={() => setPhotoLoaded(true)}
               />
             </motion.div>
           ) : (
             // Placeholder if no photo
             <div
-              className="absolute inset-0 flex items-center justify-center"
+              className="absolute inset-0 flex items-center justify-center min-h-[300px]"
               style={{
                 background: `linear-gradient(135deg, ${theme.bg} 0%, ${theme.accent}20 100%)`,
-                minHeight: 320,
+                minHeight: 300,
               }}
             >
-              <div className="text-5xl opacity-30">📅</div>
+              <div className="opacity-40">
+                <IconCalendar size={42} color={theme.accent} strokeWidth={1.5} />
+              </div>
             </div>
           )}
 
@@ -146,34 +213,21 @@ export default function RundownOpeningCard({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="absolute top-0 left-0 right-0 px-6 pt-5 flex items-center justify-between z-10"
+                className="absolute top-0 left-0 right-0 px-4 pt-3.5 sm:px-6 sm:pt-5 flex items-center justify-between z-10"
               >
                 <div className="flex items-center gap-2">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: 28 }}
+                    animate={{ width: 24 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
                     className="h-px"
                     style={{ background: "rgba(255,255,255,0.6)" }}
                   />
                   <span
-                    className="text-[9px] font-extrabold uppercase tracking-[0.35em]"
+                    className="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-[0.35em]"
                     style={{ color: "rgba(255,255,255,0.85)" }}
                   >
                     {invitationTitle || "Date Night Itinerary"}
-                  </span>
-                </div>
-                <div
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-full"
-                  style={{
-                    background: "rgba(255,255,255,0.18)",
-                    backdropFilter: "blur(8px)",
-                    border: "1px solid rgba(255,255,255,0.25)",
-                  }}
-                >
-                  <IconSparkle size={9} color="white" strokeWidth={2.5} />
-                  <span className="text-[8px] font-bold text-white uppercase tracking-widest">
-                    Special
                   </span>
                 </div>
               </motion.div>
@@ -183,14 +237,14 @@ export default function RundownOpeningCard({
           {/* ── Title Overlay (bottom of photo) ────────────────────── */}
           <AnimatePresence>
             {showContent && (
-              <div className="absolute bottom-0 left-0 right-0 px-6 pb-5 z-10">
+              <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 sm:px-6 sm:pb-5 z-10">
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <p
-                    className="text-[10px] font-extrabold uppercase tracking-[0.28em] mb-1"
+                    className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.28em] mb-0.5"
                     style={{ color: "rgba(255,255,255,0.75)" }}
                   >
                     dari {senderName}
@@ -199,7 +253,7 @@ export default function RundownOpeningCard({
                     className="font-extrabold leading-tight text-white"
                     style={{
                       fontFamily: "var(--font-caveat)",
-                      fontSize: "2rem",
+                      fontSize: "1.75rem",
                       textShadow: "0 2px 12px rgba(0,0,0,0.3)",
                     }}
                   >
@@ -213,12 +267,12 @@ export default function RundownOpeningCard({
 
         {/* ── Bottom Info Section ──────────────────────────────────────── */}
         <div
-          className="relative px-6 pt-5 pb-6 flex flex-col gap-4"
+          className="relative p-4 sm:p-5 flex flex-col gap-2.5 sm:gap-3.5"
           style={{ background: "white" }}
         >
           {/* Accent top stripe */}
           <div
-            className="absolute top-0 left-6 right-6 h-px"
+            className="absolute top-0 left-5 right-5 h-px"
             style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}50, transparent)` }}
           />
 
@@ -233,15 +287,15 @@ export default function RundownOpeningCard({
               >
                 {eventDate && (
                   <div
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold"
                     style={{
                       background: `${theme.accent}15`,
                       border: `1.5px solid ${theme.accent}30`,
                     }}
                   >
-                    <IconCalendar size={14} color={theme.accent} strokeWidth={2} />
+                    <IconCalendar size={13} color={theme.accent} strokeWidth={2} />
                     <span
-                      className="text-xs font-extrabold tracking-wide uppercase font-mono"
+                      className="text-[11px] sm:text-xs font-extrabold tracking-wide uppercase font-mono"
                       style={{ color: theme.accent }}
                     >
                       {formatIndonesianDate(eventDate)}
@@ -266,11 +320,65 @@ export default function RundownOpeningCard({
             )}
           </AnimatePresence>
 
-          {/* Divider */}
-          <div
-            className="h-px w-full"
-            style={{ background: `${theme.accent}18` }}
-          />
+          {/* Live Countdown Badge */}
+          {timeLeft && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="w-full py-1.5 px-3 rounded-xl border flex items-center justify-between shadow-2xs"
+              style={{
+                background: `linear-gradient(135deg, ${theme.accent}08 0%, ${theme.accent}15 100%)`,
+                borderColor: `${theme.accent}30`,
+              }}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span
+                    className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                    style={{ background: theme.accent }}
+                  />
+                  <span
+                    className="relative inline-flex rounded-full h-2 w-2"
+                    style={{ background: theme.accent }}
+                  />
+                </span>
+                <span
+                  className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest font-mono"
+                  style={{ color: theme.accent }}
+                >
+                  {timeLeft.isToday
+                    ? "HARI INI! 🌟"
+                    : timeLeft.isPast
+                    ? "SPECIAL DAY 💖"
+                    : "COUNTDOWN"}
+                </span>
+              </div>
+
+              {!timeLeft.isPast && !timeLeft.isToday && (
+                <div className="flex items-center gap-0.5 font-mono text-[10px] sm:text-[11px] font-bold" style={{ color: theme.text }}>
+                  <span className="px-1 py-0.5 rounded bg-white border border-gray-200 shadow-2xs">
+                    {String(timeLeft.days).padStart(2, "0")}d
+                  </span>
+                  <span className="text-gray-300 font-normal">:</span>
+                  <span className="px-1 py-0.5 rounded bg-white border border-gray-200 shadow-2xs">
+                    {String(timeLeft.hours).padStart(2, "0")}h
+                  </span>
+                  <span className="text-gray-300 font-normal">:</span>
+                  <span className="px-1 py-0.5 rounded bg-white border border-gray-200 shadow-2xs">
+                    {String(timeLeft.minutes).padStart(2, "0")}m
+                  </span>
+                  <span className="text-gray-300 font-normal">:</span>
+                  <span
+                    className="px-1 py-0.5 rounded text-white shadow-2xs font-extrabold"
+                    style={{ background: theme.accent }}
+                  >
+                    {String(timeLeft.seconds).padStart(2, "0")}s
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          )}
 
           {/* Subtext / caption */}
           <AnimatePresence>
@@ -279,10 +387,10 @@ export default function RundownOpeningCard({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="text-xs text-center font-medium leading-relaxed"
+                className="text-[11px] sm:text-xs text-center font-medium leading-relaxed"
                 style={{ color: `${theme.text}80` }}
               >
-                Ada surprise yang sudah disiapkan untukmu malam ini ✨
+                Beberapa rencana spesial telah disiapkan khusus untukmu.
               </motion.p>
             )}
           </AnimatePresence>
@@ -297,18 +405,18 @@ export default function RundownOpeningCard({
                 onClick={onStart}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                className="w-full py-4 rounded-2xl text-sm font-bold text-white flex items-center justify-center gap-2"
+                className="w-full py-3 sm:py-3.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-white flex items-center justify-center gap-2"
                 style={{
                   background: `linear-gradient(135deg, ${theme.accent}f0 0%, ${theme.accent} 100%)`,
-                  boxShadow: `0 10px 28px -5px ${theme.accent}55`,
+                  boxShadow: `0 8px 24px -4px ${theme.accent}55`,
                   letterSpacing: "0.04em",
                 }}
               >
-                <span>Buka Itinerary</span>
+                <span>Next</span>
                 <motion.span
                   animate={{ x: [0, 4, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                  className="text-base"
+                  className="text-sm sm:text-base"
                 >
                   →
                 </motion.span>

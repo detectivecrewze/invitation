@@ -5,8 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { getTheme, formatIndonesianDate } from "@/lib/constants";
 import type { RundownData } from "@/lib/types";
 import LoadingScreen from "@/components/gift/LoadingScreen";
-import EnvelopeGate from "@/components/gift/EnvelopeGate";
-import FlowerBurst from "@/components/gift/FlowerBurst";
+import RundownEnvelopeGate from "@/components/gift/RundownEnvelopeGate";
+import RundownVortexBurst from "@/components/gift/RundownVortexBurst";
 import RundownOpeningCard from "@/components/gift/RundownOpeningCard";
 import { IconCalendar, IconMail } from "@/components/ui/Icon";
 
@@ -176,7 +176,7 @@ function SenderLetterCard({
               letterSpacing: "0.03em",
             }}
           >
-            <span>Buka Tiket Kencan</span>
+            <span>Next</span>
             <motion.span
               animate={{ x: [0, 4, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -760,12 +760,13 @@ export default function RundownGiftClient({ data }: Props) {
         )}
       </AnimatePresence>
 
-      {/* ── Phase: envelope ──────────────────────────────────────────────── */}
+      {/* ── Phase: envelope (VIP Boarding Pass Badge Gate for Rundown) ─────── */}
       <AnimatePresence>
         {phase === "envelope" && (
-          <EnvelopeGate
+          <RundownEnvelopeGate
             key="envelope"
             recipientName={data.recipientName}
+            senderName={data.senderName}
             theme={theme}
             onOpen={handleEnvelopeOpen}
             onTap={handleEnvelopeTap}
@@ -773,16 +774,15 @@ export default function RundownGiftClient({ data }: Props) {
         )}
       </AnimatePresence>
 
-      {/* ── Flower burst overlay (FIXED PROPS FOR RECIPIENT & SENDER NAME) ──────────────────────────────────────────── */}
+      {/* ── Rundown Petal Vortex Swirl Overlay ───────────────────────────── */}
       {showFlowers && (
-        <FlowerBurst
+        <RundownVortexBurst
           theme={theme}
           recipientName={data.recipientName}
           senderName={data.senderName}
-          invitationTitle={data.invitationTitle || "Invitation From"}
+          invitationTitle={data.invitationTitle || "A Special Invitation For"}
           onSwitchState={handleFlowerSwitchState}
           onDone={handleFlowerDone}
-          openingShape={data.openingShape ?? "heart"}
         />
       )}
 

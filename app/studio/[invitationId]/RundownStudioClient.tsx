@@ -331,28 +331,41 @@ function ItemRow({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-            Lokasi
+            Nama Lokasi / Tempat
           </label>
           <input
             type="text"
             value={item.location}
             onChange={(e) => onUpdate(item.id, { location: e.target.value })}
-            placeholder="Restoran X / XXI Plaza"
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50"
+            placeholder="Park Hyatt Jakarta / CGV XXI"
+            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50 font-medium"
           />
         </div>
         <div>
           <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-            Catatan Tambahan (Opsional)
+            Link Google Maps (Opsional)
           </label>
           <input
             type="text"
-            value={item.note}
-            onChange={(e) => onUpdate(item.id, { note: e.target.value })}
-            placeholder="Jangan terlambat ya ayg!"
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50"
+            value={item.locationUrl || ""}
+            onChange={(e) => onUpdate(item.id, { locationUrl: e.target.value })}
+            placeholder="https://maps.app.goo.gl/... (Opsional)"
+            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50 font-mono"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+          Catatan Tambahan (Opsional)
+        </label>
+        <input
+          type="text"
+          value={item.note}
+          onChange={(e) => onUpdate(item.id, { note: e.target.value })}
+          placeholder="Jangan terlambat ya ayg!"
+          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50"
+        />
       </div>
     </motion.div>
   );

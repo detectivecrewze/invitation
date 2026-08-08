@@ -355,12 +355,41 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                       {item.title || "Kegiatan"}
                     </h3>
 
-                    {/* Location Badge */}
-                    {item.location && (
-                      <div className="flex items-center gap-1 text-[11px] text-gray-500 font-semibold mt-1.5">
+                    {/* 1. Plain Static Location Badge (when NO link is provided) */}
+                    {item.location && !item.locationUrl?.trim() && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-500 font-semibold mt-1.5">
                         <IconMapPin size={12} color={theme.accent} strokeWidth={2.5} />
                         <span className="truncate">{item.location}</span>
                       </div>
+                    )}
+
+                    {/* 2. Interactive Google Maps Link Button (ONLY when locationUrl is provided) */}
+                    {item.locationUrl && item.locationUrl.trim() && (
+                      <motion.a
+                        href={(function getMapUrl() {
+                          const url = item.locationUrl!.trim();
+                          if (/^https?:\/\//i.test(url)) return url;
+                          return `https://${url}`;
+                        })()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.96 }}
+                        className="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-3 py-1.5 rounded-xl border mt-2 transition-all shadow-2xs group cursor-pointer"
+                        style={{
+                          background: `linear-gradient(135deg, ${theme.accent}18 0%, ${theme.accent}08 100%)`,
+                          color: theme.accent,
+                          borderColor: `${theme.accent}40`,
+                        }}
+                      >
+                        <IconMapPin size={13} color={theme.accent} strokeWidth={2.5} />
+                        <span className="truncate max-w-[170px] sm:max-w-[220px]">
+                          {item.location ? `Google Maps: ${item.location}` : "Petunjuk Google Maps"}
+                        </span>
+                        <span className="text-[11px] font-bold group-hover:translate-x-0.5 transition-transform ml-0.5">
+                          ↗
+                        </span>
+                      </motion.a>
                     )}
 
                     {/* Optional Note (Italic Quote Block) */}
@@ -444,7 +473,7 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                   letterSpacing: "0.03em",
                 }}
               >
-                <span>Lanjut Ke Pesan Spesial</span>
+                <span>Next</span>
                 <motion.span
                   animate={{ x: [0, 4, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
