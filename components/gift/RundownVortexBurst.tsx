@@ -28,7 +28,6 @@ export default function RundownVortexBurst({
   onDone,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const hasRun = useRef(false);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -62,16 +61,15 @@ export default function RundownVortexBurst({
     const cy = H / 2;
     const isMobile = W < 640;
 
-    // ── Timings ─────────────────────────────────────────────────────────────
-    const WREATH_FORM_MS = 2400; // 36 flowers * 65ms = 2.34s full 1-by-1 ring bloom
-    const SWITCH_PHASE_MS = 2600; // Switch card phase behind solid overlay
-    const TEXT_IN_MS = 2450; // Hero Name Crest ONLY fades in AFTER all 36 flowers have completely joined!
-    const TEXT_STAY_MS = 2800; // Name stays visible for 2.8s
-    const WATERFALL_START_MS = TEXT_IN_MS + TEXT_STAY_MS; // ~5250ms Stage 2: Petal Waterfall Starts
-    const WATERFALL_SPAN = 1200;
-    const MAX_FALL_DUR = 2200;
-    const BG_FADE_DUR = 900;
-    const DONE_MS = WATERFALL_START_MS + WATERFALL_SPAN + MAX_FALL_DUR + BG_FADE_DUR; // ~9550ms total
+    // ── Timings (Matching smooth FlowerBurst physics) ─────────────────────────
+    const WREATH_FORM_MS = 2300;     // 36 flowers * 60ms = ~2.2s full ring bloom
+    const TEXT_IN_MS = 2350;         // Name Crest fades in after wreath completes
+    const TEXT_STAY_MS = 2600;       // Name stays visible for 2.6s
+    const WATERFALL_START_MS = TEXT_IN_MS + TEXT_STAY_MS; // ~4950ms Stage 2 Petal Waterfall
+    const WATERFALL_SPAN = 1500;     // Petals spawn over 1.5s
+    const MAX_FALL_DUR = 2800;       // Individual petal float duration (2.4s - 3.4s)
+    const BG_FADE_DUR = 1200;        // Smooth overlay fade to reveal card
+    const DONE_MS = WATERFALL_START_MS + WATERFALL_SPAN + MAX_FALL_DUR + BG_FADE_DUR + 200; // ~10650ms total
 
     // Preload flowers
     FLOWER_SRCS.forEach((src) => {
@@ -96,7 +94,6 @@ export default function RundownVortexBurst({
 
     // ── STAGE 1: Symmetrical Botanical Wreath Ring (36 Lush Blooms) ─────────
     const WREATH_COUNT = 36;
-    // Mobile optimization: Wider radius & slightly smaller flower size so text is NEVER clipped
     const radiusX = isMobile ? Math.min(W * 0.42, 175) : Math.min(W * 0.28, 260);
     const radiusY = isMobile ? Math.min(H * 0.32, 220) : Math.min(H * 0.32, 280);
 
@@ -104,8 +101,7 @@ export default function RundownVortexBurst({
 
     for (let i = 0; i < WREATH_COUNT; i++) {
       const angle = (i / WREATH_COUNT) * Math.PI * 2;
-      // Scaled down on mobile (80-115px) so it frames the screen edge perfectly without clipping text
-      const size = isMobile ? 80 + Math.random() * 35 : 140 + Math.random() * 60;
+      const size = isMobile ? 75 + Math.random() * 30 : 130 + Math.random() * 55;
 
       const px = cx + Math.cos(angle) * radiusX - size / 2;
       const py = cy + Math.sin(angle) * radiusY - size / 2;
@@ -132,8 +128,8 @@ export default function RundownVortexBurst({
       wreathEls.push({ el: pDiv, angle, size });
     }
 
-    // Animate Wreath Ring Flowers Blooming ONE BY ONE Sequentially (Slightly Faster)
-    const STAGGER_PER_FLOWER = 65; // 65ms delay per flower = 2.3s full ring bloom
+    // Animate Wreath Ring Flowers Blooming ONE BY ONE Sequentially
+    const STAGGER_PER_FLOWER = 60;
     wreathEls.forEach(({ el: pEl, angle }, i) => {
       const delay = i * STAGGER_PER_FLOWER;
       const duration = 550;
@@ -153,12 +149,7 @@ export default function RundownVortexBurst({
       );
     });
 
-    // ── Switch Phase Behind Solid Overlay ───────────────────────────────────
-    safeTimeout(() => {
-      if (isMounted) onSwitchState();
-    }, SWITCH_PHASE_MS);
-
-    // ── Hero Recipient Name Typography (NO TEXT CLIPPING ON MOBILE) ─────────
+    // ── Hero Recipient Name Typography ──────────────────────────────────────
     safeTimeout(() => {
       if (!isMounted) return;
       const to = (recipientName || "").trim();
@@ -174,7 +165,7 @@ export default function RundownVortexBurst({
         text-align: center;
         pointer-events: none;
         opacity: 0;
-        filter: blur(8px);
+        filter: blur(6px);
         transition: opacity 800ms ease, transform 800ms cubic-bezier(.16, 1, 0.3, 1), filter 800ms ease;
         display: flex;
         flex-direction: column;
@@ -226,7 +217,7 @@ export default function RundownVortexBurst({
         });
       });
 
-      // Fade out crest fast before Stage 2
+      // Fade out crest before Stage 2
       safeTimeout(() => {
         if (!isMounted) return;
         crest.style.opacity = "0";
@@ -236,37 +227,37 @@ export default function RundownVortexBurst({
       }, TEXT_STAY_MS);
     }, TEXT_IN_MS);
 
-    // ── STAGE 2: Petal Waterfall Rain Raining OVER Stage 1 Wreath ────────────
+    // ── STAGE 2: Petal Waterfall Rain (Butter-smooth FlowerBurst physics) ────
     safeTimeout(() => {
       if (!isMounted) return;
 
-      // 1. Gradually & slowly fade out Wreath Ring flowers under the falling rain
+      // 1. Gradually fade out Stage 1 Wreath Ring flowers under falling rain
       wreathEls.forEach(({ el: pEl, angle }, i) => {
         safeTimeout(() => {
           if (!isMounted) return;
           pEl.animate(
             [
               { transform: `scale(1.0) rotate(${angle * (180 / Math.PI)}deg)`, opacity: 1 },
-              { transform: `scale(0.4) rotate(${(angle + 0.3) * (180 / Math.PI)}deg)`, opacity: 0 },
+              { transform: `scale(0.3) rotate(${(angle + 0.3) * (180 / Math.PI)}deg)`, opacity: 0 },
             ],
             {
-              duration: 900,
+              duration: 1000,
               easing: "ease-in-out",
               fill: "both",
             }
           );
-        }, (i / WREATH_COUNT) * 600);
+        }, (i / WREATH_COUNT) * 500);
       });
 
-      // 2. Spawn Balanced & Rich Petal Waterfall Rain (220 mobile / 280 desktop)
-      const PETAL_COUNT = isMobile ? 220 : 280;
+      // 2. Spawn Smooth Floating Petal Waterfall Rain (140 mobile / 180 desktop)
+      const PETAL_COUNT = isMobile ? 140 : 180;
 
       for (let i = 0; i < PETAL_COUNT; i++) {
-        const sz = 80 + Math.random() * 90;
+        const sz = 85 + Math.random() * 95;
         const startX = Math.random() * (W + sz) - sz / 2;
         const fallDist = H + sz * 2.2;
-        const drift = (Math.random() - 0.5) * 180;
-        const fallDur = 1400 + Math.random() * (MAX_FALL_DUR - 1400); // Fast 1.4-1.8s fall
+        const drift = (Math.random() - 0.5) * 200;
+        const fallDur = 2400 + Math.random() * (MAX_FALL_DUR - 2400); // 2.4s - 3.4s graceful fall
         const stagger = Math.random() * WATERFALL_SPAN;
         const swayMid = drift * 0.4;
 
@@ -282,7 +273,7 @@ export default function RundownVortexBurst({
         `);
 
         const spin = Math.random() > 0.5 ? "_rv-cw" : "_rv-ccw";
-        const spinSpd = (2 + Math.random() * 3).toFixed(1);
+        const spinSpd = (2.5 + Math.random() * 4.5).toFixed(1);
         petal.appendChild(mkImg(FLOWER_SRCS[i % FLOWER_SRCS.length], spin, spinSpd));
         el.appendChild(petal);
 
@@ -291,7 +282,7 @@ export default function RundownVortexBurst({
             { transform: `translateY(0px) translateX(0px)`, opacity: 0 },
             { transform: `translateY(${fallDist * 0.06}px) translateX(${drift * 0.2}px)`, opacity: 1, offset: 0.06 },
             { transform: `translateY(${fallDist * 0.5}px) translateX(${swayMid}px)`, opacity: 1, offset: 0.5 },
-            { transform: `translateY(${fallDist * 0.9}px) translateX(${drift}px)`, opacity: 0.8, offset: 0.9 },
+            { transform: `translateY(${fallDist * 0.9}px) translateX(${drift}px)`, opacity: 0.85, offset: 0.9 },
             { transform: `translateY(${fallDist}px) translateX(${drift}px)`, opacity: 0 },
           ],
           {
@@ -303,17 +294,18 @@ export default function RundownVortexBurst({
         );
       }
 
-      // Fast background overlay fade to reveal Magazine Cover
+      // 3. Switch card phase & fade solid overlay IMMEDIATELY as petals start raining down
       safeTimeout(() => {
         if (!isMounted) return;
+        onSwitchState();
         el.animate(
           [
             { backgroundColor: theme.bg },
             { backgroundColor: "transparent" },
           ],
-          { duration: BG_FADE_DUR, easing: "ease-out", fill: "both" }
+          { duration: 1000, easing: "ease-out", fill: "both" }
         );
-      }, WATERFALL_SPAN + 400);
+      }, 150);
 
     }, WATERFALL_START_MS);
 
