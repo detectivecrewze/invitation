@@ -243,8 +243,8 @@ export default function RundownVortexBurst({
         }, (i / WREATH_COUNT) * 600);
       });
 
-      // 2. Spawn Rich Dense Petal Waterfall Rain (420 Petals)
-      const PETAL_COUNT = 420;
+      // 2. Spawn Balanced & Rich Petal Waterfall Rain (220 mobile / 280 desktop)
+      const PETAL_COUNT = isMobile ? 220 : 280;
 
       for (let i = 0; i < PETAL_COUNT; i++) {
         const sz = 80 + Math.random() * 90;

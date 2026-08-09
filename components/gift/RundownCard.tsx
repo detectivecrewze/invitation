@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { RundownItem } from "@/lib/types";
-import { IconMapPin, IconSparkle, ActivityIconSvg } from "@/components/ui/Icon";
+import { IconMapPin, IconSparkle, IconClock, ActivityIconSvg } from "@/components/ui/Icon";
 
 interface Theme {
   bg: string;
@@ -329,21 +329,21 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                     )}
 
                     {/* Top Row: Time Ticket Badge & Chapter Tag */}
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center justify-between mb-1.5 gap-2">
                       <span
-                        className="inline-flex items-center gap-1 text-[10px] font-extrabold font-mono px-2.5 py-0.5 rounded-lg border shadow-2xs"
+                        className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-extrabold font-mono px-2.5 py-1 rounded-lg border shadow-2xs whitespace-nowrap shrink-0"
                         style={{
                           background: `${theme.accent}15`,
                           color: theme.accent,
                           borderColor: `${theme.accent}25`,
                         }}
                       >
-                        <span>⏰</span>
-                        <span>{item.time || "Flexibel"}</span>
+                        <IconClock size={12} color={theme.accent} strokeWidth={2.5} />
+                        <span className="whitespace-nowrap">{item.time || "Flexibel"}</span>
                       </span>
 
                       <span
-                        className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                        className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0"
                         style={{ color: `${theme.accent}aa`, background: `${theme.accent}10` }}
                       >
                         CHAPTER 0{idx + 1}
