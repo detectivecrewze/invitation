@@ -61,15 +61,13 @@ export default function RundownVortexBurst({
     const cy = H / 2;
     const isMobile = W < 640;
 
-    // ── Timings (Matching smooth FlowerBurst physics) ─────────────────────────
-    const WREATH_FORM_MS = 2300;     // 36 flowers * 60ms = ~2.2s full ring bloom
-    const TEXT_IN_MS = 2350;         // Name Crest fades in after wreath completes
-    const TEXT_STAY_MS = 2600;       // Name stays visible for 2.6s
-    const WATERFALL_START_MS = TEXT_IN_MS + TEXT_STAY_MS; // ~4950ms Stage 2 Petal Waterfall
-    const WATERFALL_SPAN = 1500;     // Petals spawn over 1.5s
-    const MAX_FALL_DUR = 2800;       // Individual petal float duration (2.4s - 3.4s)
-    const BG_FADE_DUR = 1200;        // Smooth overlay fade to reveal card
-    const DONE_MS = WATERFALL_START_MS + WATERFALL_SPAN + MAX_FALL_DUR + BG_FADE_DUR + 200; // ~10650ms total
+    // ── Timings ─────────────────────────────────────────────────────────────
+    const WREATH_FORM_MS = 2200;     // 36 flowers * 60ms = ~2.2s full ring bloom
+    const TEXT_IN_MS = 2250;         // Name Crest fades in after wreath completes
+    const TEXT_STAY_MS = 2400;       // Name stays visible for 2.4s
+    const FADE_OUT_START_MS = TEXT_IN_MS + TEXT_STAY_MS; // ~4650ms Fade Out Begins
+    const FADE_DUR = 800;            // Smooth 800ms fade out to reveal card
+    const DONE_MS = FADE_OUT_START_MS + FADE_DUR + 100; // ~5550ms total
 
     // Preload flowers
     FLOWER_SRCS.forEach((src) => {
@@ -150,13 +148,15 @@ export default function RundownVortexBurst({
     });
 
     // ── Hero Recipient Name Typography ──────────────────────────────────────
+    let crest: HTMLDivElement | null = null;
+
     safeTimeout(() => {
       if (!isMounted) return;
       const to = (recipientName || "").trim();
       const from = (senderName || "").trim();
       if (!to && !from) return;
 
-      const crest = mkDiv(`
+      crest = mkDiv(`
         position: absolute;
         top: ${cy}px;
         left: ${cx}px;
@@ -208,30 +208,28 @@ export default function RundownVortexBurst({
       el.appendChild(crest);
 
       requestAnimationFrame(() => {
-        if (!isMounted) return;
+        if (!isMounted || !crest) return;
         requestAnimationFrame(() => {
-          if (!isMounted) return;
+          if (!isMounted || !crest) return;
           crest.style.opacity = "1";
           crest.style.filter = "blur(0px)";
           crest.style.transform = "translate(-50%, -50%) scale(1)";
         });
       });
-
-      // Fade out crest before Stage 2
-      safeTimeout(() => {
-        if (!isMounted) return;
-        crest.style.opacity = "0";
-        crest.style.filter = "blur(4px)";
-        crest.style.transform = "translate(-50%, -50%) scale(0.95)";
-        safeTimeout(() => crest.remove(), 800);
-      }, TEXT_STAY_MS);
     }, TEXT_IN_MS);
 
-    // ── STAGE 2: Petal Waterfall Rain (Butter-smooth FlowerBurst physics) ────
+    // ── Smooth Fade Out to Reveal Card ──────────────────────────────────────
     safeTimeout(() => {
       if (!isMounted) return;
 
-      // 1. Gradually fade out Stage 1 Wreath Ring flowers under falling rain
+      // 1. Fade out Name Crest
+      if (crest) {
+        crest.style.opacity = "0";
+        crest.style.filter = "blur(4px)";
+        crest.style.transform = "translate(-50%, -50%) scale(0.95)";
+      }
+
+      // 2. Fade out Wreath Ring Flowers
       wreathEls.forEach(({ el: pEl, angle }, i) => {
         safeTimeout(() => {
           if (!isMounted) return;
@@ -241,73 +239,24 @@ export default function RundownVortexBurst({
               { transform: `scale(0.3) rotate(${(angle + 0.3) * (180 / Math.PI)}deg)`, opacity: 0 },
             ],
             {
-              duration: 1000,
+              duration: FADE_DUR,
               easing: "ease-in-out",
               fill: "both",
             }
           );
-        }, (i / WREATH_COUNT) * 500);
+        }, (i / WREATH_COUNT) * 200);
       });
 
-      // 2. Spawn Smooth Floating Petal Waterfall Rain (140 mobile / 180 desktop)
-      const PETAL_COUNT = isMobile ? 140 : 180;
-
-      for (let i = 0; i < PETAL_COUNT; i++) {
-        const sz = 85 + Math.random() * 95;
-        const startX = Math.random() * (W + sz) - sz / 2;
-        const fallDist = H + sz * 2.2;
-        const drift = (Math.random() - 0.5) * 200;
-        const fallDur = 2400 + Math.random() * (MAX_FALL_DUR - 2400); // 2.4s - 3.4s graceful fall
-        const stagger = Math.random() * WATERFALL_SPAN;
-        const swayMid = drift * 0.4;
-
-        const petal = mkDiv(`
-          position: absolute;
-          left: ${startX}px;
-          top: ${-sz}px;
-          width: ${sz}px;
-          height: ${sz}px;
-          pointer-events: none;
-          z-index: 600;
-          will-change: transform, opacity;
-        `);
-
-        const spin = Math.random() > 0.5 ? "_rv-cw" : "_rv-ccw";
-        const spinSpd = (2.5 + Math.random() * 4.5).toFixed(1);
-        petal.appendChild(mkImg(FLOWER_SRCS[i % FLOWER_SRCS.length], spin, spinSpd));
-        el.appendChild(petal);
-
-        petal.animate(
-          [
-            { transform: `translateY(0px) translateX(0px)`, opacity: 0 },
-            { transform: `translateY(${fallDist * 0.06}px) translateX(${drift * 0.2}px)`, opacity: 1, offset: 0.06 },
-            { transform: `translateY(${fallDist * 0.5}px) translateX(${swayMid}px)`, opacity: 1, offset: 0.5 },
-            { transform: `translateY(${fallDist * 0.9}px) translateX(${drift}px)`, opacity: 0.85, offset: 0.9 },
-            { transform: `translateY(${fallDist}px) translateX(${drift}px)`, opacity: 0 },
-          ],
-          {
-            duration: fallDur,
-            delay: stagger,
-            easing: "ease-in",
-            fill: "both",
-          }
-        );
-      }
-
-      // 3. Switch card phase & fade solid overlay IMMEDIATELY as petals start raining down
-      safeTimeout(() => {
-        if (!isMounted) return;
-        onSwitchState();
-        el.animate(
-          [
-            { backgroundColor: theme.bg },
-            { backgroundColor: "transparent" },
-          ],
-          { duration: 1000, easing: "ease-out", fill: "both" }
-        );
-      }, 150);
-
-    }, WATERFALL_START_MS);
+      // 3. Switch Card Phase & Fade Solid Overlay
+      onSwitchState();
+      el.animate(
+        [
+          { backgroundColor: theme.bg },
+          { backgroundColor: "transparent" },
+        ],
+        { duration: FADE_DUR, easing: "ease-out", fill: "both" }
+      );
+    }, FADE_OUT_START_MS);
 
     // ── Cleanup ────────────────────────────────────────────────────────────
     safeTimeout(() => {

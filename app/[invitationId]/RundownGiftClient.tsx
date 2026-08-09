@@ -680,14 +680,14 @@ export default function RundownGiftClient({ data }: Props) {
   // ── Render ────────────────────────────────────────────────────────────────
 
   const cardVariants = {
-    initial: { opacity: 0, scale: 0.92, y: 20 },
+    initial: { opacity: 0, scale: 0.96, y: 15 },
     animate: {
       opacity: 1,
       scale: 1,
       y: 0,
-      transition: { duration: 0.45, ease: "backOut" as const },
+      transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
     },
-    exit: { opacity: 0, scale: 0.92, y: -20, transition: { duration: 0.25 } },
+    exit: { opacity: 0, scale: 0.96, y: -15, transition: { duration: 0.22, ease: "easeIn" as const } },
   };
 
   return (
@@ -790,8 +790,8 @@ export default function RundownGiftClient({ data }: Props) {
       <AnimatePresence mode="wait">
 
         {/* invitation (Rundown mode: Magazine Cover opening) */}
-        {phase === "invitation" && !showFlowers && (
-          <motion.div key="invitation" {...cardVariants} className="relative z-10 w-full px-4">
+        {phase === "invitation" && (
+          <motion.div key="invitation" {...cardVariants} className="relative z-10 w-full px-4 my-auto">
             <RundownOpeningCard
               senderName={data.senderName}
               recipientName={data.recipientName}
@@ -807,7 +807,7 @@ export default function RundownGiftClient({ data }: Props) {
 
         {/* dresscode (FIRST BEFORE RUNDOWN!) */}
         {phase === "dresscode" && (
-          <motion.div key="dresscode" {...cardVariants} className="relative z-10 w-full px-4">
+          <motion.div key="dresscode" {...cardVariants} className="relative z-10 w-full px-4 my-auto">
             <ReadOnlyDressCodeCard
               dressCodes={data.dressCodes ?? []}
               dressCodeIcons={data.dressCodeIcons}
@@ -819,7 +819,7 @@ export default function RundownGiftClient({ data }: Props) {
 
         {/* rundown (SECOND AFTER DRESSCODE!) */}
         {phase === "rundown" && (
-          <motion.div key="rundown" {...cardVariants} className="relative z-10 w-full px-4 py-8 overflow-y-auto max-h-screen">
+          <motion.div key="rundown" {...cardVariants} className="relative z-10 w-full px-4 py-4 my-auto">
             <RundownCard
               items={data.rundownItems}
               title={data.rundownTitle}
@@ -831,7 +831,7 @@ export default function RundownGiftClient({ data }: Props) {
 
         {/* message / sender letter */}
         {phase === "message" && (
-          <motion.div key="message" {...cardVariants} className="relative z-10 w-full px-4">
+          <motion.div key="message" {...cardVariants} className="relative z-10 w-full px-4 my-auto">
             <SenderLetterCard
               senderName={data.senderName}
               recipientName={data.recipientName}
@@ -847,7 +847,7 @@ export default function RundownGiftClient({ data }: Props) {
 
         {/* ticket */}
         {phase === "ticket" && (
-          <motion.div key="ticket" {...cardVariants} className="relative z-10 w-full px-4 py-8 overflow-y-auto max-h-screen">
+          <motion.div key="ticket" {...cardVariants} className="relative z-10 w-full px-4 py-4 my-auto">
             <RundownTicket
               data={data}
               message={recipientMessage}
