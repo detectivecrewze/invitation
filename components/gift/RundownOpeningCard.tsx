@@ -247,7 +247,7 @@ export default function RundownOpeningCard({
                     className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-[0.28em] mb-0.5"
                     style={{ color: "rgba(255,255,255,0.75)" }}
                   >
-                    dari {senderName}
+                    from {senderName}
                   </p>
                   <h1
                     className="font-extrabold leading-tight text-white"
@@ -390,7 +390,7 @@ export default function RundownOpeningCard({
                 className="text-[11px] sm:text-xs text-center font-medium leading-relaxed"
                 style={{ color: `${theme.text}80` }}
               >
-                Beberapa rencana spesial telah disiapkan khusus untukmu.
+                Special plans have been crafted exclusively for you.
               </motion.p>
             )}
           </AnimatePresence>

@@ -31,11 +31,19 @@ export default function RundownVortexBurst({
   const hasRun = useRef(false);
 
   useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-
     const el = containerRef.current;
     if (!el) return;
+    el.innerHTML = "";
+
+    let isMounted = true;
+    const timers: (number | NodeJS.Timeout)[] = [];
+    const safeTimeout = (fn: () => void, ms: number) => {
+      const tid = setTimeout(() => {
+        if (isMounted) fn();
+      }, ms);
+      timers.push(tid);
+      return tid;
+    };
 
     // Keyframe animations for continuous flower spin
     if (!document.getElementById("_rv-kf")) {
@@ -146,12 +154,13 @@ export default function RundownVortexBurst({
     });
 
     // ── Switch Phase Behind Solid Overlay ───────────────────────────────────
-    setTimeout(() => {
-      onSwitchState();
+    safeTimeout(() => {
+      if (isMounted) onSwitchState();
     }, SWITCH_PHASE_MS);
 
     // ── Hero Recipient Name Typography (NO TEXT CLIPPING ON MOBILE) ─────────
-    setTimeout(() => {
+    safeTimeout(() => {
+      if (!isMounted) return;
       const to = (recipientName || "").trim();
       const from = (senderName || "").trim();
       if (!to && !from) return;
@@ -208,7 +217,9 @@ export default function RundownVortexBurst({
       el.appendChild(crest);
 
       requestAnimationFrame(() => {
+        if (!isMounted) return;
         requestAnimationFrame(() => {
+          if (!isMounted) return;
           crest.style.opacity = "1";
           crest.style.filter = "blur(0px)";
           crest.style.transform = "translate(-50%, -50%) scale(1)";
@@ -216,19 +227,23 @@ export default function RundownVortexBurst({
       });
 
       // Fade out crest fast before Stage 2
-      setTimeout(() => {
+      safeTimeout(() => {
+        if (!isMounted) return;
         crest.style.opacity = "0";
         crest.style.filter = "blur(4px)";
         crest.style.transform = "translate(-50%, -50%) scale(0.95)";
-        setTimeout(() => crest.remove(), 800);
+        safeTimeout(() => crest.remove(), 800);
       }, TEXT_STAY_MS);
     }, TEXT_IN_MS);
 
     // ── STAGE 2: Petal Waterfall Rain Raining OVER Stage 1 Wreath ────────────
-    setTimeout(() => {
+    safeTimeout(() => {
+      if (!isMounted) return;
+
       // 1. Gradually & slowly fade out Wreath Ring flowers under the falling rain
       wreathEls.forEach(({ el: pEl, angle }, i) => {
-        setTimeout(() => {
+        safeTimeout(() => {
+          if (!isMounted) return;
           pEl.animate(
             [
               { transform: `scale(1.0) rotate(${angle * (180 / Math.PI)}deg)`, opacity: 1 },
@@ -289,7 +304,8 @@ export default function RundownVortexBurst({
       }
 
       // Fast background overlay fade to reveal Magazine Cover
-      setTimeout(() => {
+      safeTimeout(() => {
+        if (!isMounted) return;
         el.animate(
           [
             { backgroundColor: theme.bg },
@@ -302,10 +318,16 @@ export default function RundownVortexBurst({
     }, WATERFALL_START_MS);
 
     // ── Cleanup ────────────────────────────────────────────────────────────
-    setTimeout(() => {
+    safeTimeout(() => {
+      if (!isMounted) return;
       el.innerHTML = "";
       onDone();
     }, DONE_MS);
+
+    return () => {
+      isMounted = false;
+      timers.forEach(clearTimeout);
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

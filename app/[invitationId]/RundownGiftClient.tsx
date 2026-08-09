@@ -284,7 +284,7 @@ function RundownTicket({
   // WhatsApp share
   const handleWhatsAppShare = useCallback(() => {
     const text = encodeURIComponent(
-      `Halo ${data.recipientName}! ✨ Ini Tiket & Rundown Ngedate dari ${data.senderName}:\n\n` +
+      `Halo ${data.recipientName}! Ini Tiket & Rundown Ngedate dari ${data.senderName}:\n\n` +
       `📌 ${invitationUrl}\n\n` +
       `Buka link-nya yaa!`
     );
@@ -503,7 +503,7 @@ function RundownTicket({
                 className="text-[9px] font-extrabold uppercase tracking-[0.28em] block mb-1.5"
                 style={{ color: theme.accent }}
               >
-                NOTE DARI {(data.senderName || "PENGIRIM").toUpperCase()}
+                NOTE FROM {(data.senderName || "PENGIRIM").toUpperCase()}
               </span>
               <p
                 className="text-base leading-relaxed text-gray-800 italic whitespace-pre-line max-w-xs mx-auto font-normal"

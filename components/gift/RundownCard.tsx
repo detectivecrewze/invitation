@@ -208,7 +208,7 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
               <span>
                 {revealedCount === 0
                   ? "MEMPERSIAPKAN JOURNEY"
-                  : `CHAPTER ${Math.min(revealedCount, items.length)} DARI ${items.length}`}
+                  : `AGENDA ${Math.min(revealedCount, items.length)} DARI ${items.length}`}
               </span>
             </span>
             <div className="h-px w-5" style={{ background: `${theme.accent}40` }} />
@@ -225,7 +225,7 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
             {revealedCount === 0
               ? "Menyusun jadwal kegiatan kita..."
               : allRevealed
-              ? "Semua rencana siap! Gimana, seru kan? 🎉"
+              ? "Seluruh rangkaian kegiatan telah disiapkan khusus untukmu."
               : "Membuka agenda kegiatan satu per satu..."}
           </p>
 
@@ -272,24 +272,16 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                   transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                   className="relative flex items-start gap-3.5 group z-10"
                 >
-                  {/* Left Icon Badge — with glow ping on latest */}
+                  {/* Left Icon Badge — clean static SVG icon without pulsing */}
                   <div className="relative shrink-0">
-                    <motion.div
-                      animate={
-                        isLatestRevealed
-                          ? { scale: [0.85, 1.12, 1.0], rotate: [0, -6, 3, 0] }
-                          : { scale: 1, rotate: 0 }
-                      }
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-md border z-10 relative"
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl border z-10 relative"
                       style={{
-                        background: isLatestRevealed
-                          ? `linear-gradient(135deg, ${theme.accent}25 0%, #ffffff 100%)`
-                          : `linear-gradient(135deg, ${theme.bg} 0%, #ffffff 100%)`,
-                        borderColor: isLatestRevealed ? theme.accent : `${theme.accent}40`,
+                        background: `linear-gradient(135deg, ${theme.bg} 0%, #ffffff 100%)`,
+                        borderColor: isLatestRevealed ? theme.accent : `${theme.accent}30`,
                         boxShadow: isLatestRevealed
-                          ? `0 0 28px ${theme.accent}60, 0 4px 14px rgba(0,0,0,0.07)`
-                          : `0 4px 12px ${theme.accent}15`,
+                          ? `0 4px 14px ${theme.accent}25`
+                          : `0 2px 8px ${theme.accent}10`,
                       }}
                     >
                       <ActivityIconSvg iconKey={item.icon || item.emoji} size={22} color={theme.accent} />
@@ -298,10 +290,7 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                       {isBursting && (
                         <ParticleBurst accent={theme.accent} trigger={burstTrigger} />
                       )}
-                    </motion.div>
-
-                    {/* Big glowing PING on latest item */}
-                    {isLatestRevealed && <GlowPing accent={theme.accent} />}
+                    </div>
                   </div>
 
                   {/* Right Details Glass Card */}
@@ -343,10 +332,14 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                       </span>
 
                       <span
-                        className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full shrink-0"
-                        style={{ color: `${theme.accent}aa`, background: `${theme.accent}10` }}
+                        className="text-[9px] font-mono font-black px-2 py-0.5 rounded-md shrink-0 shadow-2xs border"
+                        style={{
+                          color: theme.accent,
+                          background: `${theme.accent}12`,
+                          borderColor: `${theme.accent}25`,
+                        }}
                       >
-                        CHAPTER 0{idx + 1}
+                        #{String(idx + 1).padStart(2, "0")}
                       </span>
                     </div>
 
@@ -430,7 +423,7 @@ export default function RundownCard({ items, title, theme, onContinue }: Rundown
                   ))}
                 </div>
               </div>
-              <span className="text-[11px] text-gray-400 font-semibold italic">Membuka chapter berikutnya...</span>
+              <span className="text-[11px] text-gray-400 font-semibold italic">Membuka kegiatan berikutnya...</span>
             </motion.div>
           )}
         </div>

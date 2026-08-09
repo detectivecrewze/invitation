@@ -117,7 +117,7 @@ export default function ReadOnlyDressCodeCard({
           </h2>
 
           <p className="text-xs text-gray-400 mt-1 font-medium max-w-[240px]">
-            Pakai pakaian terbaikmu sesuai panduan outfit di bawah ini! ✨
+            Pakai pakaian terbaikmu sesuai panduan outfit di bawah ini!
           </p>
         </div>
 
