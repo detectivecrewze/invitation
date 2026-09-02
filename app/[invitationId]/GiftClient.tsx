@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getTheme } from "@/lib/constants";
+import { normaliseLocale, translateStaticDom } from "@/lib/locale";
 import LoadingScreen from "@/components/gift/LoadingScreen";
 import EnvelopeGate from "@/components/gift/EnvelopeGate";
 import FlowerBurst from "@/components/gift/FlowerBurst";
@@ -25,6 +26,7 @@ type Phase =
   | "ticket";
 
 interface InvitationData {
+  locale?: "id" | "en";
   recipientName: string;
   senderName: string;
   subText?: string;
@@ -68,6 +70,12 @@ export default function GiftClient({ data, invitationId }: Props) {
   });
 
   const theme = getTheme(data.themeId ?? "pink");
+  const locale = normaliseLocale(data.locale, "id");
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    translateStaticDom(document.body, locale);
+  }, [locale]);
 
   const activityList = data.activities ?? [
     { id: "dinner", label: "Makan Malam", emoji: "🍽️" },
@@ -232,6 +240,7 @@ export default function GiftClient({ data, invitationId }: Props) {
                   senderName={data.senderName}
                   subText={data.subText ?? ""}
                   eventDate={data.eventDate}
+                  locale={locale}
                   photoUrl={data.photoUrl}
                   theme={theme}
                   onAccept={handleAccept}
@@ -244,6 +253,7 @@ export default function GiftClient({ data, invitationId }: Props) {
                 <DatePickerCard
                   recipientName={data.recipientName}
                   title={data.dateTitle || "Kapan sayangku free?"}
+                  locale={locale}
                   theme={theme}
                   onNext={handleDate}
                 />

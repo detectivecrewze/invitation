@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as htmlToImage from "html-to-image";
 import { THEMES, ACTIVITIES, DRESS_CODES, PRESET_PLAYLIST, getTheme, formatIndonesianDate } from "@/lib/constants";
+import { normaliseLocale, translateLocaleValue, translateStaticDom, type Locale } from "@/lib/locale";
 import {
   IconPalette, IconMail, IconCamera, IconSparkle, IconHanger, IconRocket, ACTIVITY_ICONS, IconCheck, IconShare, IconEye, IconCalendar
 } from "@/components/ui/Icon";
@@ -33,6 +34,7 @@ const EMOJI_CATEGORIES = [
 ];
 
 interface State {
+  locale: Locale;
   themeId: string;
   recipientName: string;
   senderName: string;
@@ -57,6 +59,7 @@ interface State {
 }
 
 const INITIAL: State = {
+  locale: "id",
   themeId: "pink",
   recipientName: "",
   senderName: "",
@@ -116,6 +119,11 @@ export default function StudioClient({
   const [showFormatModal, setShowFormatModal] = useState(false);
   const [switchingFormat, setSwitchingFormat] = useState(false);
 
+  useEffect(() => {
+    document.documentElement.lang = st.locale;
+    translateStaticDom(document.body, st.locale);
+  }, [st.locale]);
+
   const handleSwitchMode = async (targetMode: "invitation" | "rundown") => {
     setSwitchingFormat(true);
     try {
@@ -135,6 +143,7 @@ export default function StudioClient({
           invitationTitle: st.invitationTitle,
           closingNote: st.closingNote,
           ticketTitle: st.ticketTitle,
+          locale: st.locale,
           ...(bundleToken ? { bundleToken } : {}),
         }),
       });
@@ -188,6 +197,7 @@ export default function StudioClient({
 
         setSt(s => ({
           ...s,
+          locale: normaliseLocale(data.locale, "id"),
           themeId: data.themeId ?? s.themeId,
           recipientName: data.recipientName ?? s.recipientName,
           senderName: data.senderName ?? s.senderName,
@@ -244,6 +254,7 @@ export default function StudioClient({
     try {
       const payload = {
         invitationId,
+        locale: st.locale,
         themeId: st.themeId,
         recipientName: st.recipientName,
         senderName: st.senderName,
@@ -286,11 +297,11 @@ export default function StudioClient({
         setPublished(true);
         setGiftUrl(`${window.location.origin}/${invitationId}`);
       } else {
-        alert(data.error || "Gagal menyimpan");
+        alert(translateLocaleValue(data.error || "Gagal menyimpan", st.locale));
       }
     } catch (e) {
       console.error(e);
-      alert("Terjadi kesalahan. Coba lagi.");
+      alert(translateLocaleValue("Terjadi kesalahan. Coba lagi.", st.locale));
     } finally {
       setPublishing(false);
     }
@@ -336,7 +347,7 @@ export default function StudioClient({
       link.click();
     } catch (err) {
       console.error(err);
-      alert("Gagal memproses gambar. Coba lagi.");
+      alert(translateLocaleValue("Gagal memproses gambar. Coba lagi.", st.locale));
     } finally {
       setDownloadingQr(false);
     }
@@ -375,6 +386,18 @@ export default function StudioClient({
               Studio Editor
             </h1>
           </div>
+          <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500">
+            <span>{st.locale === "id" ? "Bahasa" : "Language"}</span>
+            <select
+              value={st.locale}
+              onChange={(event) => update({ locale: event.target.value as Locale })}
+              aria-label="Interface language"
+              className="bg-transparent outline-none cursor-pointer"
+            >
+              <option value="id">Indonesia</option>
+              <option value="en">English</option>
+            </select>
+          </label>
           <button
             type="button"
             onClick={() => setShowFormatModal(true)}

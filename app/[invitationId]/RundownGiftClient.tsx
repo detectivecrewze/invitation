@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getTheme, formatIndonesianDate } from "@/lib/constants";
+import { normaliseLocale, translateLocaleValue, translateStaticDom } from "@/lib/locale";
 import type { RundownData } from "@/lib/types";
 import LoadingScreen from "@/components/gift/LoadingScreen";
 import RundownEnvelopeGate from "@/components/gift/RundownEnvelopeGate";
@@ -275,7 +276,7 @@ function RundownTicket({
       link.click();
     } catch (err) {
       console.error("Gagal mengunduh gambar tiket:", err);
-      alert("Gagal mengunduh gambar tiket. Silakan screenshot layar HP milikmu!");
+      alert(translateLocaleValue("Gagal mengunduh gambar tiket. Silakan screenshot layar HP milikmu!", normaliseLocale(data.locale, "en")));
     } finally {
       setDownloading(false);
     }
@@ -353,7 +354,7 @@ function RundownTicket({
                 }}
               >
                 <IconCalendar size={14} color={theme.accent} strokeWidth={2} className="shrink-0" />
-                <span>{formatIndonesianDate(data.eventDate)}</span>
+                <span>{formatIndonesianDate(data.eventDate, normaliseLocale(data.locale, "en"))}</span>
               </div>
             </div>
           )}
@@ -584,6 +585,12 @@ export default function RundownGiftClient({ data }: Props) {
   const [recipientMessage, setRecipientMessage] = useState("");
 
   const theme = getTheme(data.themeId ?? "pink");
+  const locale = normaliseLocale(data.locale, "en");
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    translateStaticDom(document.body, locale);
+  }, [locale]);
 
   // ── Audio helpers ─────────────────────────────────────────────────────────
 
@@ -798,6 +805,7 @@ export default function RundownGiftClient({ data }: Props) {
               subText={data.subText}
               invitationTitle={data.invitationTitle}
               eventDate={data.eventDate}
+              locale={locale}
               photoUrl={data.photoUrl ?? undefined}
               theme={theme}
               onStart={handleAccept}

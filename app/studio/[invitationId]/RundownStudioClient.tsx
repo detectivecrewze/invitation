@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { nanoid } from "nanoid";
 import { THEMES, DRESS_CODES, PRESET_PLAYLIST, getTheme, formatIndonesianDate } from "@/lib/constants";
+import { normaliseLocale, translateLocaleValue, translateStaticDom, type Locale } from "@/lib/locale";
 import type { RundownItem } from "@/lib/types";
 import * as htmlToImage from "html-to-image";
 import HeartQRCode from "@/components/ui/HeartQRCode";
@@ -29,6 +30,7 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface RundownState {
+  locale: Locale;
   themeId: string;
   recipientName: string;
   senderName: string;
@@ -61,6 +63,7 @@ const DEFAULT_ENGLISH_ITEMS: RundownItem[] = [
 ];
 
 const INITIAL: RundownState = {
+  locale: "en",
   themeId: "pink",
   recipientName: "",
   senderName: "",
@@ -399,6 +402,11 @@ export default function RundownStudioClient({
   const [playlist, setPlaylist] = useState<Array<{ title: string; artist: string; audioUrl: string; coverUrl: string }>>(PRESET_PLAYLIST);
 
   useEffect(() => {
+    document.documentElement.lang = st.locale;
+    translateStaticDom(document.body, st.locale);
+  }, [st.locale]);
+
+  useEffect(() => {
     fetch("/assets/playlist.json")
       .then((res) => res.json())
       .then((data) => {
@@ -435,6 +443,7 @@ export default function RundownStudioClient({
           invitationTitle: st.invitationTitle,
           closingNote: st.closingNote,
           ticketTitle: st.ticketTitle,
+          locale: st.locale,
           ...(bundleToken ? { bundleToken } : {}),
         }),
       });
@@ -511,6 +520,7 @@ export default function RundownStudioClient({
 
         setSt((s) => ({
           ...s,
+          locale:           normaliseLocale(data.locale, "en"),
           themeId:          data.themeId          ?? s.themeId,
           recipientName:    data.recipientName     ?? s.recipientName,
           senderName:       data.senderName        ?? s.senderName,
@@ -627,6 +637,7 @@ export default function RundownStudioClient({
       const payload = {
         invitationId,
         mode: "rundown",
+        locale:          st.locale,
         themeId:         st.themeId,
         recipientName:   st.recipientName,
         senderName:      st.senderName,
@@ -658,11 +669,11 @@ export default function RundownStudioClient({
         setGiftUrl(`${window.location.origin}/${invitationId}`);
         showToast("Rundown berhasil dipublish!");
       } else {
-        alert(data.error || "Gagal menyimpan");
+        alert(translateLocaleValue(data.error || "Gagal menyimpan", st.locale));
       }
     } catch (e) {
       console.error(e);
-      alert("Terjadi kesalahan. Coba lagi.");
+      alert(translateLocaleValue("Terjadi kesalahan. Coba lagi.", st.locale));
     } finally {
       setPublishing(false);
     }
@@ -712,6 +723,18 @@ export default function RundownStudioClient({
               Rundown Studio
             </h1>
           </div>
+          <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500">
+            <span>{st.locale === "id" ? "Bahasa" : "Language"}</span>
+            <select
+              value={st.locale}
+              onChange={(event) => update({ locale: event.target.value as Locale })}
+              aria-label="Interface language"
+              className="bg-transparent outline-none cursor-pointer"
+            >
+              <option value="id">Indonesia</option>
+              <option value="en">English</option>
+            </select>
+          </label>
           <button
             type="button"
             onClick={() => setShowFormatModal(true)}
@@ -890,7 +913,7 @@ export default function RundownStudioClient({
                       <p className="text-[11px] font-semibold mt-1 flex items-center gap-1" style={{ color: theme.accent }}>
                         <IconCalendar size={13} color={theme.accent} strokeWidth={2} className="shrink-0" />
                         <span>Terpilih:</span>
-                        <span className="font-bold">{formatIndonesianDate(st.eventDate)}</span>
+                        <span className="font-bold">{formatIndonesianDate(st.eventDate, st.locale)}</span>
                       </p>
                     )}
                   </Field>
@@ -1927,7 +1950,7 @@ export default function RundownStudioClient({
                           </span>
                           <div className="px-3.5 py-1.5 rounded-full bg-pink-100 border-2 border-pink-400 animate-pulse text-center inline-flex items-center gap-1.5">
                             <IconCalendar size={13} color="#be185d" strokeWidth={2} className="shrink-0" />
-                            <span className="text-xs font-extrabold text-pink-700">{formatIndonesianDate(st.eventDate) || "Sabtu, 14 Februari 2026"}</span>
+                            <span className="text-xs font-extrabold text-pink-700">{formatIndonesianDate(st.eventDate, st.locale) || (st.locale === "en" ? "Saturday, February 14, 2026" : "Sabtu, 14 Februari 2026")}</span>
                           </div>
                         </div>
                       </div>
