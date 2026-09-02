@@ -147,7 +147,63 @@ export function translateStaticDom(root: HTMLElement | null, locale: Locale) {
   root.querySelectorAll<HTMLElement>("[placeholder], [title], [aria-label]").forEach((element) => {
     ["placeholder", "title", "aria-label"].forEach((attribute) => {
       const value = element.getAttribute(attribute);
-      if (value) element.setAttribute(attribute, translate(value));
+      if (value) {
+        const trans = translate(value);
+        if (trans !== value) element.setAttribute(attribute, trans);
+      }
     });
   });
 }
+
+export function observeStaticDom(root: HTMLElement | null, locale: Locale) {
+  if (!root || typeof window === "undefined") return () => {};
+
+  let isTranslating = false;
+  let rafId: number | null = null;
+  const pendingNodes = new Set<HTMLElement>();
+
+  const observer = new MutationObserver((mutations) => {
+    if (isTranslating) return;
+
+    let hasAdded = false;
+    for (let i = 0; i < mutations.length; i++) {
+      const m = mutations[i];
+      for (let j = 0; j < m.addedNodes.length; j++) {
+        const node = m.addedNodes[j];
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          pendingNodes.add(node as HTMLElement);
+          hasAdded = true;
+        } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+          pendingNodes.add(node.parentElement);
+          hasAdded = true;
+        }
+      }
+    }
+
+    if (hasAdded) {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        isTranslating = true;
+        try {
+          pendingNodes.forEach((target) => {
+            if (document.body.contains(target)) {
+              translateStaticDom(target, locale);
+            }
+          });
+          pendingNodes.clear();
+        } finally {
+          isTranslating = false;
+        }
+      });
+    }
+  });
+
+  observer.observe(root, { childList: true, subtree: true });
+
+  return () => {
+    observer.disconnect();
+    if (rafId) cancelAnimationFrame(rafId);
+    pendingNodes.clear();
+  };
+}
+

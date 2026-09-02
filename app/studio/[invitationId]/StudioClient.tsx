@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as htmlToImage from "html-to-image";
 import { THEMES, ACTIVITIES, DRESS_CODES, PRESET_PLAYLIST, getTheme, formatIndonesianDate } from "@/lib/constants";
-import { normaliseLocale, translateLocaleValue, translateStaticDom, type Locale } from "@/lib/locale";
+import { normaliseLocale, observeStaticDom, translateLocaleValue, translateStaticDom, type Locale } from "@/lib/locale";
 import {
   IconPalette, IconMail, IconCamera, IconSparkle, IconHanger, IconRocket, ACTIVITY_ICONS, IconCheck, IconShare, IconEye, IconCalendar
 } from "@/components/ui/Icon";
@@ -120,9 +120,19 @@ export default function StudioClient({
   const [switchingFormat, setSwitchingFormat] = useState(false);
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`invitation-studio-locale-${invitationId}`) as Locale | null;
+      if (saved === "id" || saved === "en") {
+        setSt((s) => ({ ...s, locale: saved }));
+      }
+    } catch {}
+  }, [invitationId]);
+
+  useEffect(() => {
     document.documentElement.lang = st.locale;
     translateStaticDom(document.body, st.locale);
-  }, [st.locale]);
+    return observeStaticDom(document.body, st.locale);
+  }, [st.locale, step]);
 
   const handleSwitchMode = async (targetMode: "invitation" | "rundown") => {
     setSwitchingFormat(true);
@@ -195,9 +205,10 @@ export default function StudioClient({
           });
         }
 
+        const savedLocale = (typeof window !== "undefined" && localStorage.getItem(`invitation-studio-locale-${invitationId}`)) as Locale | null;
         setSt(s => ({
           ...s,
-          locale: normaliseLocale(data.locale, "id"),
+          locale: savedLocale || normaliseLocale(data.locale, s.locale || "id"),
           themeId: data.themeId ?? s.themeId,
           recipientName: data.recipientName ?? s.recipientName,
           senderName: data.senderName ?? s.senderName,
@@ -387,10 +398,16 @@ export default function StudioClient({
             </h1>
           </div>
           <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500">
-            <span>{st.locale === "id" ? "Bahasa" : "Language"}</span>
+            <span className="hidden sm:inline">{st.locale === "id" ? "Bahasa" : "Language"}</span>
             <select
               value={st.locale}
-              onChange={(event) => update({ locale: event.target.value as Locale })}
+              onChange={(event) => {
+                const nextLocale = event.target.value as Locale;
+                update({ locale: nextLocale });
+                try {
+                  localStorage.setItem(`invitation-studio-locale-${invitationId}`, nextLocale);
+                } catch {}
+              }}
               aria-label="Interface language"
               className="bg-transparent outline-none cursor-pointer"
             >

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getTheme, formatIndonesianDate } from "@/lib/constants";
-import { normaliseLocale, translateLocaleValue, translateStaticDom } from "@/lib/locale";
+import { normaliseLocale, observeStaticDom, translateLocaleValue, translateStaticDom } from "@/lib/locale";
 import type { RundownData } from "@/lib/types";
 import LoadingScreen from "@/components/gift/LoadingScreen";
 import RundownEnvelopeGate from "@/components/gift/RundownEnvelopeGate";
@@ -590,7 +590,8 @@ export default function RundownGiftClient({ data }: Props) {
   useEffect(() => {
     document.documentElement.lang = locale;
     translateStaticDom(document.body, locale);
-  }, [locale]);
+    return observeStaticDom(document.body, locale);
+  }, [locale, phase]);
 
   // ── Audio helpers ─────────────────────────────────────────────────────────
 

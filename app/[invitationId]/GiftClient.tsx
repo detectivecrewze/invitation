@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getTheme } from "@/lib/constants";
-import { normaliseLocale, translateStaticDom } from "@/lib/locale";
+import { normaliseLocale, observeStaticDom, translateStaticDom } from "@/lib/locale";
 import LoadingScreen from "@/components/gift/LoadingScreen";
 import EnvelopeGate from "@/components/gift/EnvelopeGate";
 import FlowerBurst from "@/components/gift/FlowerBurst";
@@ -75,7 +75,8 @@ export default function GiftClient({ data, invitationId }: Props) {
   useEffect(() => {
     document.documentElement.lang = locale;
     translateStaticDom(document.body, locale);
-  }, [locale]);
+    return observeStaticDom(document.body, locale);
+  }, [locale, phase]);
 
   const activityList = data.activities ?? [
     { id: "dinner", label: "Makan Malam", emoji: "🍽️" },
