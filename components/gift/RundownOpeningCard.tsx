@@ -11,6 +11,7 @@ interface Props {
   subText?: string;
   invitationTitle?: string;
   eventDate?: string;
+  locale?: "id" | "en";
   photoUrl?: string;
   theme: { bg: string; card: string; accent: string; text: string };
   onStart: () => void;
@@ -115,6 +116,7 @@ export default function RundownOpeningCard({
   subText,
   invitationTitle,
   eventDate,
+  locale = "id",
   photoUrl,
   theme,
   onStart,
@@ -298,7 +300,7 @@ export default function RundownOpeningCard({
                       className="text-[11px] sm:text-xs font-extrabold tracking-wide uppercase font-mono"
                       style={{ color: theme.accent }}
                     >
-                      {formatIndonesianDate(eventDate)}
+                      {formatIndonesianDate(eventDate, locale)}
                     </span>
                   </div>
                 )}

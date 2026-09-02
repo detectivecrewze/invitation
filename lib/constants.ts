@@ -85,8 +85,9 @@ export const PRESET_PLAYLIST = [
   },
 ];
 
-export function formatIndonesianDate(dateStr?: string | null): string {
+export function formatIndonesianDate(dateStr?: string | null, locale: "id" | "en" = "id"): string {
   if (!dateStr) return "";
+  const dateLocale = locale === "en" ? "en-US" : "id-ID";
   try {
     const parts = dateStr.split("-");
     if (parts.length === 3) {
@@ -95,7 +96,7 @@ export function formatIndonesianDate(dateStr?: string | null): string {
       const day = parseInt(parts[2], 10);
       if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
         const d = new Date(year, month, day);
-        return d.toLocaleDateString("id-ID", {
+        return d.toLocaleDateString(dateLocale, {
           weekday: "long",
           day: "numeric",
           month: "long",
@@ -105,7 +106,7 @@ export function formatIndonesianDate(dateStr?: string | null): string {
     }
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString("id-ID", {
+    return d.toLocaleDateString(dateLocale, {
       weekday: "long",
       day: "numeric",
       month: "long",

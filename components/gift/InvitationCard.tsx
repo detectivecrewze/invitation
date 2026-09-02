@@ -9,12 +9,13 @@ interface Props {
   senderName: string;
   subText: string;
   eventDate?: string;
+  locale?: "id" | "en";
   photoUrl?: string;
   theme: { bg: string; card: string; accent: string; text: string };
   onAccept: () => void;
 }
 
-export default function InvitationCard({ senderName, subText, eventDate, photoUrl, theme, onAccept }: Props) {
+export default function InvitationCard({ senderName, subText, eventDate, locale = "id", photoUrl, theme, onAccept }: Props) {
   const [rejectCount, setRejectCount] = useState(0);
   const [rejectPos, setRejectPos] = useState({ x: 0, y: 0 });
   const [accepted, setAccepted] = useState(false);
@@ -188,7 +189,7 @@ export default function InvitationCard({ senderName, subText, eventDate, photoUr
                 }}
               >
                 <IconCalendar size={14} color={theme.accent} strokeWidth={2} className="shrink-0" />
-                <span>{formatIndonesianDate(eventDate)}</span>
+                <span>{formatIndonesianDate(eventDate, locale)}</span>
               </motion.div>
             )}
           </div>

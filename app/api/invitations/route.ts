@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
 
   // Strip internal fields before storing
   const { invitationId: _id, bundleToken: _bt, ...data } = body;
+  if (data.locale !== undefined && data.locale !== 'id' && data.locale !== 'en') {
+    return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
+  }
   await putInvitation(invitationId, {
     ...data,
     invitationId,

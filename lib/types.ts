@@ -3,6 +3,7 @@
 export interface BaseData {
   invitationId: string;
   mode: 'invitation' | 'rundown';
+  locale?: 'id' | 'en';
   themeId: string;
   recipientName: string;
   senderName: string;

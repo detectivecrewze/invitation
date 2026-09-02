@@ -7,13 +7,14 @@ import { IconCalendar, IconArrowRight } from "@/components/ui/Icon";
 interface Props {
   recipientName: string;
   title?: string;
+  locale?: "id" | "en";
   theme: { bg: string; card: string; accent: string; text: string };
   onNext: (selected: string) => void;
 }
 
 const TIME_OF_DAY = ["Pagi", "Siang", "Sore", "Malam"];
 
-const CustomCalendar = ({ selectedDate, onSelect, theme }: { selectedDate: string, onSelect: (date: string) => void, theme: any }) => {
+const CustomCalendar = ({ selectedDate, onSelect, theme, locale }: { selectedDate: string, onSelect: (date: string) => void, theme: any, locale: "id" | "en" }) => {
   const [currentMonth, setCurrentMonth] = useState(() => {
     const d = selectedDate ? new Date(selectedDate) : new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -28,8 +29,9 @@ const CustomCalendar = ({ selectedDate, onSelect, theme }: { selectedDate: strin
   const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
   const nextMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
 
-  const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-  const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+  const dateLocale = locale === "en" ? "en-US" : "id-ID";
+  const monthName = currentMonth.toLocaleDateString(dateLocale, { month: "long" });
+  const dayNames = Array.from({ length: 7 }, (_, index) => new Intl.DateTimeFormat(dateLocale, { weekday: "short" }).format(new Date(2024, 0, index + 7)));
 
   const handleSelect = (day: number) => {
     const d = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
@@ -45,7 +47,7 @@ const CustomCalendar = ({ selectedDate, onSelect, theme }: { selectedDate: strin
            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <span style={{ fontWeight: 700, color: theme.text, fontSize: "14px" }}>
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+          {monthName} {currentMonth.getFullYear()}
         </span>
         <button type="button" onClick={nextMonth} style={{ padding: "8px", background: "none", border: "none", cursor: "pointer", color: theme.text }}>
            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
@@ -98,7 +100,7 @@ const CustomCalendar = ({ selectedDate, onSelect, theme }: { selectedDate: strin
   );
 };
 
-export default function DatePickerCard({ recipientName, title = "Kapan sayangku free?", theme, onNext }: Props) {
+export default function DatePickerCard({ recipientName, title = "Kapan sayangku free?", locale = "id", theme, onNext }: Props) {
   const [date, setDate] = useState("");
   const [timeOfDay, setTimeOfDay] = useState("Siang");
   const [time, setTime] = useState("12:00");
@@ -111,6 +113,7 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
   }, []);
 
   const canProceed = !!date;
+  const timeLabel = (value: string) => locale === "en" ? ({ Pagi: "Morning", Siang: "Afternoon", Sore: "Evening", Malam: "Night" }[value] || value) : value;
 
   const handleNext = () => {
     if (!canProceed) return;
@@ -119,15 +122,16 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
     try {
       const d = new Date(date);
       if (!isNaN(d.getTime())) {
-        const dayName = d.toLocaleDateString("id-ID", { weekday: "long" });
+        const dateLocale = locale === "en" ? "en-US" : "id-ID";
+        const dayName = d.toLocaleDateString(dateLocale, { weekday: "long" });
         const day = d.getDate();
-        const monthName = d.toLocaleDateString("id-ID", { month: "long" });
+        const monthName = d.toLocaleDateString(dateLocale, { month: "long" });
         const year = d.getFullYear();
         formattedDate = `${dayName}, ${day} ${monthName} ${year}`;
       }
     } catch (e) {}
 
-    const formatted = `${formattedDate} • ${timeOfDay}${time ? ` • ${time}` : ""}`;
+    const formatted = `${formattedDate} • ${timeLabel(timeOfDay)}${time ? ` • ${time}` : ""}`;
     onNext(formatted);
   };
 
@@ -136,7 +140,9 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
     try {
       const d = new Date(date);
       if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        return d.toLocaleDateString(locale === "en" ? "en-US" : "id-ID", locale === "en"
+          ? { weekday: "short", day: "numeric", month: "short", year: "numeric" }
+          : { weekday: "long", day: "numeric", month: "long", year: "numeric" });
       }
     } catch (e) {}
     return date;
@@ -159,7 +165,7 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
           <p
             style={{ fontFamily: "var(--font-caveat)", fontSize: "1.2rem", color: theme.accent, opacity: 0.8 }}
           >
-            buat {recipientName}
+            {locale === "en" ? `for ${recipientName}` : `buat ${recipientName}`}
           </p>
           <h2
             style={{ fontFamily: "var(--font-caveat)", fontSize: "2.1rem", color: theme.text, lineHeight: 1.1, marginTop: "0.25rem" }}
@@ -182,9 +188,9 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
                 boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
               }}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <IconCalendar size={18} color={theme.accent} />
-                <span>{getDisplayDate()}</span>
+                <span className="whitespace-nowrap text-sm sm:text-base">{getDisplayDate()}</span>
               </div>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isCalendarOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
                 <path d="M6 9l6 6 6-6"/>
@@ -198,6 +204,7 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
                   selectedDate={date} 
                   onSelect={(d) => { setDate(d); setIsCalendarOpen(false); }} 
                   theme={theme} 
+                  locale={locale}
                 />
               </div>
             )}
@@ -218,7 +225,7 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
                   boxShadow: timeOfDay === tod ? `0 4px 12px ${theme.accent}40` : "none",
                 }}
               >
-                {tod}
+                {timeLabel(tod)}
               </motion.button>
             ))}
           </div>
@@ -251,7 +258,7 @@ export default function DatePickerCard({ recipientName, title = "Kapan sayangku 
             letterSpacing: "0.02em",
           }}
         >
-          Lanjut
+          {locale === "en" ? "Next" : "Lanjut"}
         </motion.button>
       </div>
     </div>
