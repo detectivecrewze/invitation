@@ -150,11 +150,11 @@ export default function RundownEnvelopeGate({
             className="text-2xl font-bold tracking-tight mb-1"
             style={{ color: theme.text, fontFamily: "var(--font-caveat)" }}
           >
-            Special Date VIP Pass
+            VIP Pass: A Day Out
           </h2>
 
           <p className="text-xs text-gray-500 font-medium mb-3">
-            {senderName ? `From ${senderName}` : "Personal Date Itinerary"}
+            {senderName ? `From ${senderName}` : "Personal Day Out Itinerary"}
           </p>
 
           {/* Dashed Tear Line */}
