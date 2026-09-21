@@ -25,6 +25,10 @@ import {
   IconClock,
   IconClipboard,
   IconSettings,
+  IconChevronDown,
+  IconChevronUp,
+  IconTrash,
+  IconMapPin,
   RUNDOWN_SVG_OPTIONS,
   ActivityIconSvg,
   DRESSCODE_SVG_OPTIONS,
@@ -144,64 +148,99 @@ function ItemRow({
       exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
       className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"
     >
-      <div className="flex items-center gap-2.5 sm:gap-3 px-3.5 py-3.5 sm:px-5 sm:py-4">
+      <div className="flex items-center gap-2 sm:gap-3 px-3 py-3 sm:px-4 sm:py-3.5">
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3 text-left"
+          className="group flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3 text-left"
           aria-expanded={expanded}
         >
           <span className="w-5 text-center font-mono text-xs sm:text-sm font-bold text-slate-400 shrink-0 select-none">
             {index + 1}
           </span>
           <span
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-transform duration-200 group-hover:scale-105"
             style={{ borderColor: `${accent}35`, background: `${accent}10` }}
           >
             <ActivityIconSvg iconKey={selectedVisual} size={20} color={accent} />
           </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-xs font-semibold" style={{ color: accent }}>
+          <span className="min-w-0 flex-1 pr-1">
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] sm:text-[11px] font-bold tracking-tight font-mono"
+              style={{ background: `${accent}15`, color: accent }}
+            >
+              <IconClock size={11} color={accent} strokeWidth={2.2} />
               {item.time || (isId ? "Waktu belum diisi" : "Time not set")}
             </span>
-            <span className="mt-0.5 block truncate text-sm font-semibold text-slate-900">
+            <span className="mt-1 block text-xs sm:text-sm font-bold text-slate-800 leading-snug break-words line-clamp-2">
               {item.title || (isId ? "Kegiatan tanpa judul" : "Untitled activity")}
             </span>
             {item.location && (
-              <span className="mt-0.5 block truncate text-xs text-slate-500">{item.location}</span>
+              <span className="mt-0.5 flex items-center gap-1 text-[11px] sm:text-xs text-slate-500">
+                <IconMapPin size={11} color="#94a3b8" strokeWidth={2} className="shrink-0" />
+                <span className="truncate">{item.location}</span>
+              </span>
             )}
-          </span>
-          <span className="shrink-0 text-xs font-semibold text-slate-500">
-            {expanded ? (isId ? "Tutup" : "Close") : "Edit"}
           </span>
         </button>
 
-        <div className="flex shrink-0 items-center gap-1 border-l border-slate-200 pl-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-1.5 border-l border-slate-200 pl-1.5 sm:pl-2">
+          <div className="flex items-center rounded-lg bg-slate-50 p-0.5 border border-slate-200/60">
+            <button
+              type="button"
+              disabled={index === 0}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMove(item.id, -1);
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-20 transition-all"
+              aria-label={isId ? "Geser ke atas" : "Move up"}
+              title={isId ? "Geser ke atas" : "Move up"}
+            >
+              <IconChevronUp size={14} strokeWidth={2.4} />
+            </button>
+            <button
+              type="button"
+              disabled={index === total - 1}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMove(item.id, 1);
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:text-slate-900 hover:bg-white disabled:opacity-20 transition-all"
+              aria-label={isId ? "Geser ke bawah" : "Move down"}
+              title={isId ? "Geser ke bawah" : "Move down"}
+            >
+              <IconChevronDown size={14} strokeWidth={2.4} />
+            </button>
+          </div>
+
           <button
             type="button"
-            disabled={index === 0}
-            onClick={() => onMove(item.id, -1)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-25"
-            aria-label={isId ? "Geser ke atas" : "Move up"}
-          >
-            {"\u2191"}
-          </button>
-          <button
-            type="button"
-            disabled={index === total - 1}
-            onClick={() => onMove(item.id, 1)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-25"
-            aria-label={isId ? "Geser ke bawah" : "Move down"}
-          >
-            {"\u2193"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setConfirmingDelete(true)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold text-red-500 hover:bg-red-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              setConfirmingDelete(true);
+            }}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             aria-label={isId ? "Hapus kegiatan" : "Delete activity"}
+            title={isId ? "Hapus kegiatan" : "Delete activity"}
           >
-            {"\u00d7"}
+            <IconTrash size={14} strokeWidth={1.8} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            aria-label={expanded ? (isId ? "Tutup" : "Close") : (isId ? "Edit kegiatan" : "Edit activity")}
+            title={expanded ? (isId ? "Tutup" : "Close") : (isId ? "Edit kegiatan" : "Edit activity")}
+          >
+            <motion.div
+              animate={{ rotate: expanded ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center justify-center"
+            >
+              <IconChevronDown size={15} strokeWidth={2.2} />
+            </motion.div>
           </button>
         </div>
       </div>
