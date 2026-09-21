@@ -8,6 +8,7 @@ import { normaliseLocale, observeStaticDom, translateLocaleValue, translateStati
 import type { RundownItem } from "@/lib/types";
 import * as htmlToImage from "html-to-image";
 import HeartQRCode from "@/components/ui/HeartQRCode";
+import StudioOverviewPanel from "@/components/studio/StudioOverviewPanel";
 import {
   IconPalette,
   IconMail,
@@ -108,6 +109,7 @@ function ItemRow({
   index,
   total,
   accent,
+  locale,
   onUpdate,
   onDelete,
   onMove,
@@ -116,266 +118,304 @@ function ItemRow({
   index: number;
   total: number;
   accent: string;
+  locale: Locale;
   onUpdate: (id: string, patch: Partial<RundownItem>) => void;
   onDelete: (id: string) => void;
   onMove: (id: string, dir: -1 | 1) => void;
 }) {
+  const [expanded, setExpanded] = useState(index === 0);
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [pickerTab, setPickerTab] = useState<"svg" | "emoji">("svg");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const isId = locale === "id";
+  const selectedVisual = item.icon || item.emoji || "sparkle";
+  const customEmoji = RUNDOWN_SVG_OPTIONS.some((option) => option.key === selectedVisual)
+    ? ""
+    : selectedVisual;
 
   return (
-    <motion.div
+    <motion.article
       layout
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
-      className="rounded-3xl border border-gray-100 bg-white p-5 flex flex-col gap-4 shadow-sm relative"
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"
     >
-      {/* Row header */}
-      <div className="flex items-center justify-between border-b pb-2.5 border-gray-100">
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => setShowIconPicker(!showIconPicker)}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gray-50 border hover:bg-gray-100 transition-transform active:scale-95 shadow-xs shrink-0 text-lg"
-            style={{ borderColor: `${accent}40`, background: `${accent}10` }}
-            title="Pilih Icon atau Emoji"
+      <div className="flex items-center gap-3 px-4 py-4 sm:px-5">
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          aria-expanded={expanded}
+        >
+          <span
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
+            style={{ borderColor: `${accent}35`, background: `${accent}10` }}
           >
-            <ActivityIconSvg iconKey={item.icon || item.emoji} size={20} color={accent} />
-          </button>
-          <div className="flex flex-col">
-            <span
-              className="text-[11px] font-extrabold uppercase tracking-[0.15em]"
-              style={{ color: accent }}
-            >
-              Kegiatan {index + 1}
+            <ActivityIconSvg iconKey={selectedVisual} size={20} color={accent} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-semibold" style={{ color: accent }}>
+              {String(index + 1).padStart(2, "0")} - {item.time || (isId ? "Waktu belum diisi" : "Time not set")}
             </span>
-            <span className="text-[10px] text-gray-400 font-medium">Tap icon untuk ganti SVG / Emoji</span>
-          </div>
-        </div>
+            <span className="mt-0.5 block truncate text-sm font-semibold text-slate-900">
+              {item.title || (isId ? "Kegiatan tanpa judul" : "Untitled activity")}
+            </span>
+            {item.location && (
+              <span className="mt-0.5 block truncate text-xs text-slate-500">{item.location}</span>
+            )}
+          </span>
+          <span className="shrink-0 text-xs font-semibold text-slate-500">
+            {expanded ? (isId ? "Tutup" : "Close") : "Edit"}
+          </span>
+        </button>
 
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1 border-l border-slate-200 pl-2">
           <button
             type="button"
             disabled={index === 0}
             onClick={() => onMove(item.id, -1)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400 hover:bg-gray-100 disabled:opacity-30 transition-colors"
-            aria-label="Geser ke atas"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-25"
+            aria-label={isId ? "Geser ke atas" : "Move up"}
           >
-            ↑
+            {"\u2191"}
           </button>
           <button
             type="button"
             disabled={index === total - 1}
             onClick={() => onMove(item.id, 1)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400 hover:bg-gray-100 disabled:opacity-30 transition-colors"
-            aria-label="Geser ke bawah"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-25"
+            aria-label={isId ? "Geser ke bawah" : "Move down"}
           >
-            ↓
+            {"\u2193"}
           </button>
           <button
             type="button"
-            onClick={() => onDelete(item.id)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-red-400 hover:bg-red-50 transition-colors"
-            aria-label="Hapus kegiatan"
+            onClick={() => setConfirmingDelete(true)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold text-red-500 hover:bg-red-50"
+            aria-label={isId ? "Hapus kegiatan" : "Delete activity"}
           >
-            ✕
+            {"\u00d7"}
           </button>
         </div>
       </div>
 
-      {/* SVG Icon vs Emoji Selector Grid Popover */}
-      {showIconPicker && (
-        <div className="p-4 bg-gray-50 border border-gray-200 rounded-3xl flex flex-col gap-3 animate-in fade-in zoom-in-95 shadow-md">
-          {/* Header & Mode Switcher */}
-          <div className="flex items-center justify-between border-b pb-2 border-gray-200">
-            <div className="flex items-center gap-1 p-1 bg-gray-200/70 rounded-xl">
-              <button
-                type="button"
-                onClick={() => setPickerTab("svg")}
-                className="px-3 py-1 rounded-lg text-xs font-extrabold transition-all"
-                style={{
-                  background: pickerTab === "svg" ? accent : "transparent",
-                  color: pickerTab === "svg" ? "white" : "#4b5563",
-                }}
-              >
-                Vector (SVG)
-              </button>
-              <button
-                type="button"
-                onClick={() => setPickerTab("emoji")}
-                className="px-3 py-1 rounded-lg text-xs font-extrabold transition-all"
-                style={{
-                  background: pickerTab === "emoji" ? accent : "transparent",
-                  color: pickerTab === "emoji" ? "white" : "#4b5563",
-                }}
-              >
-                Emoji ✨
-              </button>
+      <AnimatePresence initial={false}>
+        {confirmingDelete && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-t border-red-100 bg-red-50"
+          >
+            <div className="flex items-center justify-between gap-4 px-5 py-3">
+              <p className="text-sm font-medium text-red-800">
+                {isId ? "Hapus kegiatan ini dari rundown?" : "Remove this activity from the schedule?"}
+              </p>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmingDelete(false)}
+                  className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
+                >
+                  {isId ? "Batal" : "Cancel"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onDelete(item.id)}
+                  className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white"
+                >
+                  {isId ? "Hapus" : "Delete"}
+                </button>
+              </div>
             </div>
+          </motion.div>
+        )}
 
-            <button
-              type="button"
-              onClick={() => setShowIconPicker(false)}
-              className="text-xs font-bold text-gray-400 hover:text-gray-600 px-2 py-1"
-            >
-              Tutup ✕
-            </button>
-          </div>
-
-          {/* Tab Content: SVG Vector Icons */}
-          {pickerTab === "svg" && (
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-              {RUNDOWN_SVG_OPTIONS.map(({ key, label, Icon }) => {
-                const active = (item.icon || item.emoji) === key;
-                return (
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-t border-slate-200"
+          >
+            <div className="space-y-5 px-4 py-5 sm:px-5">
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <label className="text-xs font-semibold text-slate-700">
+                    {isId ? "Ikon kegiatan" : "Activity icon"}
+                  </label>
                   <button
-                    key={key}
                     type="button"
-                    onClick={() => {
-                      onUpdate(item.id, { icon: key, emoji: key });
-                      setShowIconPicker(false);
-                    }}
-                    title={label}
-                    className="p-2.5 rounded-2xl flex flex-col items-center justify-center gap-1 border transition-all hover:scale-105 active:scale-95"
-                    style={{
-                      background: active ? accent : "white",
-                      borderColor: active ? accent : "#e5e7eb",
-                      color: active ? "white" : "#4b5563",
-                      boxShadow: active ? `0 4px 12px ${accent}40` : "none",
-                    }}
+                    onClick={() => setShowIconPicker((value) => !value)}
+                    className="text-xs font-semibold"
+                    style={{ color: accent }}
                   >
-                    <Icon size={20} color={active ? "white" : accent} strokeWidth={1.75} />
+                    {showIconPicker
+                      ? (isId ? "Selesai" : "Done")
+                      : (isId ? "Ganti ikon" : "Change icon")}
                   </button>
-                );
-              })}
-            </div>
-          )}
+                </div>
 
-          {/* Tab Content: Emoji Presets & Custom Emoji Input */}
-          {pickerTab === "emoji" && (
-            <div className="flex flex-col gap-3">
-              {/* Custom Emoji Input Field */}
-              <div className="flex items-center gap-2 p-2 bg-white rounded-2xl border border-gray-200 shadow-xs">
-                <span className="text-[11px] font-bold text-gray-500 shrink-0 pl-1">
-                  Paste Emoji:
-                </span>
-                <input
-                  type="text"
-                  value={/\p{Extended_Pictographic}/u.test(item.icon || item.emoji || "") ? (item.icon || item.emoji || "") : ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    onUpdate(item.id, { icon: val, emoji: val });
-                  }}
-                  placeholder="😊 / 🛵 / 🍣"
-                  className="w-full px-2 py-1.5 rounded-xl border border-gray-200 text-sm text-center bg-gray-50 outline-none focus:border-pink-400 font-bold"
+                {showIconPicker && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <div className="mb-3 flex gap-1 border-b border-slate-200 pb-3">
+                      <button
+                        type="button"
+                        onClick={() => setPickerTab("svg")}
+                        className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                        style={{
+                          background: pickerTab === "svg" ? accent : "transparent",
+                          color: pickerTab === "svg" ? "white" : "#475569",
+                        }}
+                      >
+                        Icon
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPickerTab("emoji")}
+                        className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                        style={{
+                          background: pickerTab === "emoji" ? accent : "transparent",
+                          color: pickerTab === "emoji" ? "white" : "#475569",
+                        }}
+                      >
+                        Emoji
+                      </button>
+                    </div>
+
+                    {pickerTab === "svg" ? (
+                      <div className="grid grid-cols-6 gap-2 sm:grid-cols-10">
+                        {RUNDOWN_SVG_OPTIONS.map(({ key, label, Icon }) => {
+                          const active = selectedVisual === key;
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() => {
+                                onUpdate(item.id, { icon: key, emoji: key });
+                                setShowIconPicker(false);
+                              }}
+                              title={label}
+                              className="flex aspect-square items-center justify-center rounded-lg border bg-white"
+                              style={{
+                                borderColor: active ? accent : "#e2e8f0",
+                                boxShadow: active ? `0 0 0 1px ${accent}` : "none",
+                              }}
+                            >
+                              <Icon size={18} color={accent} strokeWidth={1.8} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          value={customEmoji}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            onUpdate(item.id, { icon: value, emoji: value });
+                          }}
+                          placeholder={isId ? "Tempel satu emoji" : "Paste one emoji"}
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none"
+                        />
+                        <div className="grid max-h-36 grid-cols-8 gap-2 overflow-y-auto">
+                          {EMOJI_PRESETS.map((emoji) => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              onClick={() => {
+                                onUpdate(item.id, { icon: emoji, emoji });
+                                setShowIconPicker(false);
+                              }}
+                              className="flex aspect-square items-center justify-center rounded-lg border border-slate-200 bg-white text-lg"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[180px_minmax(0,1fr)]">
+                <StudioItemField label={isId ? "Waktu" : "Time"}>
+                  <input
+                    type="text"
+                    value={item.time}
+                    onChange={(event) => onUpdate(item.id, { time: event.target.value })}
+                    placeholder="07:30 - 08:10"
+                    className="studio-item-input font-mono"
+                  />
+                </StudioItemField>
+                <StudioItemField label={isId ? "Judul kegiatan" : "Activity title"}>
+                  <input
+                    type="text"
+                    value={item.title}
+                    onChange={(event) => onUpdate(item.id, { title: event.target.value })}
+                    placeholder={isId ? "Makan malam bersama" : "Dinner together"}
+                    className="studio-item-input"
+                  />
+                </StudioItemField>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <StudioItemField label={isId ? "Lokasi" : "Location"}>
+                  <input
+                    type="text"
+                    value={item.location}
+                    onChange={(event) => onUpdate(item.id, { location: event.target.value })}
+                    placeholder={isId ? "Nama tempat" : "Venue name"}
+                    className="studio-item-input"
+                  />
+                </StudioItemField>
+                <StudioItemField label={isId ? "Link Google Maps (opsional)" : "Google Maps link (optional)"}>
+                  <input
+                    type="url"
+                    value={item.locationUrl || ""}
+                    onChange={(event) => onUpdate(item.id, { locationUrl: event.target.value })}
+                    placeholder="https://maps.app.goo.gl/..."
+                    className="studio-item-input font-mono"
+                  />
+                </StudioItemField>
+              </div>
+
+              <StudioItemField label={isId ? "Catatan (opsional)" : "Note (optional)"}>
+                <textarea
+                  rows={2}
+                  value={item.note}
+                  onChange={(event) => onUpdate(item.id, { note: event.target.value })}
+                  placeholder={isId ? "Detail kecil yang perlu diingat" : "A small detail to remember"}
+                  className="studio-item-input resize-y"
                 />
-              </div>
-
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400">
-                Atau Pilih Emoji Populer:
-              </span>
-
-              <div className="grid grid-cols-6 sm:grid-cols-10 gap-2 max-h-48 overflow-y-auto p-0.5">
-                {EMOJI_PRESETS.map((em) => {
-                  const active = (item.icon || item.emoji) === em;
-                  return (
-                    <button
-                      key={em}
-                      type="button"
-                      onClick={() => {
-                        onUpdate(item.id, { icon: em, emoji: em });
-                        setShowIconPicker(false);
-                      }}
-                      className="w-9 h-9 rounded-2xl bg-white text-xl hover:scale-110 shadow-xs border flex items-center justify-center transition-transform active:scale-95 shrink-0"
-                      style={{
-                        borderColor: active ? accent : "#e5e7eb",
-                        background: active ? `${accent}20` : "white",
-                      }}
-                    >
-                      {em}
-                    </button>
-                  );
-                })}
-              </div>
+              </StudioItemField>
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Fields */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="sm:col-span-1">
-          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-            Waktu / Jam
-          </label>
-          <input
-            type="text"
-            value={item.time}
-            onChange={(e) => onUpdate(item.id, { time: e.target.value })}
-            placeholder="07:30 - 08:10"
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs font-mono text-gray-800 outline-none focus:border-pink-300 bg-gray-50"
-          />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-            Judul Kegiatan
-          </label>
-          <input
-            type="text"
-            value={item.title}
-            onChange={(e) => onUpdate(item.id, { title: e.target.value })}
-            placeholder="Otw ke rumah ayangg / Nonton film"
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50 font-bold"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-            Nama Lokasi / Tempat
-          </label>
-          <input
-            type="text"
-            value={item.location}
-            onChange={(e) => onUpdate(item.id, { location: e.target.value })}
-            placeholder="Park Hyatt Jakarta / CGV XXI"
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50 font-medium"
-          />
-        </div>
-        <div>
-          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-            Link Google Maps (Opsional)
-          </label>
-          <input
-            type="text"
-            value={item.locationUrl || ""}
-            onChange={(e) => onUpdate(item.id, { locationUrl: e.target.value })}
-            placeholder="https://maps.app.goo.gl/... (Opsional)"
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50 font-mono"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
-          Catatan Tambahan (Opsional)
-        </label>
-        <input
-          type="text"
-          value={item.note}
-          onChange={(e) => onUpdate(item.id, { note: e.target.value })}
-          placeholder="Jangan terlambat ya ayg!"
-          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs text-gray-800 outline-none focus:border-pink-300 bg-gray-50"
-        />
-      </div>
-    </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.article>
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+function StudioItemField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-semibold text-slate-600">{label}</span>
+      {children}
+    </label>
+  );
+}
 
+// Rundown editor
 export default function RundownStudioClient({
   invitationId,
   bundleToken,
@@ -690,14 +730,6 @@ export default function RundownStudioClient({
     }
   }, [st, invitationId, bundleToken, showToast]);
 
-  // Auto-publish when entering step 7
-  useEffect(() => {
-    if (step === 7 && !published && !publishing) {
-      handlePublish();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
-
   // ── Shared UI helpers ─────────────────────────────────────────────────────
 
   const inputClass =
@@ -707,7 +739,7 @@ export default function RundownStudioClient({
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="studio-shell min-h-screen flex flex-col"
       style={{ background: `radial-gradient(ellipse at 50% 0%, ${theme.bg} 0%, #fafafa 100%)` }}
     >
       {/* Toast */}
@@ -727,7 +759,7 @@ export default function RundownStudioClient({
 
       {/* Top Header Bar */}
       <header className="bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
+        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-base">⏱️</span>
             <h1 className="font-extrabold text-sm text-gray-800">
@@ -771,7 +803,7 @@ export default function RundownStudioClient({
 
       {/* Step bar */}
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div className="max-w-lg mx-auto px-4 py-3">
+        <div className="mx-auto w-full max-w-[1360px] px-4 py-3 lg:px-8">
           <div className="flex items-center justify-between">
             {STEPS.map((s) => {
               const done = step > s.id;
@@ -819,16 +851,18 @@ export default function RundownStudioClient({
         </div>
       </div>
 
-      {/* Step content */}
-      <div className="flex-1 flex flex-col items-center px-4 py-8">
-        <AnimatePresence mode="wait">
-          <motion.div
+      {/* Desktop workspace: editor + persistent project overview */}
+      <div className="flex-1 px-4 py-8 lg:px-8">
+        <div className="mx-auto grid w-full max-w-[1360px] grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,720px)_minmax(340px,1fr)] xl:gap-12">
+          <main className="min-w-0">
+            <AnimatePresence mode="wait">
+              <motion.div
             key={step}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.25 }}
-            className="w-full max-w-lg"
+            className="w-full"
           >
 
             {/* ── Step 1: Tema ─────────────────────────────────────────────── */}
@@ -1202,6 +1236,7 @@ export default function RundownStudioClient({
                       index={idx}
                       total={st.rundownItems.length}
                       accent={theme.accent}
+                      locale={st.locale}
                       onUpdate={updateItem}
                       onDelete={deleteItem}
                       onMove={moveItem}
@@ -1323,6 +1358,52 @@ export default function RundownStudioClient({
             {step === 7 && (
               <div className="flex flex-col gap-5 items-center text-center">
                 <StepHeader accent={theme.accent} label="Rundown Undangan Siap!" sub="" />
+
+                {!published && !publishing && (
+                  <div className="w-full rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-[0_12px_35px_rgba(15,23,42,0.06)]">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {st.locale === "id" ? "Periksa sebelum diterbitkan" : "Review before publishing"}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                      {st.locale === "id"
+                        ? "Rundown tidak akan terbit sampai kamu menekan tombol Publish."
+                        : "The rundown stays as-is until you press Publish."}
+                    </p>
+
+                    <dl className="mt-5 divide-y divide-slate-200 border-y border-slate-200">
+                      <div className="flex justify-between gap-4 py-3 text-sm">
+                        <dt className="text-slate-500">{st.locale === "id" ? "Penerima" : "Recipient"}</dt>
+                        <dd className="font-semibold text-slate-900">{st.recipientName || "-"}</dd>
+                      </div>
+                      <div className="flex justify-between gap-4 py-3 text-sm">
+                        <dt className="text-slate-500">{st.locale === "id" ? "Jumlah agenda" : "Schedule items"}</dt>
+                        <dd className="font-semibold text-slate-900">{st.rundownItems.length}</dd>
+                      </div>
+                      <div className="flex justify-between gap-4 py-3 text-sm">
+                        <dt className="text-slate-500">{st.locale === "id" ? "Dress code" : "Dress code"}</dt>
+                        <dd className="font-semibold text-slate-900">{st.selectedDressCodes.length}</dd>
+                      </div>
+                    </dl>
+
+                    <div className="mt-5 flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setStep(6)}
+                        className="flex-1 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700"
+                      >
+                        {st.locale === "id" ? "Kembali" : "Back"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePublish}
+                        className="flex-1 rounded-xl px-4 py-3 text-sm font-semibold text-white"
+                        style={{ background: theme.accent }}
+                      >
+                        Publish
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {publishing && (
                   <div className="flex flex-col items-center gap-3 py-8">
@@ -1464,8 +1545,28 @@ export default function RundownStudioClient({
               </div>
             )}
 
-          </motion.div>
-        </AnimatePresence>
+              </motion.div>
+            </AnimatePresence>
+          </main>
+
+          <StudioOverviewPanel
+            mode="rundown"
+            theme={theme}
+            locale={st.locale}
+            currentStep={step}
+            totalSteps={STEPS.length}
+            stepLabel={STEPS.find((item) => item.id === step)?.label ?? ""}
+            recipientName={st.recipientName}
+            senderName={st.senderName}
+            title={st.rundownTitle || st.subText}
+            eventDate={st.eventDate}
+            photoUrl={st.photoUrl}
+            musicTitle={st.musicTitle}
+            primaryCount={st.rundownItems.length}
+            secondaryCount={st.selectedDressCodes.length}
+            published={published}
+          />
+        </div>
       </div>
 
       {/* ── Background Music Selection Modal ────────────────────────────── */}

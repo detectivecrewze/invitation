@@ -84,3 +84,39 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
 /* Scrollbar hide */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Studio desktop workspace: keep form controls calm and predictable. */
+.studio-shell button,
+.studio-shell [role='button'] {
+  transform: none !important;
+}
+
+@media (hover: hover) {
+  .studio-shell button:hover:not(:disabled),
+  .studio-shell [role='button']:hover:not(:disabled) {
+    transform: none !important;
+  }
+}
+
+.studio-shell input,
+.studio-shell textarea,
+.studio-shell select {
+  font-size: 0.9375rem;
+}
+
+.studio-item-input {
+  width: 100%;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 0.75rem;
+  background: rgb(248 250 252);
+  padding: 0.7rem 0.8rem;
+  color: rgb(15 23 42);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.studio-item-input:focus {
+  border-color: rgb(148 163 184);
+  background: white;
+  box-shadow: 0 0 0 3px rgb(226 232 240 / 0.65);
+}

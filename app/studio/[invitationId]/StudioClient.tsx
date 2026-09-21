@@ -9,6 +9,7 @@ import {
   IconPalette, IconMail, IconCamera, IconSparkle, IconHanger, IconRocket, ACTIVITY_ICONS, IconCheck, IconShare, IconEye, IconCalendar
 } from "@/components/ui/Icon";
 import HeartQRCode from "@/components/ui/HeartQRCode";
+import StudioOverviewPanel from "@/components/studio/StudioOverviewPanel";
 
 const EMOJI_CATEGORIES = [
   {
@@ -318,13 +319,6 @@ export default function StudioClient({
     }
   };
 
-  useEffect(() => {
-    if (step === 6 && !published && !publishing) {
-      handlePublish();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
-
   const downloadQrCode = useCallback(async () => {
     if (!qrRef.current) return;
     setDownloadingQr(true);
@@ -372,7 +366,7 @@ export default function StudioClient({
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col"
+      className="studio-shell min-h-screen w-full flex flex-col"
       style={{ background: `radial-gradient(ellipse at 50% 0%, ${theme.bg} 0%, #f8f8fa 100%)` }}
     >
       <AnimatePresence>
@@ -390,7 +384,7 @@ export default function StudioClient({
       </AnimatePresence>
 
       <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur-xl" style={{ borderColor: `${theme.accent}22` }}>
-        <div className="max-w-lg mx-auto px-5 py-3 flex items-center justify-between">
+        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between px-5 py-3 lg:px-8">
           <div className="flex items-center gap-2">
             <IconPalette size={18} color={theme.text} />
             <h1 className="font-bold text-base" style={{ color: theme.text }}>
@@ -431,7 +425,7 @@ export default function StudioClient({
           </button>
         </div>
 
-        <div className="max-w-lg mx-auto px-5 pb-3 flex items-center gap-2">
+        <div className="mx-auto flex w-full max-w-[1360px] items-center gap-2 px-5 pb-3 lg:px-8">
           {STEPS.map(s => {
             const SIcon = s.Icon;
             return (
@@ -451,8 +445,10 @@ export default function StudioClient({
         </div>
       </header>
 
-      <div className="flex-1 max-w-lg mx-auto w-full px-5 py-6">
-        <AnimatePresence mode="wait">
+      <div className="flex-1 px-5 py-6 lg:px-8 lg:py-8">
+        <div className="mx-auto grid w-full max-w-[1360px] grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,720px)_minmax(340px,1fr)] xl:gap-12">
+          <main className="min-w-0">
+            <AnimatePresence mode="wait">
           {/* Step 1: Theme */}
           {step === 1 && (
             <motion.div key="s1" variants={stepVariants} initial="initial" animate="animate" exit="exit" className="flex flex-col gap-5">
@@ -989,7 +985,27 @@ export default function StudioClient({
               )}
             </motion.div>
           )}
-        </AnimatePresence>
+            </AnimatePresence>
+          </main>
+
+          <StudioOverviewPanel
+            mode="invitation"
+            theme={theme}
+            locale={st.locale}
+            currentStep={step}
+            totalSteps={STEPS.length}
+            stepLabel={STEPS.find((item) => item.id === step)?.label ?? ""}
+            recipientName={st.recipientName}
+            senderName={st.senderName}
+            title={st.subText || st.invitationTitle}
+            eventDate={st.eventDate}
+            photoUrl={st.photoUrl}
+            musicTitle={st.musicTitle}
+            primaryCount={st.selectedActivities.length}
+            secondaryCount={st.selectedDressCodes.length}
+            published={published}
+          />
+        </div>
       </div>
 
       <AnimatePresence>
