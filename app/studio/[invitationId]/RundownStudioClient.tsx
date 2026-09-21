@@ -22,6 +22,9 @@ import {
   IconMessage,
   IconEye,
   IconCalendar,
+  IconClock,
+  IconClipboard,
+  IconSettings,
   RUNDOWN_SVG_OPTIONS,
   ActivityIconSvg,
   DRESSCODE_SVG_OPTIONS,
@@ -759,25 +762,27 @@ export default function RundownStudioClient({
       </AnimatePresence>
 
       {/* Top Header Bar */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3">
-        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between gap-2">
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-base">⏱️</span>
-            <h1 className="font-extrabold text-sm text-gray-800">
+      <header className="bg-white/90 backdrop-blur-md border-b border-gray-100 px-3.5 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-30">
+        <div className="mx-auto flex w-full max-w-[1360px] flex-wrap items-center justify-between gap-x-2 gap-y-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${theme.accent}15` }}>
+              <IconClock size={16} color={theme.accent} strokeWidth={2.2} />
+            </div>
+            <h1 className="font-extrabold text-xs sm:text-sm text-gray-800 tracking-tight">
               Rundown Studio
             </h1>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={() => setShowMobileOverview(true)}
-              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 shadow-xs lg:hidden cursor-pointer hover:bg-slate-50 active:scale-95 transition-all shrink-0"
-              title="Lihat ringkasan proyek"
+              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-700 shadow-xs lg:hidden cursor-pointer hover:bg-slate-50 active:scale-95 transition-all shrink-0"
+              title={st.locale === "id" ? "Ringkasan proyek" : "Project overview"}
             >
-              <span>📋</span>
-              <span className="hidden sm:inline">{st.locale === "id" ? "Ringkasan" : "Overview"}</span>
+              <IconClipboard size={12} color="#475569" strokeWidth={2} className="shrink-0" />
+              <span className="hidden xs:inline">{st.locale === "id" ? "Ringkasan" : "Overview"}</span>
             </button>
-            <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500 shrink-0">
+            <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500 shrink-0 border border-gray-100">
               <span className="hidden sm:inline">{st.locale === "id" ? "Bahasa" : "Language"}</span>
               <select
                 value={st.locale}
@@ -789,16 +794,16 @@ export default function RundownStudioClient({
                   } catch {}
                 }}
                 aria-label="Interface language"
-                className="bg-transparent outline-none cursor-pointer"
+                className="bg-transparent outline-none cursor-pointer font-bold text-[11px] text-gray-700"
               >
-                <option value="id">Indonesia</option>
-                <option value="en">English</option>
+                <option value="id">ID</option>
+                <option value="en">EN</option>
               </select>
             </label>
             <button
               type="button"
               onClick={() => setShowFormatModal(true)}
-              className="text-xs font-extrabold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0 whitespace-nowrap"
+              className="text-[11px] sm:text-xs font-extrabold px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0 whitespace-nowrap"
               style={{
                 background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
                 color: "white",
@@ -806,9 +811,10 @@ export default function RundownStudioClient({
               }}
               title="Klik untuk intip perbedaan / ubah format undangan"
             >
-              <span className="text-sm">⏱️</span>
-              <span className="hidden sm:inline">Format: Rundown ⚙️</span>
-              <span className="sm:hidden">Format ⚙️</span>
+              <IconClock size={12} color="white" strokeWidth={2.2} className="shrink-0" />
+              <span className="hidden sm:inline">Format: Rundown</span>
+              <span className="sm:hidden">Rundown</span>
+              <IconSettings size={11} color="white" strokeWidth={2.2} className="shrink-0 opacity-80" />
             </button>
           </div>
         </div>
@@ -884,8 +890,8 @@ export default function RundownStudioClient({
                 {/* Prominent Format Info Banner */}
                 <div className="p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-between gap-2.5 sm:gap-3 shadow-xs bg-white/90 backdrop-blur-md" style={{ borderColor: `${theme.accent}40` }}>
                   <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-xl shrink-0" style={{ background: `${theme.accent}15` }}>
-                      ⏱️
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0" style={{ background: `${theme.accent}15` }}>
+                      <IconClock size={18} color={theme.accent} strokeWidth={2.2} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
@@ -901,11 +907,12 @@ export default function RundownStudioClient({
                   <button
                     type="button"
                     onClick={() => setShowFormatModal(true)}
-                    className="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-extrabold text-white shrink-0 whitespace-nowrap transition-transform active:scale-95 shadow-sm cursor-pointer"
+                    className="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-extrabold text-white shrink-0 whitespace-nowrap transition-transform active:scale-95 shadow-sm cursor-pointer flex items-center gap-1.5"
                     style={{ background: theme.accent }}
                   >
-                    <span className="sm:hidden">Ubah ⚙️</span>
-                    <span className="hidden sm:inline">Ubah Format ⚙️</span>
+                    <IconSettings size={12} color="white" strokeWidth={2.2} className="shrink-0" />
+                    <span className="sm:hidden">Ubah</span>
+                    <span className="hidden sm:inline">Ubah Format</span>
                   </button>
                 </div>
                 <StepHeader accent={theme.accent} label="Pilih Tema" sub="Warna khas untuk seluruh tampilan undangan" />
@@ -1781,7 +1788,10 @@ export default function RundownStudioClient({
               {/* Header */}
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
                 <div>
-                  <h3 className="font-extrabold text-sm text-gray-800">Format Undangan Kencan ✨</h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-extrabold text-sm text-gray-800">Format Undangan Kencan</h3>
+                    <IconSparkle size={15} color="#ec4899" />
+                  </div>
                   <p className="text-[11px] text-pink-500 font-semibold">Pilih format terbaik untuk momen kalian</p>
                 </div>
                 <button
@@ -1796,10 +1806,14 @@ export default function RundownStudioClient({
               {/* Scrollable Format Comparison */}
               <div className="overflow-y-auto flex flex-col gap-3 pr-1 max-h-[60vh]">
                 {/* Target Switch Mode Card: Invitation Date */}
-                <div className="p-4 rounded-2xl border border-gray-200 bg-gray-50 flex flex-col gap-2 hover:border-pink-300 transition-all">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">💌</span>
-                    <h4 className="font-extrabold text-sm text-gray-800">Invitation Date (Interaktif)</h4>
+                <div className="p-4 rounded-2xl border border-gray-200 bg-gray-50 flex flex-col gap-2.5 hover:border-pink-300 transition-all">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-gray-200/70">
+                      <IconMail size={16} color="#475569" strokeWidth={2.2} />
+                    </div>
+                    <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 leading-snug">
+                      Invitation Date (Interaktif)
+                    </h4>
                   </div>
                   <p className="text-xs text-gray-600 leading-snug">
                     Format di mana <b>pasangan yang menentukan sendiri</b> tanggal, kegiatan, & dresscode kencan melalui survey interaktif.
@@ -1814,20 +1828,27 @@ export default function RundownStudioClient({
                     type="button"
                     onClick={() => handleSwitchMode("invitation")}
                     disabled={switchingFormat}
-                    className="w-full py-2.5 mt-1 rounded-xl text-xs font-bold text-white bg-pink-500 hover:bg-pink-600 transition-colors shadow-sm disabled:opacity-50"
+                    className="w-full py-2.5 mt-1 rounded-xl text-xs font-bold text-white bg-pink-500 hover:bg-pink-600 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
-                    {switchingFormat ? "Mengubah Format..." : "Ubah ke Invitation Date 💌"}
+                    <IconMail size={14} color="white" strokeWidth={2.2} />
+                    <span>{switchingFormat ? "Mengubah Format..." : "Ubah ke Invitation Date"}</span>
                   </button>
                 </div>
 
                 {/* Active Mode Card: Rundown Date */}
-                <div className="p-4 rounded-2xl border-2 border-pink-400 bg-pink-50/60 flex flex-col gap-2 relative">
-                  <span className="absolute top-3 right-3 text-[9px] font-extrabold bg-pink-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    Format Aktif
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">⏱️</span>
-                    <h4 className="font-extrabold text-sm text-gray-800">Rundown Date (Itinerary)</h4>
+                <div className="p-4 rounded-2xl border-2 border-pink-400 bg-pink-50/60 flex flex-col gap-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-pink-100/80">
+                        <IconClock size={16} color="#db2777" strokeWidth={2.2} />
+                      </div>
+                      <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 leading-snug">
+                        Rundown Date (Itinerary)
+                      </h4>
+                    </div>
+                    <span className="text-[9px] font-extrabold bg-pink-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-xs mt-0.5">
+                      Format Aktif
+                    </span>
                   </div>
                   <p className="text-xs text-gray-600 leading-snug">
                     Format susunan agenda kencan <b>jam demi jam</b> yang sudah kamu rencanakan rapi dari pagi hingga malam.
