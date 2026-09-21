@@ -9,6 +9,7 @@ import type { RundownItem } from "@/lib/types";
 import * as htmlToImage from "html-to-image";
 import HeartQRCode from "@/components/ui/HeartQRCode";
 import StudioOverviewPanel from "@/components/studio/StudioOverviewPanel";
+import { audioDisplayName, isMp3File, MAX_AUDIO_UPLOAD_BYTES } from "@/lib/audio";
 import {
   IconPalette,
   IconMail,
@@ -481,7 +482,8 @@ export default function RundownStudioClient({
   const [dcPickerTab, setDcPickerTab] = useState<"svg" | "emoji">("svg");
   const [showMusicModal, setShowMusicModal] = useState(false);
   const [customMusicUrl, setCustomMusicUrl] = useState("");
-  const [customMusicTitle, setCustomMusicTitle] = useState("");
+  const [musicUploading, setMusicUploading] = useState(false);
+  const musicInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewField, setPreviewField] = useState<string | null>(null);
   const [showMobileOverview, setShowMobileOverview] = useState(false);
@@ -656,6 +658,8 @@ export default function RundownStudioClient({
     try {
       const fd = new FormData();
       fd.append("file", file);
+      fd.append("kind", "photo");
+      fd.append("invitationId", invitationId);
       const r = await fetch("/api/upload", { method: "POST", body: fd });
       const result = await r.json();
       if (!result.success) throw new Error();
@@ -665,6 +669,39 @@ export default function RundownStudioClient({
       showToast("Upload gagal, coba lagi.");
     } finally {
       setPhotoUploading(false);
+    }
+  };
+
+  const handleMusicUpload = async (file: File) => {
+    if (!isMp3File(file)) {
+      showToast(st.locale === "id" ? "Pilih file MP3." : "Choose an MP3 file.");
+      return;
+    }
+    if (file.size > MAX_AUDIO_UPLOAD_BYTES) {
+      showToast(st.locale === "id" ? "Ukuran MP3 maksimal 25 MB." : "MP3 files can be up to 25 MB.");
+      return;
+    }
+
+    setMusicUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("kind", "audio");
+      fd.append("invitationId", invitationId);
+      const response = await fetch("/api/upload", { method: "POST", body: fd });
+      const result = await response.json();
+      if (!response.ok || !result.success || !result.url) {
+        throw new Error(result.error || "Upload failed");
+      }
+      update({ musicUrl: result.url, musicTitle: audioDisplayName(file.name) });
+      setPreviewUrl(null);
+      setShowMusicModal(false);
+      showToast(st.locale === "id" ? "Lagu berhasil diunggah!" : "Song uploaded!");
+    } catch {
+      showToast(st.locale === "id" ? "Upload lagu gagal. Coba lagi." : "Song upload failed. Please try again.");
+    } finally {
+      setMusicUploading(false);
+      if (musicInputRef.current) musicInputRef.current.value = "";
     }
   };
 
@@ -1675,7 +1712,7 @@ export default function RundownStudioClient({
                   </div>
                   <div>
                     <h3 className="font-extrabold text-sm text-gray-800">Latar Musik Undangan</h3>
-                    <p className="text-[11px] text-gray-400 font-medium">Pilih lagu romantis atau tempel link audio MP3</p>
+                    <p className="text-[11px] text-gray-400 font-medium">Pilih preset, upload MP3, atau tempel link audio</p>
                   </div>
                 </div>
                 <button
@@ -1689,6 +1726,40 @@ export default function RundownStudioClient({
 
               {/* Modal Body */}
               <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4 max-h-[60vh]">
+                <input
+                  ref={musicInputRef}
+                  type="file"
+                  accept=".mp3,audio/mpeg"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void handleMusicUpload(file);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => musicInputRef.current?.click()}
+                  disabled={musicUploading}
+                  className="flex w-full items-center gap-3 rounded-2xl border-2 border-dashed p-4 text-left transition-all disabled:cursor-wait disabled:opacity-65"
+                  style={{ background: `${theme.accent}08`, borderColor: `${theme.accent}55` }}
+                >
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl font-black" style={{ background: `${theme.accent}16`, color: theme.accent }}>
+                    {musicUploading ? "…" : "↑"}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-extrabold text-gray-800">
+                      {musicUploading ? "Mengunggah lagu..." : "Upload lagu MP3"}
+                    </span>
+                    <span className="mt-0.5 block text-[11px] font-medium text-gray-400">
+                      File dari perangkatmu, maksimal 25 MB
+                    </span>
+                  </span>
+                </button>
+
+                <div className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest text-center my-1">
+                  — ATAU TEMPEL LINK AUDIO —
+                </div>
+
                 {/* Custom Audio URL Section */}
                 <div className="p-4 rounded-2xl border flex flex-col gap-2.5 bg-gray-50/80 border-gray-200">
                   <p className="font-extrabold text-xs uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
@@ -1701,20 +1772,13 @@ export default function RundownStudioClient({
                     placeholder="https://domain.com/lagu-romantis.mp3"
                     className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none bg-white border border-gray-200 focus:border-pink-300 font-medium"
                   />
-                  <input
-                    type="text"
-                    value={customMusicTitle}
-                    onChange={(e) => setCustomMusicTitle(e.target.value)}
-                    placeholder="Judul Lagu (misal: Lagu Kenangan)"
-                    className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none bg-white border border-gray-200 focus:border-pink-300 font-medium"
-                  />
                   <button
                     type="button"
                     onClick={() => {
                       if (!customMusicUrl.trim()) return;
                       update({
                         musicUrl: customMusicUrl.trim(),
-                        musicTitle: customMusicTitle.trim() || "Lagu Pilihan Kamu 🎵",
+                        musicTitle: audioDisplayName(customMusicUrl.trim()),
                       });
                       setShowMusicModal(false);
                       setPreviewUrl(null);
