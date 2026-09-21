@@ -144,13 +144,16 @@ function ItemRow({
       exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
       className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]"
     >
-      <div className="flex items-center gap-3 px-4 py-4 sm:px-5">
+      <div className="flex items-center gap-2.5 sm:gap-3 px-3.5 py-3.5 sm:px-5 sm:py-4">
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3 text-left"
           aria-expanded={expanded}
         >
+          <span className="w-5 text-center font-mono text-xs sm:text-sm font-bold text-slate-400 shrink-0 select-none">
+            {index + 1}
+          </span>
           <span
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
             style={{ borderColor: `${accent}35`, background: `${accent}10` }}
@@ -159,7 +162,7 @@ function ItemRow({
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-semibold" style={{ color: accent }}>
-              {String(index + 1).padStart(2, "0")} - {item.time || (isId ? "Waktu belum diisi" : "Time not set")}
+              {item.time || (isId ? "Waktu belum diisi" : "Time not set")}
             </span>
             <span className="mt-0.5 block truncate text-sm font-semibold text-slate-900">
               {item.title || (isId ? "Kegiatan tanpa judul" : "Untitled activity")}
