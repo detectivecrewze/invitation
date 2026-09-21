@@ -481,7 +481,6 @@ export default function RundownStudioClient({
   const [editingIconDc, setEditingIconDc] = useState<string | null>(null);
   const [dcPickerTab, setDcPickerTab] = useState<"svg" | "emoji">("svg");
   const [showMusicModal, setShowMusicModal] = useState(false);
-  const [customMusicUrl, setCustomMusicUrl] = useState("");
   const [musicUploading, setMusicUploading] = useState(false);
   const musicInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -1712,7 +1711,7 @@ export default function RundownStudioClient({
                   </div>
                   <div>
                     <h3 className="font-extrabold text-sm text-gray-800">Latar Musik Undangan</h3>
-                    <p className="text-[11px] text-gray-400 font-medium">Pilih preset, upload MP3, atau tempel link audio</p>
+                    <p className="text-[11px] text-gray-400 font-medium">Upload MP3 atau pilih lagu dari library</p>
                   </div>
                 </div>
                 <button
@@ -1755,42 +1754,6 @@ export default function RundownStudioClient({
                     </span>
                   </span>
                 </button>
-
-                <div className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest text-center my-1">
-                  — ATAU TEMPEL LINK AUDIO —
-                </div>
-
-                {/* Custom Audio URL Section */}
-                <div className="p-4 rounded-2xl border flex flex-col gap-2.5 bg-gray-50/80 border-gray-200">
-                  <p className="font-extrabold text-xs uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
-                    <span>🔗</span> Tempel Link Musik (MP3 / Audio URL)
-                  </p>
-                  <input
-                    type="url"
-                    value={customMusicUrl}
-                    onChange={(e) => setCustomMusicUrl(e.target.value)}
-                    placeholder="https://domain.com/lagu-romantis.mp3"
-                    className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none bg-white border border-gray-200 focus:border-pink-300 font-medium"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!customMusicUrl.trim()) return;
-                      update({
-                        musicUrl: customMusicUrl.trim(),
-                        musicTitle: audioDisplayName(customMusicUrl.trim()),
-                      });
-                      setShowMusicModal(false);
-                      setPreviewUrl(null);
-                      showToast("Link musik berhasil dipasang!");
-                    }}
-                    disabled={!customMusicUrl.trim()}
-                    className="w-full py-2.5 rounded-xl font-bold text-xs text-white transition-all shadow-xs disabled:opacity-50"
-                    style={{ background: theme.accent }}
-                  >
-                    Pasang Link Musik Ini
-                  </button>
-                </div>
 
                 <div className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest text-center my-1">
                   — ATAU PILIH DARI PRESET LAGU ROMANTIS —

@@ -3,7 +3,7 @@ import { putToken, putInvitation, BundleToken, getToken } from "@/lib/kv";
 import { nanoid } from "nanoid";
 
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': process.env.GENERATOR_ALLOWED_ORIGIN || 'https://for-you-always.my.id',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
@@ -25,7 +25,10 @@ function generateTokenId(): string {
 export async function POST(req: NextRequest) {
   // 1. Verifikasi GENERATOR_SECRET
   const authHeader = req.headers.get('Authorization');
-  const secret = "digitalatelier2025";
+  const secret = process.env.GENERATOR_SECRET;
+  if (!secret) {
+    return NextResponse.json({ error: 'Generator is not configured' }, { status: 503 });
+  }
   if (!authHeader || authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

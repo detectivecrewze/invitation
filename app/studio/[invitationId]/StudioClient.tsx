@@ -117,7 +117,6 @@ export default function StudioClient({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewField, setPreviewField] = useState<string | null>(null);
   const [emojiPickerId, setEmojiPickerId] = useState<string | null>(null);
-  const [customMusicUrl, setCustomMusicUrl] = useState("");
   const [musicUploading, setMusicUploading] = useState(false);
   const musicInputRef = useRef<HTMLInputElement>(null);
   const [showFormatModal, setShowFormatModal] = useState(false);
@@ -1131,45 +1130,6 @@ export default function StudioClient({
                     </span>
                   </span>
                 </button>
-
-                <div className="my-1 text-center text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                  — ATAU TEMPEL LINK AUDIO —
-                </div>
-
-                {/* Custom Music URL Input Box */}
-                <div className="p-4 rounded-2xl border-2 flex flex-col gap-2.5 transition-all" style={{ background: `${theme.accent}08`, borderColor: `${theme.accent}33` }}>
-                  <p className="font-bold text-xs uppercase tracking-widest flex items-center gap-1.5" style={{ color: theme.accent }}>
-                    <span>🔗</span> Tempel Link Musik (MP3 / Audio URL)
-                  </p>
-                  <input
-                    type="url"
-                    value={customMusicUrl}
-                    onChange={e => setCustomMusicUrl(e.target.value)}
-                    placeholder="https://domain.com/lagu-kita.mp3"
-                    className="w-full px-3.5 py-2.5 rounded-xl text-xs outline-none bg-white border border-pink-200"
-                    style={{ color: theme.text }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!customMusicUrl.trim()) return;
-                      update({
-                        musicUrl: customMusicUrl.trim(),
-                        musicTitle: audioDisplayName(customMusicUrl.trim()),
-                      });
-                      setShowMusicModal(false);
-                      showToast("Link musik berhasil dipasang!");
-                    }}
-                    disabled={!customMusicUrl.trim()}
-                    className="w-full py-2.5 rounded-xl font-bold text-xs text-white transition-all shadow-xs"
-                    style={{
-                      background: theme.accent,
-                      opacity: customMusicUrl.trim() ? 1 : 0.5,
-                    }}
-                  >
-                    Pasang Link Musik Ini
-                  </button>
-                </div>
 
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest my-1 text-center">
                   — ATAU PILIH DARI PRESET —

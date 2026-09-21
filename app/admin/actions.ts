@@ -1,6 +1,6 @@
 "use server";
 
 export async function verifyPassword(password: string) {
-  const correctPassword = process.env.ADMIN_PASSWORD || "admin123";
-  return password === correctPassword;
+  const correctPassword = process.env.ADMIN_PASSWORD;
+  return Boolean(correctPassword) && password === correctPassword;
 }
