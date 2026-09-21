@@ -471,29 +471,43 @@ export default function StudioClient({
             <motion.div key="s1" variants={stepVariants} initial="initial" animate="animate" exit="exit" className="flex flex-col gap-5">
               
               {/* Prominent Format Info Banner */}
-              <div className="p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-between gap-2.5 sm:gap-3 shadow-xs bg-white/90 backdrop-blur-md" style={{ borderColor: `${theme.accent}40` }}>
+              <div
+                className="p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md flex items-center justify-between gap-3 shadow-[0_2px_12px_rgba(15,23,42,0.04)]"
+              >
                 <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0" style={{ background: `${theme.accent}15` }}>
-                    <IconMail size={18} color={theme.accent} strokeWidth={2.2} />
+                  <div
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border"
+                    style={{ background: `${theme.accent}10`, borderColor: `${theme.accent}25` }}
+                  >
+                    <IconMail size={17} color={theme.accent} strokeWidth={2.2} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: theme.accent }}>
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: theme.accent }} />
+                      <span
+                        className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider"
+                        style={{ color: theme.accent }}
+                      >
                         Format Aktif
                       </span>
-                      <span className="text-[10px] font-bold text-gray-400 hidden sm:inline">Tap untuk ubah</span>
                     </div>
-                    <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 leading-snug break-words mt-0.5">Invitation Date (Interaktif)</h4>
+                    <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 leading-snug break-words">
+                      Invitation Date (Interaktif)
+                    </h4>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setShowFormatModal(true)}
-                  className="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-extrabold text-white shrink-0 whitespace-nowrap transition-transform active:scale-95 shadow-sm cursor-pointer flex items-center gap-1.5"
-                  style={{ background: theme.accent }}
+                  className="group px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold shrink-0 whitespace-nowrap transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs cursor-pointer flex items-center gap-1.5 border"
+                  style={{
+                    borderColor: `${theme.accent}35`,
+                    color: theme.accent,
+                    background: "white",
+                  }}
                 >
-                  <IconSettings size={12} color="white" strokeWidth={2.2} className="shrink-0" />
+                  <IconSettings size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0 transition-transform duration-300 group-hover:rotate-45" />
                   <span className="sm:hidden">Ubah</span>
                   <span className="hidden sm:inline">Ubah Format</span>
                 </button>
@@ -1461,17 +1475,37 @@ export default function StudioClient({
               {/* Scrollable Format Comparison */}
               <div className="overflow-y-auto flex flex-col gap-3 pr-1 max-h-[60vh]">
                 {/* Active Mode Card: Invitation Date */}
-                <div className="p-4 rounded-2xl border-2 border-pink-400 bg-pink-50/60 flex flex-col gap-2.5">
+                <div 
+                  className="p-4 rounded-2xl border-2 flex flex-col gap-2.5"
+                  style={{
+                    borderColor: `${theme.accent}50`,
+                    background: `${theme.accent}08`,
+                  }}
+                >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-pink-100/80">
-                        <IconMail size={16} color="#db2777" strokeWidth={2.2} />
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div 
+                        className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border"
+                        style={{
+                          background: `${theme.accent}15`,
+                          borderColor: `${theme.accent}25`,
+                        }}
+                      >
+                        <IconMail size={16} color={theme.accent} strokeWidth={2.2} />
                       </div>
                       <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 leading-snug">
                         Invitation Date (Interaktif)
                       </h4>
                     </div>
-                    <span className="text-[9px] font-extrabold bg-pink-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 whitespace-nowrap shadow-xs mt-0.5">
+                    <span 
+                      className="inline-flex items-center gap-1 text-[9px] sm:text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 whitespace-nowrap shadow-2xs mt-0.5"
+                      style={{
+                        background: `${theme.accent}15`,
+                        color: theme.accent,
+                        borderColor: `${theme.accent}30`,
+                      }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: theme.accent }} />
                       Format Aktif
                     </span>
                   </div>
