@@ -119,6 +119,7 @@ export default function StudioClient({
   const [customMusicTitle, setCustomMusicTitle] = useState("");
   const [showFormatModal, setShowFormatModal] = useState(false);
   const [switchingFormat, setSwitchingFormat] = useState(false);
+  const [showMobileOverview, setShowMobileOverview] = useState(false);
 
   useEffect(() => {
     try {
@@ -384,45 +385,57 @@ export default function StudioClient({
       </AnimatePresence>
 
       <header className="sticky top-0 z-30 border-b bg-white/80 backdrop-blur-xl" style={{ borderColor: `${theme.accent}22` }}>
-        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between px-5 py-3 lg:px-8">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between gap-2 px-4 sm:px-5 py-3 lg:px-8">
+          <div className="flex items-center gap-2 shrink-0">
             <IconPalette size={18} color={theme.text} />
-            <h1 className="font-bold text-base" style={{ color: theme.text }}>
+            <h1 className="font-bold text-sm sm:text-base" style={{ color: theme.text }}>
               Studio Editor
             </h1>
           </div>
-          <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500">
-            <span className="hidden sm:inline">{st.locale === "id" ? "Bahasa" : "Language"}</span>
-            <select
-              value={st.locale}
-              onChange={(event) => {
-                const nextLocale = event.target.value as Locale;
-                update({ locale: nextLocale });
-                try {
-                  localStorage.setItem(`invitation-studio-locale-${invitationId}`, nextLocale);
-                } catch {}
-              }}
-              aria-label="Interface language"
-              className="bg-transparent outline-none cursor-pointer"
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => setShowMobileOverview(true)}
+              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 shadow-xs lg:hidden cursor-pointer hover:bg-slate-50 active:scale-95 transition-all shrink-0"
+              title="Lihat ringkasan proyek"
             >
-              <option value="id">Indonesia</option>
-              <option value="en">English</option>
-            </select>
-          </label>
-          <button
-            type="button"
-            onClick={() => setShowFormatModal(true)}
-            className="text-xs font-extrabold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
-            style={{
-              background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
-              color: "white",
-              boxShadow: `0 4px 14px ${theme.accent}40`,
-            }}
-            title="Klik untuk intip perbedaan / ubah format undangan"
-          >
-            <span className="text-sm">💌</span>
-            <span>Format: Invitation ⚙️</span>
-          </button>
+              <span>📋</span>
+              <span className="hidden sm:inline">{st.locale === "id" ? "Ringkasan" : "Overview"}</span>
+            </button>
+            <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500 shrink-0">
+              <span className="hidden sm:inline">{st.locale === "id" ? "Bahasa" : "Language"}</span>
+              <select
+                value={st.locale}
+                onChange={(event) => {
+                  const nextLocale = event.target.value as Locale;
+                  update({ locale: nextLocale });
+                  try {
+                    localStorage.setItem(`invitation-studio-locale-${invitationId}`, nextLocale);
+                  } catch {}
+                }}
+                aria-label="Interface language"
+                className="bg-transparent outline-none cursor-pointer"
+              >
+                <option value="id">Indonesia</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowFormatModal(true)}
+              className="text-xs font-extrabold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0 whitespace-nowrap"
+              style={{
+                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
+                color: "white",
+                boxShadow: `0 4px 14px ${theme.accent}40`,
+              }}
+              title="Klik untuk intip perbedaan / ubah format undangan"
+            >
+              <span className="text-sm">💌</span>
+              <span className="hidden sm:inline">Format: Invitation ⚙️</span>
+              <span className="sm:hidden">Format ⚙️</span>
+            </button>
+          </div>
         </div>
 
         <div className="mx-auto flex w-full max-w-[1360px] items-center gap-2 px-5 pb-3 lg:px-8">
@@ -454,29 +467,30 @@ export default function StudioClient({
             <motion.div key="s1" variants={stepVariants} initial="initial" animate="animate" exit="exit" className="flex flex-col gap-5">
               
               {/* Prominent Format Info Banner */}
-              <div className="p-4 rounded-3xl border-2 flex items-center justify-between gap-3 shadow-xs bg-white/90 backdrop-blur-md" style={{ borderColor: `${theme.accent}40` }}>
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0" style={{ background: `${theme.accent}15` }}>
+              <div className="p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-between gap-2.5 sm:gap-3 shadow-xs bg-white/90 backdrop-blur-md" style={{ borderColor: `${theme.accent}40` }}>
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-xl shrink-0" style={{ background: `${theme.accent}15` }}>
                     💌
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full text-white" style={{ background: theme.accent }}>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: theme.accent }}>
                         Format Aktif
                       </span>
-                      <span className="text-[10px] font-bold text-gray-400">Tap untuk ubah</span>
+                      <span className="text-[10px] font-bold text-gray-400 hidden sm:inline">Tap untuk ubah</span>
                     </div>
-                    <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 truncate mt-0.5">Invitation Date (Interaktif)</h4>
+                    <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 leading-snug break-words mt-0.5">Invitation Date (Interaktif)</h4>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setShowFormatModal(true)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-extrabold text-white shrink-0 transition-transform active:scale-95 shadow-sm"
+                  className="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-extrabold text-white shrink-0 whitespace-nowrap transition-transform active:scale-95 shadow-sm cursor-pointer"
                   style={{ background: theme.accent }}
                 >
-                  Ubah Format ⚙️
+                  <span className="sm:hidden">Ubah ⚙️</span>
+                  <span className="hidden sm:inline">Ubah Format ⚙️</span>
                 </button>
               </div>
 
@@ -564,19 +578,20 @@ export default function StudioClient({
                 { label: "Sub-teks Ajakan (opsional)", key: "subText", placeholder: "contoh: maukah kamu kencan denganku?" },
               ].map(({ label, key, placeholder }) => (
                 <div key={key}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold uppercase tracking-widest" style={{ color: theme.accent }}>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <label className="text-[10.5px] sm:text-xs font-bold uppercase tracking-wider block min-w-0 leading-tight" style={{ color: theme.accent }}>
                       {label}
                     </label>
                     <button
                       type="button"
                       onClick={() => setPreviewField(key)}
-                      className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                      className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
                       style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
                       title="Klik untuk intip posisi tampilan di undangan"
                     >
-                      <IconEye size={13} color={theme.accent} strokeWidth={2} />
-                      <span>Intip Tampilan</span>
+                      <IconEye size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0" />
+                      <span className="sm:hidden">Intip</span>
+                      <span className="hidden sm:inline">Intip Tampilan</span>
                     </button>
                   </div>
                   <input
@@ -592,19 +607,20 @@ export default function StudioClient({
 
               {/* Invitation Title */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest" style={{ color: theme.accent }}>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <label className="text-[10.5px] sm:text-xs font-bold uppercase tracking-wider block min-w-0 leading-tight" style={{ color: theme.accent }}>
                     Judul Animasi Opening
                   </label>
                   <button
                     type="button"
                     onClick={() => setPreviewField("invitationTitle")}
-                    className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                    className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
                     style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
                     title="Klik untuk intip posisi tampilan di undangan"
                   >
-                    <IconEye size={13} color={theme.accent} strokeWidth={2} />
-                    <span>Intip Tampilan</span>
+                    <IconEye size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0" />
+                    <span className="sm:hidden">Intip</span>
+                    <span className="hidden sm:inline">Intip Tampilan</span>
                   </button>
                 </div>
                 <input
@@ -620,19 +636,20 @@ export default function StudioClient({
 
               {/* Ticket Title */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest" style={{ color: theme.accent }}>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <label className="text-[10.5px] sm:text-xs font-bold uppercase tracking-wider block min-w-0 leading-tight" style={{ color: theme.accent }}>
                     Judul Tiket Akhir (opsional)
                   </label>
                   <button
                     type="button"
                     onClick={() => setPreviewField("ticketTitle")}
-                    className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                    className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
                     style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
                     title="Klik untuk intip posisi tampilan di undangan"
                   >
-                    <IconEye size={13} color={theme.accent} strokeWidth={2} />
-                    <span>Intip Tampilan</span>
+                    <IconEye size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0" />
+                    <span className="sm:hidden">Intip</span>
+                    <span className="hidden sm:inline">Intip Tampilan</span>
                   </button>
                 </div>
                 <input
@@ -648,19 +665,20 @@ export default function StudioClient({
 
               {/* Closing Note */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest" style={{ color: theme.accent }}>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <label className="text-[10.5px] sm:text-xs font-bold uppercase tracking-wider block min-w-0 leading-tight" style={{ color: theme.accent }}>
                     Pesan Penutup di Tiket (opsional)
                   </label>
                   <button
                     type="button"
                     onClick={() => setPreviewField("closingNote")}
-                    className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                    className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
                     style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
                     title="Klik untuk intip posisi tampilan di undangan"
                   >
-                    <IconEye size={13} color={theme.accent} strokeWidth={2} />
-                    <span>Intip Tampilan</span>
+                    <IconEye size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0" />
+                    <span className="sm:hidden">Intip</span>
+                    <span className="hidden sm:inline">Intip Tampilan</span>
                   </button>
                 </div>
                 <textarea
@@ -1004,6 +1022,8 @@ export default function StudioClient({
             primaryCount={st.selectedActivities.length}
             secondaryCount={st.selectedDressCodes.length}
             published={published}
+            mobileOpen={showMobileOverview}
+            onMobileClose={() => setShowMobileOverview(false)}
           />
         </div>
       </div>

@@ -439,6 +439,7 @@ export default function RundownStudioClient({
   const [customMusicTitle, setCustomMusicTitle] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewField, setPreviewField] = useState<string | null>(null);
+  const [showMobileOverview, setShowMobileOverview] = useState(false);
   const [playlist, setPlaylist] = useState<Array<{ title: string; artist: string; audioUrl: string; coverUrl: string }>>(PRESET_PLAYLIST);
 
   useEffect(() => {
@@ -759,45 +760,57 @@ export default function RundownStudioClient({
 
       {/* Top Header Bar */}
       <header className="bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3">
-        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <span className="text-base">⏱️</span>
             <h1 className="font-extrabold text-sm text-gray-800">
               Rundown Studio
             </h1>
           </div>
-          <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500">
-            <span className="hidden sm:inline">{st.locale === "id" ? "Bahasa" : "Language"}</span>
-            <select
-              value={st.locale}
-              onChange={(event) => {
-                const nextLocale = event.target.value as Locale;
-                update({ locale: nextLocale });
-                try {
-                  localStorage.setItem(`invitation-studio-locale-${invitationId}`, nextLocale);
-                } catch {}
-              }}
-              aria-label="Interface language"
-              className="bg-transparent outline-none cursor-pointer"
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => setShowMobileOverview(true)}
+              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 shadow-xs lg:hidden cursor-pointer hover:bg-slate-50 active:scale-95 transition-all shrink-0"
+              title="Lihat ringkasan proyek"
             >
-              <option value="id">Indonesia</option>
-              <option value="en">English</option>
-            </select>
-          </label>
-          <button
-            type="button"
-            onClick={() => setShowFormatModal(true)}
-            className="text-xs font-extrabold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
-            style={{
-              background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
-              color: "white",
-              boxShadow: `0 4px 14px ${theme.accent}40`,
-            }}
-            title="Klik untuk intip perbedaan / ubah format undangan"
-          >
-            <span className="text-sm">⏱️</span>
-            <span>Format: Rundown ⚙️</span>
-          </button>
+              <span>📋</span>
+              <span className="hidden sm:inline">{st.locale === "id" ? "Ringkasan" : "Overview"}</span>
+            </button>
+            <label className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-50 text-[10px] font-bold text-gray-500 shrink-0">
+              <span className="hidden sm:inline">{st.locale === "id" ? "Bahasa" : "Language"}</span>
+              <select
+                value={st.locale}
+                onChange={(event) => {
+                  const nextLocale = event.target.value as Locale;
+                  update({ locale: nextLocale });
+                  try {
+                    localStorage.setItem(`invitation-studio-locale-${invitationId}`, nextLocale);
+                  } catch {}
+                }}
+                aria-label="Interface language"
+                className="bg-transparent outline-none cursor-pointer"
+              >
+                <option value="id">Indonesia</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowFormatModal(true)}
+              className="text-xs font-extrabold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-1.5 transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer shrink-0 whitespace-nowrap"
+              style={{
+                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}dd)`,
+                color: "white",
+                boxShadow: `0 4px 14px ${theme.accent}40`,
+              }}
+              title="Klik untuk intip perbedaan / ubah format undangan"
+            >
+              <span className="text-sm">⏱️</span>
+              <span className="hidden sm:inline">Format: Rundown ⚙️</span>
+              <span className="sm:hidden">Format ⚙️</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -869,29 +882,30 @@ export default function RundownStudioClient({
             {step === 1 && (
               <div className="flex flex-col gap-5">
                 {/* Prominent Format Info Banner */}
-                <div className="p-4 rounded-3xl border-2 flex items-center justify-between gap-3 shadow-xs bg-white/90 backdrop-blur-md" style={{ borderColor: `${theme.accent}40` }}>
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0" style={{ background: `${theme.accent}15` }}>
+                <div className="p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-between gap-2.5 sm:gap-3 shadow-xs bg-white/90 backdrop-blur-md" style={{ borderColor: `${theme.accent}40` }}>
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-xl shrink-0" style={{ background: `${theme.accent}15` }}>
                       ⏱️
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-full text-white" style={{ background: theme.accent }}>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: theme.accent }}>
                           Format Aktif
                         </span>
-                        <span className="text-[10px] font-bold text-gray-400">Tap untuk ubah</span>
+                        <span className="text-[10px] font-bold text-gray-400 hidden sm:inline">Tap untuk ubah</span>
                       </div>
-                      <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 truncate mt-0.5">Rundown Date (Itinerary)</h4>
+                      <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 leading-snug break-words mt-0.5">Rundown Date (Itinerary)</h4>
                     </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setShowFormatModal(true)}
-                    className="px-3.5 py-2 rounded-xl text-xs font-extrabold text-white shrink-0 transition-transform active:scale-95 shadow-sm"
+                    className="px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-extrabold text-white shrink-0 whitespace-nowrap transition-transform active:scale-95 shadow-sm cursor-pointer"
                     style={{ background: theme.accent }}
                   >
-                    Ubah Format ⚙️
+                    <span className="sm:hidden">Ubah ⚙️</span>
+                    <span className="hidden sm:inline">Ubah Format ⚙️</span>
                   </button>
                 </div>
                 <StepHeader accent={theme.accent} label="Pilih Tema" sub="Warna khas untuk seluruh tampilan undangan" />
@@ -1204,19 +1218,20 @@ export default function RundownStudioClient({
 
                 {/* Rundown title */}
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[11px] font-extrabold uppercase tracking-widest block" style={{ color: theme.accent }}>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <label className="text-[10.5px] sm:text-[11px] font-extrabold uppercase tracking-wider block min-w-0 leading-tight" style={{ color: theme.accent }}>
                       Judul Header Rundown
                     </label>
                     <button
                       type="button"
                       onClick={() => setPreviewField("rundownTitle")}
-                      className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs"
+                      className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
                       style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
                       title="Klik untuk intip posisi tampilan di undangan"
                     >
-                      <IconEye size={13} color={theme.accent} strokeWidth={2} />
-                      <span>Intip Tampilan</span>
+                      <IconEye size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0" />
+                      <span className="sm:hidden">Intip</span>
+                      <span className="hidden sm:inline">Intip Tampilan</span>
                     </button>
                   </div>
                   <input
@@ -1289,19 +1304,20 @@ export default function RundownStudioClient({
 
                 {/* Textarea Input */}
                 <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[11px] font-extrabold uppercase tracking-widest block" style={{ color: theme.accent }}>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <label className="text-[10.5px] sm:text-[11px] font-extrabold uppercase tracking-wider block min-w-0 leading-tight" style={{ color: theme.accent }}>
                       Note Dari Kamu
                     </label>
                     <button
                       type="button"
                       onClick={() => setPreviewField("closingNote")}
-                      className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
+                      className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
                       style={{ background: `${theme.accent}15`, color: theme.accent, border: `1px solid ${theme.accent}30` }}
                       title="Klik untuk intip posisi tampilan di undangan"
                     >
-                      <IconEye size={13} color={theme.accent} strokeWidth={2} />
-                      <span>Intip Tampilan</span>
+                      <IconEye size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0" />
+                      <span className="sm:hidden">Intip</span>
+                      <span className="hidden sm:inline">Intip Tampilan</span>
                     </button>
                   </div>
                   <textarea
@@ -1565,6 +1581,8 @@ export default function RundownStudioClient({
             primaryCount={st.rundownItems.length}
             secondaryCount={st.selectedDressCodes.length}
             published={published}
+            mobileOpen={showMobileOverview}
+            onMobileClose={() => setShowMobileOverview(false)}
           />
         </div>
       </div>
@@ -2297,9 +2315,9 @@ function Field({
 }) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
         <label
-          className="text-[11px] font-extrabold uppercase tracking-widest block"
+          className="text-[10.5px] sm:text-[11px] font-extrabold uppercase tracking-wider block min-w-0 leading-tight"
           style={{ color: accent }}
         >
           {label}
@@ -2308,12 +2326,13 @@ function Field({
           <button
             type="button"
             onClick={onPreview}
-            className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer"
+            className="flex items-center gap-1 text-[10.5px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full transition-all hover:scale-105 active:scale-95 shadow-xs cursor-pointer shrink-0 whitespace-nowrap"
             style={{ background: `${accent}15`, color: accent, border: `1px solid ${accent}30` }}
             title="Klik untuk intip posisi tampilan di undangan"
           >
-            <IconEye size={13} color={accent} strokeWidth={2} />
-            <span>Intip Tampilan</span>
+            <IconEye size={12} color={accent} strokeWidth={2.2} className="shrink-0" />
+            <span className="sm:hidden">Intip</span>
+            <span className="hidden sm:inline">Intip Tampilan</span>
           </button>
         )}
       </div>
