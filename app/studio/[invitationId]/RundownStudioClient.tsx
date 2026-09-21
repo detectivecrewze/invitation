@@ -908,7 +908,7 @@ export default function RundownStudioClient({
                           className="text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider"
                           style={{ color: theme.accent }}
                         >
-                          Format Aktif
+                          {st.locale === "id" ? "Format Aktif" : "Active Format"}
                         </span>
                       </div>
                       <h4 className="font-extrabold text-xs sm:text-sm text-slate-800 leading-snug break-words">
@@ -928,8 +928,8 @@ export default function RundownStudioClient({
                     }}
                   >
                     <IconSettings size={12} color={theme.accent} strokeWidth={2.2} className="shrink-0 transition-transform duration-300 group-hover:rotate-45" />
-                    <span className="sm:hidden">Ubah</span>
-                    <span className="hidden sm:inline">Ubah Format</span>
+                    <span className="sm:hidden">{st.locale === "id" ? "Ubah" : "Change"}</span>
+                    <span className="hidden sm:inline">{st.locale === "id" ? "Ubah Format" : "Change Format"}</span>
                   </button>
                 </div>
                 <StepHeader accent={theme.accent} label="Pilih Tema" sub="Warna khas untuk seluruh tampilan undangan" />
@@ -1806,10 +1806,14 @@ export default function RundownStudioClient({
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 shrink-0">
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h3 className="font-extrabold text-sm text-gray-800">Format Undangan Kencan</h3>
+                    <h3 className="font-extrabold text-sm text-gray-800">
+                      {st.locale === "id" ? "Format Undangan Kencan" : "Date Invitation Format"}
+                    </h3>
                     <IconSparkle size={15} color="#ec4899" />
                   </div>
-                  <p className="text-[11px] text-pink-500 font-semibold">Pilih format terbaik untuk momen kalian</p>
+                  <p className="text-[11px] text-pink-500 font-semibold">
+                    {st.locale === "id" ? "Pilih format terbaik untuk momen kalian" : "Choose the best format for your moment"}
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -1829,16 +1833,36 @@ export default function RundownStudioClient({
                       <IconMail size={16} color="#475569" strokeWidth={2.2} />
                     </div>
                     <h4 className="font-extrabold text-xs sm:text-sm text-gray-800 leading-snug">
-                      Invitation Date (Interaktif)
+                      {st.locale === "id" ? "Invitation Date (Interaktif)" : "Interactive Date Invitation"}
                     </h4>
                   </div>
                   <p className="text-xs text-gray-600 leading-snug">
-                    Format di mana <b>pasangan yang menentukan sendiri</b> tanggal, kegiatan, & dresscode kencan melalui survey interaktif.
+                    {st.locale === "id" ? (
+                      <>
+                        Format di mana <b>pasangan yang menentukan sendiri</b> tanggal, kegiatan, & dresscode kencan melalui survey interaktif.
+                      </>
+                    ) : (
+                      <>
+                        A format where your <b>partner chooses the date</b>, activities, & dress code through an interactive survey.
+                      </>
+                    )}
                   </p>
                   <ul className="text-[11px] text-gray-500 flex flex-col gap-1 list-disc pl-4 mt-1 font-medium">
-                    <li>Ada animasi amplop & bunga pembuka.</li>
-                    <li>Pasangan memilih dari opsi tanggal & kegiatan.</li>
-                    <li>Menghasilkan Tiket Kencan sesuai pilihan pasangan.</li>
+                    <li>
+                      {st.locale === "id"
+                        ? "Ada animasi amplop & bunga pembuka."
+                        : "Opening envelope & blooming flower animation."}
+                    </li>
+                    <li>
+                      {st.locale === "id"
+                        ? "Pasangan memilih dari opsi tanggal & kegiatan."
+                        : "Partner picks from date & activity choices."}
+                    </li>
+                    <li>
+                      {st.locale === "id"
+                        ? "Menghasilkan Tiket Kencan sesuai pilihan pasangan."
+                        : "Generates a Date Ticket tailored to their picks."}
+                    </li>
                   </ul>
 
                   <button
@@ -1848,7 +1872,11 @@ export default function RundownStudioClient({
                     className="w-full py-2.5 mt-1 rounded-xl text-xs font-bold text-white bg-pink-500 hover:bg-pink-600 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
                     <IconMail size={14} color="white" strokeWidth={2.2} />
-                    <span>{switchingFormat ? "Mengubah Format..." : "Ubah ke Invitation Date"}</span>
+                    <span>
+                      {switchingFormat
+                        ? (st.locale === "id" ? "Mengubah Format..." : "Changing format...")
+                        : (st.locale === "id" ? "Ubah ke Invitation Date" : "Switch to Invitation Date")}
+                    </span>
                   </button>
                 </div>
 
@@ -1884,16 +1912,36 @@ export default function RundownStudioClient({
                       }}
                     >
                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: theme.accent }} />
-                      Format Aktif
+                      {st.locale === "id" ? "Format Aktif" : "Active Format"}
                     </span>
                   </div>
                   <p className="text-xs text-gray-600 leading-snug">
-                    Format susunan agenda kencan <b>jam demi jam</b> yang sudah kamu rencanakan rapi dari pagi hingga malam.
+                    {st.locale === "id" ? (
+                      <>
+                        Format susunan agenda kencan <b>jam demi jam</b> yang sudah kamu rencanakan rapi dari pagi hingga malam.
+                      </>
+                    ) : (
+                      <>
+                        An <b>hour-by-hour schedule</b> format you have neatly planned out from morning to evening.
+                      </>
+                    )}
                   </p>
                   <ul className="text-[11px] text-gray-500 flex flex-col gap-1 list-disc pl-4 mt-1 font-medium">
-                    <li>Linimasa itinerary waktu & lokasi (09:00, 12:00, 15:00).</li>
-                    <li>Dilengkapi QR Barcode Tiket Masuk Kencan.</li>
-                    <li>Cocok untuk Anniversary / Trip Seharian.</li>
+                    <li>
+                      {st.locale === "id"
+                        ? "Linimasa itinerary waktu & lokasi (09:00, 12:00, 15:00)."
+                        : "Time & location itinerary timeline (09:00, 12:00, 15:00)."}
+                    </li>
+                    <li>
+                      {st.locale === "id"
+                        ? "Dilengkapi QR Barcode Tiket Masuk Kencan."
+                        : "Includes QR Barcode Date Pass Ticket."}
+                    </li>
+                    <li>
+                      {st.locale === "id"
+                        ? "Cocok untuk Anniversary / Trip Seharian."
+                        : "Perfect for Anniversaries & Full-Day Trips."}
+                    </li>
                   </ul>
                 </div>
               </div>
