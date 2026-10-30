@@ -14,8 +14,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Date Invitation",
-  description: "Buat undangan kencan yang manis dan interaktif",
+  metadataBase: new URL("https://invitation.for-you-always.my.id"),
+  title: {
+    default: "For you, Always. — A Special Invitation",
+    template: "%s | For you, Always.",
+  },
+  description: "A personal invitation, made with love.",
+  applicationName: "For you, Always.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export const viewport = {
