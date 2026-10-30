@@ -3,6 +3,7 @@ import { getInvitation } from "@/lib/kv";
 import { normaliseInvitation } from "@/lib/types";
 import GiftClient from "./GiftClient";
 import RundownGiftClient from "./RundownGiftClient";
+import CatBirthdayGiftClient from "./CatBirthdayGiftClient";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,10 @@ export default async function GiftPage({ params }: PageProps) {
 
   if (data.mode === "rundown") {
     return <RundownGiftClient data={data} invitationId={invitationId} />;
+  }
+
+  if (data.experienceVariant === "cat-birthday-dinner" && data.vipExperience) {
+    return <CatBirthdayGiftClient data={data} invitationId={invitationId} />;
   }
 
   return <GiftClient data={data as any} invitationId={invitationId} />;

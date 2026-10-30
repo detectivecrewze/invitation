@@ -22,6 +22,32 @@ export interface BaseData {
   updatedAt: string;
   createdAt?: string;
   source?: string;
+  /**
+   * Optional, opt-in renderer. Existing invitations do not set this field and
+   * therefore keep using the original GiftClient without any visual changes.
+   */
+  experienceVariant?: 'cat-birthday-dinner';
+  vipExperience?: CatBirthdayExperience;
+}
+
+export interface CatBirthdayDateOption {
+  value: string;
+  label: string;
+}
+
+export interface CatBirthdayExperience {
+  kind: 'cat-birthday-dinner';
+  eyebrow?: string;
+  gateTitle?: string;
+  gateNote?: string;
+  greetingTitle: string;
+  greetingBody: string;
+  dateQuestion: string;
+  dateOptions: CatBirthdayDateOption[];
+  afterDateTitle: string;
+  afterDateBody: string;
+  ticketTitle?: string;
+  ticketNote?: string;
 }
 
 // ─── Mode: invitation ─────────────────────────────────────────────────────────
