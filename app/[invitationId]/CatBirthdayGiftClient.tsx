@@ -35,16 +35,21 @@ function CatSticker({
   if (variant === "yarn") {
     return (
       <motion.svg
-        viewBox="0 0 120 100"
+        viewBox="0 0 128 112"
         className={className}
-        animate={{ rotate: [-2, 3, -2] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
+        transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
         aria-hidden="true"
       >
-        <circle cx="55" cy="49" r="29" fill="#f2c4bd" stroke={palette.rose} strokeWidth="3" />
-        <path d="M34 33c20 4 34 17 39 37M30 48c18-2 37 6 48 22M39 22c5 27 22 44 44 50" fill="none" stroke={palette.rose} strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M79 68c21 3 29 14 26 25" fill="none" stroke={palette.rose} strokeWidth="3" strokeLinecap="round" />
-        <path d="M93 88c5-5 10-3 11 2" fill="none" stroke={palette.rose} strokeWidth="3" strokeLinecap="round" />
+        <rect x="5" y="5" width="118" height="102" rx="32" fill="#fff4ea" stroke="#deb8aa" strokeWidth="2" strokeDasharray="5 5" />
+        <path d="M23 48c0-21 12-34 30-34s30 13 30 34c0 18-12 30-30 30S23 66 23 48Z" fill="#f6d9c9" stroke={palette.brown} strokeWidth="3" />
+        <path d="m29 29 5-17 14 10M58 22l14-10 5 19" fill="#f6d9c9" stroke={palette.brown} strokeWidth="3" strokeLinejoin="round" />
+        <circle cx="43" cy="43" r="2.8" fill={palette.ink} />
+        <circle cx="63" cy="43" r="2.8" fill={palette.ink} />
+        <path d="m51 51 3 3 3-3M54 54v4M54 58q-6 5-11 0M54 58q6 5 11 0M31 51l-16-3M32 57l-16 3M75 51l16-3M74 57l16 3" fill="none" stroke={palette.brown} strokeWidth="2.4" strokeLinecap="round" />
+        <circle cx="87" cy="76" r="22" fill="#f2c4bd" stroke={palette.rose} strokeWidth="3" />
+        <path d="M70 68c13 2 24 10 31 21M68 78c12-3 25 2 34 11M80 56c2 17 11 28 25 34" fill="none" stroke={palette.rose} strokeWidth="2.3" strokeLinecap="round" />
+        <path d="M70 79c-8 7-15 8-22 4" fill="none" stroke={palette.brown} strokeWidth="3" strokeLinecap="round" />
       </motion.svg>
     );
   }
@@ -58,10 +63,11 @@ function CatSticker({
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
         aria-hidden="true"
       >
-        <path d="M28 68c4-29 28-45 60-38 24 5 35 20 31 39-4 15-21 20-48 18-30-2-47-6-43-19Z" fill="#f5d7c7" stroke={palette.brown} strokeWidth="3" />
-        <path d="m44 40 7-16 12 13M88 36l11-13 5 17" fill="#f5d7c7" stroke={palette.brown} strokeWidth="3" strokeLinejoin="round" />
-        <path d="M62 55q6 6 12 0M87 55q6 6 12 0M79 62l3 2 3-2" fill="none" stroke={palette.brown} strokeWidth="3" strokeLinecap="round" />
-        <path d="M117 66c23-8 29 6 16 14" fill="none" stroke={palette.brown} strokeWidth="4" strokeLinecap="round" />
+        <rect x="18" y="67" width="114" height="20" rx="10" fill="#f2c4bd" stroke="#cf8d86" strokeWidth="2.5" />
+        <path d="M40 53c0-23 14-38 36-38s37 15 37 38c0 20-14 31-37 31S40 73 40 53Z" fill="#f6d9c9" stroke={palette.brown} strokeWidth="3" />
+        <path d="m46 33 6-20 16 13M84 26l16-13 6 21" fill="#f6d9c9" stroke={palette.brown} strokeWidth="3" strokeLinejoin="round" />
+        <path d="M57 49q6 6 12 0M84 49q6 6 12 0M75 57l3 3 3-3M78 60v4M78 64q-6 5-12 0M78 64q6 5 12 0M48 58l-17-3M49 64l-18 3M106 58l17-3M105 64l18 3" fill="none" stroke={palette.brown} strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M112 71c16-4 24 2 21 12" fill="none" stroke={palette.brown} strokeWidth="3.5" strokeLinecap="round" />
       </motion.svg>
     );
   }
@@ -87,26 +93,18 @@ function CatSticker({
 
   return (
     <motion.svg
-      viewBox="0 0 120 145"
+      viewBox="0 0 120 120"
       className={className}
-      animate={{ rotate: [-1.5, 1.5, -1.5] }}
+      animate={{ y: [0, -2, 0], rotate: [-1, 1, -1] }}
       transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
       aria-hidden="true"
     >
-      <path d="M35 68c0-28 11-45 28-45s29 17 29 45v42c0 12-8 20-20 20H54c-12 0-19-8-19-20Z" fill="#f4d3c2" stroke={palette.brown} strokeWidth="3" />
-      <path d="m39 36 4-23 17 15M67 28l17-15 5 25" fill="#f4d3c2" stroke={palette.brown} strokeWidth="3" strokeLinejoin="round" />
-      <circle cx="53" cy="53" r="3" fill={palette.ink} />
-      <circle cx="75" cy="53" r="3" fill={palette.ink} />
-      <path d="m62 61 3 3 3-3M65 64v5M65 69q-6 5-11 0M65 69q6 5 11 0M42 62l-18-4M42 68l-18 3M86 62l18-4M86 68l18 3" fill="none" stroke={palette.brown} strokeWidth="2.5" strokeLinecap="round" />
-      <motion.path
-        d="M88 106c25 4 25 27 8 29"
-        fill="none"
-        stroke={palette.brown}
-        strokeWidth="5"
-        strokeLinecap="round"
-        animate={{ pathLength: [0.78, 1, 0.78] }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-      />
+      <circle cx="60" cy="60" r="52" fill="#fff3e9" stroke="#d9aa9e" strokeWidth="2" strokeDasharray="5 5" />
+      <path d="M31 61c0-25 12-41 29-41s30 16 30 41c0 23-12 36-30 36S31 84 31 61Z" fill="#f4d3c2" stroke={palette.brown} strokeWidth="3" />
+      <path d="m36 39 5-22 16 14M65 31l16-14 5 24" fill="#f4d3c2" stroke={palette.brown} strokeWidth="3" strokeLinejoin="round" />
+      <circle cx="50" cy="56" r="3" fill={palette.ink} />
+      <circle cx="71" cy="56" r="3" fill={palette.ink} />
+      <path d="m58 64 3 3 3-3M61 67v5M61 72q-6 5-12 0M61 72q6 5 12 0M38 65l-17-3M39 71l-18 3M83 65l17-3M82 71l18 3" fill="none" stroke={palette.brown} strokeWidth="2.5" strokeLinecap="round" />
     </motion.svg>
   );
 }
@@ -329,9 +327,9 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
 
         {phase === "intro" && (
           <PaperShell key="intro">
-            <CatSticker variant="sitting" className="absolute -right-4 -top-7 h-28 w-28 opacity-90" />
-            <p className="mb-3 text-[9px] font-extrabold uppercase tracking-[0.32em] text-[#b26668]">A proper birthday celebration</p>
-            <h1 className="max-w-[280px] text-4xl font-bold leading-[0.92] sm:text-5xl" style={{ fontFamily: "var(--font-caveat)" }}>{experience.greetingTitle}</h1>
+            <CatSticker variant="sitting" className="absolute right-0 top-0 h-[76px] w-[76px] opacity-95" />
+            <p className="mb-3 max-w-[230px] text-[9px] font-extrabold uppercase tracking-[0.32em] text-[#b26668]">A proper birthday celebration</p>
+            <h1 className="max-w-[240px] text-4xl font-bold leading-[0.92] sm:max-w-[280px] sm:text-5xl" style={{ fontFamily: "var(--font-caveat)" }}>{experience.greetingTitle}</h1>
             <div className="my-5 h-px w-16 bg-[#d7a19a]" />
             <p className="whitespace-pre-line text-[15px] leading-7 text-[#725e56]">{experience.greetingBody}</p>
             <div className="mt-7"><PrimaryButton onClick={() => setPhase("date")}>Pick a date with me</PrimaryButton></div>
@@ -340,9 +338,9 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
 
         {phase === "date" && (
           <PaperShell key="date">
-            <CatSticker variant="yarn" className="absolute -right-1 -top-2 h-24 w-24 opacity-90" />
-            <p className="mb-3 text-[9px] font-extrabold uppercase tracking-[0.32em] text-[#b26668]">Your only assignment</p>
-            <h2 className="max-w-[310px] text-4xl font-bold leading-[0.96]" style={{ fontFamily: "var(--font-caveat)" }}>{experience.dateQuestion}</h2>
+            <CatSticker variant="yarn" className="absolute right-0 top-0 h-[76px] w-[86px] opacity-95" />
+            <p className="mb-3 max-w-[215px] text-[9px] font-extrabold uppercase tracking-[0.32em] text-[#b26668]">Your only assignment</p>
+            <h2 className="max-w-[235px] text-4xl font-bold leading-[0.96] sm:max-w-[280px]" style={{ fontFamily: "var(--font-caveat)" }}>{experience.dateQuestion}</h2>
             <div className="mt-7 grid gap-3">
               {experience.dateOptions.map((option, index) => {
                 const active = option.value === selectedDate;
@@ -371,9 +369,9 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
 
         {phase === "note" && (
           <PaperShell key="note">
-            <CatSticker variant="sleeping" className="absolute -right-3 -top-5 h-24 w-36 opacity-90" />
-            <p className="mb-3 text-[9px] font-extrabold uppercase tracking-[0.32em] text-[#b26668]">Date saved · {selectedLabel}</p>
-            <h2 className="max-w-[300px] text-4xl font-bold leading-[0.96]" style={{ fontFamily: "var(--font-caveat)" }}>{experience.afterDateTitle}</h2>
+            <CatSticker variant="sleeping" className="absolute right-0 top-1 h-[62px] w-[94px] opacity-95" />
+            <p className="mb-3 max-w-[210px] text-[9px] font-extrabold uppercase tracking-[0.32em] text-[#b26668]">Date saved · {selectedLabel}</p>
+            <h2 className="max-w-[245px] text-4xl font-bold leading-[0.96] sm:max-w-[285px]" style={{ fontFamily: "var(--font-caveat)" }}>{experience.afterDateTitle}</h2>
             <div className="my-5 h-px w-16 bg-[#d7a19a]" />
             <p className="whitespace-pre-line text-[15px] leading-7 text-[#725e56]">{experience.afterDateBody}</p>
             <div className="mt-7"><PrimaryButton onClick={() => setPhase("ticket")}>See our little date card</PrimaryButton></div>
