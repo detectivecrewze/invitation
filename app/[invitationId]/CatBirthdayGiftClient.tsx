@@ -5,9 +5,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import * as htmlToImage from "html-to-image";
+import { getTheme } from "@/lib/constants";
 import type { InvitationData } from "@/lib/types";
+import LoadingScreen from "@/components/gift/LoadingScreen";
+import EnvelopeGate from "@/components/gift/EnvelopeGate";
+import FlowerBurst from "@/components/gift/FlowerBurst";
 
-type Phase = "loading" | "gate" | "intro" | "date" | "note" | "ticket";
+type Phase = "loading" | "envelope" | "gate" | "intro" | "date" | "note" | "ticket";
 
 interface Props {
   data: InvitationData;
@@ -166,19 +170,32 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const ticketRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>("loading");
+  const [showFlowers, setShowFlowers] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [opening, setOpening] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const theme = getTheme(data.themeId ?? "pink");
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setPhase("gate"), 1150);
     try {
       const stored = localStorage.getItem(`cat-birthday-date:${invitationId}`);
       if (stored) setSelectedDate(stored);
     } catch {}
-    return () => window.clearTimeout(timer);
   }, [invitationId]);
+
+  const handleLoadingComplete = useCallback(() => setPhase("envelope"), []);
+
+  const handleEnvelopeTap = useCallback(() => {
+    if (!audioRef.current || !data.musicUrl) return;
+    audioRef.current.play()
+      .then(() => setMusicPlaying(true))
+      .catch(() => setMusicPlaying(false));
+  }, [data.musicUrl]);
+
+  const handleEnvelopeOpen = useCallback(() => setShowFlowers(true), []);
+  const handleFlowerSwitchState = useCallback(() => setPhase("gate"), []);
+  const handleFlowerDone = useCallback(() => setShowFlowers(false), []);
 
   const playMusic = useCallback(async () => {
     if (!audioRef.current || !data.musicUrl) return;
@@ -242,7 +259,8 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
   }, [experience.ticketTitle, selectedLabel]);
 
   const replay = () => {
-    setPhase("gate");
+    setShowFlowers(false);
+    setPhase("loading");
     setOpening(false);
     if (audioRef.current) {
       audioRef.current.pause();
@@ -265,7 +283,7 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
       <PawMark className="pointer-events-none absolute left-[5%] top-[8%] h-11 w-11 -rotate-12 text-[#be7c75]/20" />
       <PawMark className="pointer-events-none absolute bottom-[8%] right-[6%] h-14 w-14 rotate-12 text-[#be7c75]/20" />
 
-      {data.musicUrl && phase !== "loading" && phase !== "gate" && (
+      {data.musicUrl && !["loading", "envelope", "gate"].includes(phase) && (
         <motion.button
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -284,16 +302,35 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
 
       <AnimatePresence mode="wait">
         {phase === "loading" && (
-          <motion.div key="loading" exit={{ opacity: 0, scale: 1.08 }} className="relative z-10 flex flex-col items-center gap-5">
-            <div className="relative h-24 w-24">
-              {[0, 1, 2, 3].map((item) => (
-                <motion.div key={item} className="absolute h-7 w-7 text-[#bd7771]" style={{ left: `${item * 22}px`, top: `${item % 2 === 0 ? 10 : 47}px`, rotate: `${-30 + item * 20}deg` }} animate={{ opacity: [0.15, 1, 0.15], scale: [0.8, 1, 0.8] }} transition={{ duration: 1.2, delay: item * 0.18, repeat: Infinity }}><PawMark /></motion.div>
-              ))}
-            </div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.34em] text-[#9e6b62]">A little invitation is arriving</p>
-          </motion.div>
+          <LoadingScreen key="loading" theme={theme} onComplete={handleLoadingComplete} />
         )}
+      </AnimatePresence>
 
+      <AnimatePresence>
+        {phase === "envelope" && (
+          <EnvelopeGate
+            key="envelope"
+            recipientName={data.recipientName}
+            theme={theme}
+            onOpen={handleEnvelopeOpen}
+            onTap={handleEnvelopeTap}
+          />
+        )}
+      </AnimatePresence>
+
+      {showFlowers && (
+        <FlowerBurst
+          recipientName={data.recipientName.trim().split(/\s+/)[0]}
+          senderName={data.senderName.trim().split(/\s+/)[0]}
+          onSwitchState={handleFlowerSwitchState}
+          onDone={handleFlowerDone}
+          theme={theme}
+          openingShape={data.openingShape ?? "heart"}
+          invitationTitle={data.invitationTitle ?? "Invitation From"}
+        />
+      )}
+
+      <AnimatePresence mode="wait">
         {phase === "gate" && (
           <motion.section key="gate" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 1.05 }} className="relative z-10 w-full max-w-[430px]">
             <div className="absolute -left-5 -top-16 z-20 h-28 w-28 sm:-left-10"><CatSticker variant="peeking" className="h-full w-full" /></div>
@@ -319,7 +356,7 @@ export default function CatBirthdayGiftClient({ data, invitationId }: Props) {
                 className="mt-4 flex w-full items-center justify-center gap-3 rounded-2xl border border-[#d4a59b]/40 bg-[#fff7ed] px-5 py-4 text-sm font-extrabold tracking-wide text-[#745046] shadow-sm disabled:opacity-70"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5Z" /><path d="m3 7.5 9 5 9-5M12 12.5V21" /></svg>
-                {opening ? "Opening your invitation..." : "Open this little invitation"}
+                {opening ? "One moment..." : "See what I planned for you"}
               </motion.button>
             </div>
           </motion.section>
