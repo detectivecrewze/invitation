@@ -57,17 +57,14 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     const SETTLE_MS       = 3600;
     const VORTEX_MS       = 4000;
     const HEART_MS        = 6000;
-    const HEART_STAY      = 4500;
+    const HEART_STAY      = 4000;
     const TEXT_MS         = 6500;
-    const TEXT_OUT_MS     = 9900;
+    const TEXT_OUT_MS     = 9600;
 
-    // Petal waterfall starts after heart+name have been visible for ~2s
-    const WATERFALL_START = HEART_MS + 2000;        // 8000ms — heart+name clearly visible first
-    const WATERFALL_SPAN  = 1600;                   // petals spawn over 1.6 seconds
-    const MAX_FALL_DUR    = 2800;                   // max individual petal fall duration
-    const BG_FADE_START   = WATERFALL_START + WATERFALL_SPAN + MAX_FALL_DUR; // ~12400ms
-    const BG_FADE_DUR     = 1200;
-    const RESOLVE_MS      = BG_FADE_START + BG_FADE_DUR + 300;              // ~15500ms
+    // Overlay smoothly fades out once heart formation & name card finish (transition #3 petal waterfall removed)
+    const BG_FADE_START   = 10200;
+    const BG_FADE_DUR     = 800;
+    const RESOLVE_MS      = BG_FADE_START + BG_FADE_DUR + 100; // 11100ms
 
     // Preload
     FLOWER_SRCS.forEach(src => { const i = new Image(); i.src = src; });
@@ -173,7 +170,7 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
       }
 
       const cardTopY = openingShape === "heart" ? cy + (isMobile ? 26 : 48) : cy;
-      const card = mkDiv(`position:absolute;top:${cardTopY}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1500ms ease,transform 1500ms cubic-bezier(.2,.8,.2,1),filter 1500ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "35%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
+      const card = mkDiv(`position:absolute;top:${cardTopY}px;left:${cx}px;transform:translate(-50%,-50%);z-index:300;text-align:center;pointer-events:none;opacity:0;filter:blur(4px);transition:opacity 1000ms ease,transform 1000ms cubic-bezier(.2,.8,.2,1),filter 1000ms ease;display:flex;flex-direction:column;align-items:center;width:${isMobile ? "55%" : "35%"};max-width:${maxWidth};box-sizing:border-box;padding:0 4px;`);
       const iS = `font-family:'Georgia',serif;font-style:italic;letter-spacing:.04em;line-height:1.3;font-size:${titleFontSize};color:rgba(90,55,30,.85);display:block;margin-bottom:${isMobile ? "4px" : "8px"};word-break:break-word;overflow-wrap:break-word;text-wrap:balance;text-align:center;max-width:100%;`;
       const nS = `font-family:'Georgia',serif;letter-spacing:.16em;text-transform:uppercase;font-size:${nameFontSize};color:rgba(60,35,20,.9);font-weight:500;display:block;text-shadow:0 1px 6px rgba(255,255,255,.9);word-break:break-word;overflow-wrap:break-word;max-width:100%;`;
       const dS = `width:${isMobile ? "24px" : "36px"};height:1px;background:rgba(100,60,20,.3);margin:${isMobile ? "4px auto 10px" : "8px auto 16px"};display:block;`;
@@ -191,7 +188,7 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
 
       setTimeout(() => {
         card.style.opacity="0"; card.style.filter="blur(4px)"; card.style.transform="translate(-50%,-60%)";
-        setTimeout(() => card.remove(), 1500);
+        setTimeout(() => card.remove(), 1000);
       }, TEXT_OUT_MS - TEXT_MS);
     }, TEXT_MS);
 
@@ -323,66 +320,17 @@ export default function FlowerBurst({ recipientName, senderName, onSwitchState, 
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 5. PETAL WATERFALL ── starts AFTER heart + name done (10500ms)
-    //    Petals rain from top at z-index 500, covering heart (200) + name (300)
-    //    After all petals clear the screen → overlay bg fades → card revealed
+    // 5. REVEAL CARD ── smooth dissolve of overlay after heart & name finish
     // ════════════════════════════════════════════════════════════════════════
     setTimeout(() => {
-      const PETAL_COUNT = 300;
-
-      for (let i = 0; i < PETAL_COUNT; i++) {
-        const sz       = 90 + Math.random() * 110;        // 90–200px (slightly bigger)
-        const startX   = Math.random() * (W + sz) - sz/2; // full width coverage
-        const fallDist = H + sz * 2.2;                    // distance to fall off bottom
-        const drift    = (Math.random() - 0.5) * 220;     // gentle left/right sway
-        const fallDur  = 2500 + Math.random() * (MAX_FALL_DUR - 2500); // 2.5–3.5s
-        const stagger  = Math.random() * WATERFALL_SPAN;  // 0–1.5s stagger (fast burst)
-        const swayMid  = drift * 0.4;
-
-        const petal = mkDiv(`
-          position:absolute;
-          left:${startX}px;
-          top:${-sz}px;
-          width:${sz}px;height:${sz}px;
-          pointer-events:none;
-          z-index:500;
-          will-change:transform,opacity;
-        `);
-
-        const spin    = Math.random() > 0.5 ? "_fi-cw" : "_fi-ccw";
-        const spinSpd = (2.5 + Math.random() * 4.5).toFixed(1);
-        petal.appendChild(mkImg(FLOWER_SRCS[i % FLOWER_SRCS.length], spin, spinSpd));
-        el.appendChild(petal);
-
-        petal.animate(
-          [
-            { transform: `translateY(0px) translateX(0px)`,                          opacity: 0 },
-            { transform: `translateY(${fallDist*.06}px) translateX(${drift*.2}px)`,  opacity: 1,   offset: 0.06 },
-            { transform: `translateY(${fallDist*.5}px) translateX(${swayMid}px)`,   opacity: 1,   offset: 0.5  },
-            { transform: `translateY(${fallDist*.9}px) translateX(${drift}px)`,     opacity: 0.8, offset: 0.9  },
-            { transform: `translateY(${fallDist}px) translateX(${drift}px)`,        opacity: 0 },
-          ],
-          {
-            duration: fallDur,
-            delay:    stagger,
-            easing:   "ease-in",
-            fill:     "both",
-          }
-        );
-      }
-
-      // After last petal clears screen → fade overlay → card revealed
-      setTimeout(() => {
-        el.animate(
-          [
-            { backgroundColor: theme.bg },
-            { backgroundColor: "transparent" },
-          ],
-          { duration: BG_FADE_DUR, easing: "ease-out", fill: "both" }
-        );
-      }, WATERFALL_SPAN + MAX_FALL_DUR);
-
-    }, WATERFALL_START);
+      el.animate(
+        [
+          { opacity: 1 },
+          { opacity: 0 },
+        ],
+        { duration: BG_FADE_DUR, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "both" }
+      );
+    }, BG_FADE_START);
 
     // ── Cleanup ───────────────────────────────────────────────────────────
     setTimeout(() => { el.innerHTML = ""; onDone(); }, RESOLVE_MS);
